@@ -42,15 +42,15 @@ function Search() {
         setLoading(false);
       }
     }
+    if(debounceSearch) searchMovies();
 
-    searchMovies();
   }, [debounceSearch]);
 
 
 
   return (
     <>
-      {isLoading && <p>'Loading...'</p>}
+      {isLoading && search && <p>'Loading...'</p>}
       <label htmlFor="search">Find a movie</label>
       <input value={search} id="search" onChange={(e) => setSearch(e.target.value)} />
       {search != '' && !isLoading && !error && (

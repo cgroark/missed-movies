@@ -9,7 +9,7 @@ export interface movieSummary {
 export interface movie extends movieSummary {
   overview: string,
   genre_ids: number[],
-  user_id: number,
+  user_id: string | undefined,
 }
 export interface JSONSearchResults {
   page: number,

@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+
 import type { movie } from "../types/types";
 
 
@@ -16,6 +18,7 @@ function Movie ({movie}: {movie: movie}) {
 
   const saveMovie = async (movie: movie) => {
     setLoading(true);
+    const userId = (await supabase.auth.getUser()).data.user?.id;
 
     const movieItem: movie = {
       id: movie.id,
@@ -24,7 +27,9 @@ function Movie ({movie}: {movie: movie}) {
       poster_path: movie.poster_path,
       overview: movie.overview,
       genre_ids: movie.genre_ids,
+      user_id: userId,
     }
+
     console.log('movie', movieItem);
 
     try {

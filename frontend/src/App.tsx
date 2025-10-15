@@ -1,17 +1,37 @@
+import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Header from './components/Header';
-import Search from './components/Search';
-import MyMovies from './components/MyMovies';
+import Home from './components/Home';
+import SignUp from './components/SignUp';
 
-function App() {
+function AppContent() {
 
   return (
     <>
       <Header />
-      <MyMovies />
-      <Search />
+      <Routes>
+        <Route path='/' element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+          } />
+        <Route path='/login' element={<SignUp />} />
+      </Routes>
     </>
   )
 }
 
-export default App
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  )
+}
+
+export default App;
