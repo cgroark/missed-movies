@@ -7,13 +7,12 @@ const MovieItems = styled.ul`
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
+  justify-content: space-between;
+  gap: 25px;
 `
 function MovieList({data}: {data: movie[]}) {
   return (
     <>
-      <h3>Results</h3>
       <MovieItems>
         {data.map((movie) =>
           movie.poster_path &&

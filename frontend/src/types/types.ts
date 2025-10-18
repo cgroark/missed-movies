@@ -4,6 +4,8 @@ export interface movieSummary {
   title: string,
   release_date: Date,
   poster_path: string,
+  category: number,
+  status: number,
 }
 
 export interface movie extends movieSummary {
@@ -16,4 +18,9 @@ export interface JSONSearchResults {
   results: movie[],
   total_pages: number,
   total_results: number,
+}
+
+export interface category {
+  id: number,
+  name: string,
 }

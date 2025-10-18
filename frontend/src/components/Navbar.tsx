@@ -1,9 +1,13 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
+import '../index.css';
+
+import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
+
 
 const Nav = styled.nav`
   display: flex;
-  justify-content: end;
+  justify-content: center;
 
   @media (max-width: 576px) {
     justify-content: center;
@@ -13,11 +17,12 @@ const Nav = styled.nav`
 const NavList = styled.ul`
   list-style: none;
   padding-left: 0;
+  display: flex;
+  gap: 15px;
 `;
 
 const NavItem = styled.li`
   display: inline-block;
-  padding-left: 25px;
 
   @media (max-width: 768px) {
     padding-left: 10px;
@@ -33,14 +38,16 @@ const StyledNavLink = styled(NavLink)`
   border-bottom: 4px solid transparent;
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
+  color: var(--offWhite);
+  font-size: 20px;
 
-  @media (max-width: 768px) {
-    gap: 2px;
+  &:hover {
+    color: var(--offWhite);
+    border-bottom: 4px solid var(--teal);
+  }
 
-    svg {
-      width: 20px !important;
-      height: 20px !important;
-    }
+  &.active {
+    border-bottom: 4px solid var(--pink);
   }
 `;
 
@@ -50,12 +57,12 @@ function Navbar() {
           <NavList>
             <NavItem>
               <StyledNavLink to="/" end>
-                Home
+                Your Movies<FilmStripIcon size={24} />
               </StyledNavLink>
             </NavItem>
             <NavItem>
-              <StyledNavLink to="/sign-up">
-                Sign Up
+              <StyledNavLink to="/search">
+                Find Movies<MagnifyingGlassPlusIcon size={24} />
               </StyledNavLink>
             </NavItem>
           </NavList>

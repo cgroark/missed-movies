@@ -4,6 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from './components/Header';
 import Home from './components/Home';
+import Search from './components/Search';
 import SignUp from './components/SignUp';
 
 function AppContent() {
@@ -15,6 +16,11 @@ function AppContent() {
         <Route path='/' element={
           <ProtectedRoute>
             <Home />
+          </ProtectedRoute>
+          } />
+        <Route path='/search' element={
+          <ProtectedRoute>
+            <Search />
           </ProtectedRoute>
           } />
         <Route path='/login' element={<SignUp />} />

@@ -5,7 +5,6 @@ function Home() {
   return (
     <>
       <MyMovies />
-      <Search />
     </>
   )
 }
