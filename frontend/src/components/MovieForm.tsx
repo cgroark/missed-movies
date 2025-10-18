@@ -71,9 +71,9 @@ const StyledLink = styled(Link)`
 function MovieForm({currentMovie}: formProps) {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isSaved, setSaved] = useState<boolean>(false)
-  const [category, setCategory] = useState<number>(1);
+  const [category, setCategory] = useState<number | ''>('');
   const [categories, setCategories] = useState<category[]>([]);
-  const [status, setStatus] = useState<number>(1);
+  const [status, setStatus] = useState<number | ''>('');
 
   useEffect(() => {
       const getCategories = async () => {
@@ -154,9 +154,10 @@ function MovieForm({currentMovie}: formProps) {
               Category
             </Label>
             <Select id='category' value={category} onChange={(e) => setCategory(Number(e.target.value))} >
-              <option disabled>Select Category</option>
-              <option value='1'>Missed Movies</option>
-              <option value='2'>For my kid when old enough</option>
+              <option disabled value=''>Select Category</option>
+              {categories.map((each: category) =>
+                <option value={each.id}>{each.name}</option>
+              )}
             </Select>
           </div>
           <div>
@@ -165,7 +166,7 @@ function MovieForm({currentMovie}: formProps) {
               Status
             </Label>
             <Select id='status' value={status} onChange={(e) => setStatus(Number(e.target.value))} >
-              <option disabled>Select Status</option>
+              <option disabled value=''>Select Status</option>
               <option value='1'>Want to watch</option>
               <option value='2'>Already watched</option>
             </Select>

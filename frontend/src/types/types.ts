@@ -4,8 +4,8 @@ export interface movieSummary {
   title: string,
   release_date: Date,
   poster_path: string,
-  category: number,
-  status: number,
+  category: number | '',
+  status: number | '',
 }
 
 export interface movie extends movieSummary {

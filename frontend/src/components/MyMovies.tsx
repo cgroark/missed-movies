@@ -110,7 +110,7 @@ function MyMovies() {
       <h2>My Movies</h2>
       {isLoading && <Loader size='large' /> }
       {!isLoading && (
-        myMovies.length ?
+        filteredMovies.length ?
         <>
           {categories.length && (
             <div>
