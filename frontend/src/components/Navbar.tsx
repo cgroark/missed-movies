@@ -7,7 +7,7 @@ import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
 
 const Nav = styled.nav`
   display: flex;
-  justify-content: center;
+  justify-content: end;
 
   @media (max-width: 576px) {
     justify-content: center;

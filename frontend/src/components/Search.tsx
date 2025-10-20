@@ -43,7 +43,7 @@ function Search() {
     console.log('header', options)
     const searchMovies = async () => {
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/search/movie?limit=5&query=${debounceSearch}`, options);
+        const res = await fetch(`https://api.themoviedb.org/3/search/movie?&query=${debounceSearch}`, options);
         if(!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
         setMovies(data.results.slice(0,5));

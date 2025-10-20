@@ -13,7 +13,7 @@ const CategoryList = styled.ul`
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
   gap: 15px;
   margin-bottom: 40px;
@@ -113,23 +113,8 @@ function MyMovies() {
     getMovies();
   }, [activeCategory]);
 
-  // useEffect(() => {
-  //   if(activeCategory !== null) {
-  //     const filtered = myMovies.filter((each) => each.category === activeCategory);
-  //     setFilteredMovies(filtered);
-  //   } else {
-  //     setFilteredMovies(myMovies);
-  //   }
-  // }, [myMovies, activeCategory])
-
-  const updateCategory = (id: number) => {
-    console.log(id);
-    setActiveCategory(id);
-  };
-
   return (
     <>
-      <h2>My Movies</h2>
       {isLoading && <Loader size='large' /> }
           {!isLoading && categories.length && (
             <div>
@@ -137,7 +122,7 @@ function MyMovies() {
                 {categories.map((each: category) =>
                    <li key={each.id}>
                     <CategoryButton
-                      onClick={() => updateCategory(each.id)}
+                      onClick={() => setActiveCategory(each.id)}
                       className={ activeCategory === each.id ? 'active' : ''}
                     >
                       {each.name}

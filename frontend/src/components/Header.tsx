@@ -9,6 +9,7 @@ const Heading = styled.div`
   justify-content: center;
   align-items: center;
   gap: 15px;
+  font-size: 30px;
 `
 
 function Header() {
@@ -17,14 +18,15 @@ function Header() {
     const isLoginPage = location.pathname === "/login";
   return (
     <>
+      {user && !isLoginPage && <Navbar />}
       <div style={{marginBottom: '50px'}}>
         <Heading>
           <h1 style={{margin: 0}}>Missed Movies</h1>
-          <FilmReelIcon size={48} />
+          <FilmReelIcon size={90} />
         </Heading>
-      <p>Keep track of all those movies you've been meaning to watch</p>
+      <h2>Keep track of all those movies you've been meaning to watch</h2>
       </div>
-      {user && !isLoginPage && <Navbar />}
+
     </>
   )
 }

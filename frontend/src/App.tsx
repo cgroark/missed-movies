@@ -4,7 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from './components/Header';
 import Home from './components/Home';
-import Search from './components/Search';
+import FindMovies from './components/FindMovies';
 import SignUp from './components/SignUp';
 
 function AppContent() {
@@ -20,7 +20,7 @@ function AppContent() {
           } />
         <Route path='/search' element={
           <ProtectedRoute>
-            <Search />
+            <FindMovies />
           </ProtectedRoute>
           } />
         <Route path='/login' element={<SignUp />} />
