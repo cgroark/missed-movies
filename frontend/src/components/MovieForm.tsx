@@ -64,8 +64,6 @@ const StyledLink = styled(Link)`
      background-color: var(--darkTeal);
      color: var(--offWhite);
   }
-
-
 `
 
 function MovieForm({currentMovie}: formProps) {

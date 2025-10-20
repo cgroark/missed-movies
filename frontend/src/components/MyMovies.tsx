@@ -1,5 +1,7 @@
-import { useState, useEffect, act } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
+import { FilmStripIcon } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
 import type { movie, category } from "../types/types";
 import MovieList from "./MovieList";
@@ -32,11 +34,32 @@ const CategoryButton = styled.button`
   }
 `
 
+const StyledLink = styled(Link)`
+  background-color: var(--teal);
+  display: flex;
+  margin: 25px auto 10px;
+  gap: 5px;
+  align-items: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.4em 1.4em;
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--offWhite);
+  width: fit-content;
+  transition: all 0.3s ease;
+
+  &:hover {
+     background-color: var(--darkTeal);
+     color: var(--offWhite);
+  }
+`
+
 function MyMovies() {
   const [myMovies, setMyMovies] = useState<movie[]>([]);
   const [filteredMovies, setFilteredMovies] = useState<movie[]>([]);
   const [categories, setCategories] = useState<category[]>([]);
-  const [activeCategory, setActiveCategory] = useState<number | null>(null);
+  const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [isLoading, setLoading] = useState<boolean>(false);
   const { token } = useAuth();
 
@@ -64,11 +87,11 @@ function MyMovies() {
   }, [])
 
   useEffect(() => {
-    const getMovies = async (category?: number) => {
+    const getMovies = async () => {
       setLoading(true);
       try {
         const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies`);
-        if (category) url.searchParams.append('category', String(category));
+        if (activeCategory) url.searchParams.append('category', String(activeCategory));
         const res = await fetch(url, {
           method: 'GET',
           headers: {
@@ -78,7 +101,6 @@ function MyMovies() {
         });
         if(!res.ok) throw new Error('Failed to get your movies');
         const data: movie[] = await res.json();
-        setActiveCategory(data[0].category);
         setMyMovies(data);
       }
       catch (err: any) {
@@ -89,16 +111,16 @@ function MyMovies() {
       }
     }
     getMovies();
-  }, []);
+  }, [activeCategory]);
 
-  useEffect(() => {
-    if(activeCategory !== null) {
-      const filtered = myMovies.filter((each) => each.category === activeCategory);
-      setFilteredMovies(filtered);
-    } else {
-      setFilteredMovies(myMovies);
-    }
-  }, [myMovies, activeCategory])
+  // useEffect(() => {
+  //   if(activeCategory !== null) {
+  //     const filtered = myMovies.filter((each) => each.category === activeCategory);
+  //     setFilteredMovies(filtered);
+  //   } else {
+  //     setFilteredMovies(myMovies);
+  //   }
+  // }, [myMovies, activeCategory])
 
   const updateCategory = (id: number) => {
     console.log(id);
@@ -109,14 +131,10 @@ function MyMovies() {
     <>
       <h2>My Movies</h2>
       {isLoading && <Loader size='large' /> }
-      {!isLoading && (
-        filteredMovies.length ?
-        <>
-          {categories.length && (
+          {!isLoading && categories.length && (
             <div>
               <CategoryList>
                 {categories.map((each: category) =>
-                   myMovies.find((movie: movie) => movie.category === each.id) &&
                    <li key={each.id}>
                     <CategoryButton
                       onClick={() => updateCategory(each.id)}
@@ -129,9 +147,17 @@ function MyMovies() {
               </CategoryList>
             </div>
           )}
-        <MovieList data={filteredMovies}/>
+      {!isLoading && (
+            myMovies.length ?
+        <MovieList data={myMovies}/>
+        :
+        <>
+        <p>No movies in this category yet</p>
+        <StyledLink to='/search'>
+          Find movies
+          <FilmStripIcon size={24} />
+        </StyledLink>
         </>
-        : <p>You haven't added any movies yet</p>
       )
       }
     </>
