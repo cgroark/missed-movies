@@ -9,7 +9,7 @@ import Loader from "./Loader";
 import '../index.css';
 
 const CategoryList = styled.ul`
-  padding: 0;
+  padding: 0 20px;
   list-style: none;
   display: flex;
   flex-wrap: wrap;

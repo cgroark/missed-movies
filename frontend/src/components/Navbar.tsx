@@ -6,8 +6,11 @@ import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
 
 
 const Nav = styled.nav`
+  background: linear-gradient(315deg, var(--purple) 25%, var(--teal));
   display: flex;
-  justify-content: end;
+  justify-content: center;
+  padding: 5px 20px;
+  margin-bottom: 50px;
 
   @media (max-width: 576px) {
     justify-content: center;
@@ -19,6 +22,9 @@ const NavList = styled.ul`
   padding-left: 0;
   display: flex;
   gap: 15px;
+  max-width: 1280px;
+  justify-content: end;
+  width: 100%;
 `;
 
 const NavItem = styled.li`

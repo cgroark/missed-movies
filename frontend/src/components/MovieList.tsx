@@ -4,11 +4,13 @@ import Movie from "./Movie";
 
 const MovieItems = styled.ul`
   list-style: none;
-  padding: 0;
+  padding: 10px 20px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 25px;
+  max-width: 1280px;
+  margin: auto;
 `
 function MovieList({data}: {data: movie[]}) {
   return (

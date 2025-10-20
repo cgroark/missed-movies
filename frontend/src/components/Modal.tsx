@@ -57,7 +57,7 @@ const CloseButton = styled(Dialog.Close)`
 `;
 
 const OpenButton = styled.div`
-  background-color: var(--pink);
+  background-color: var(--purple);
   border-radius: 50%;
   padding-top: .25rem;
   margin: -30px 0 0 150px;
