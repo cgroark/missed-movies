@@ -75,8 +75,6 @@ function MovieForm({currentMovie}: formProps) {
 
   useEffect(() => {
       const getCategories = async () => {
-        setLoading(true);
-
         try {
           const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
             method: 'GET',
@@ -89,8 +87,6 @@ function MovieForm({currentMovie}: formProps) {
           setCategories(data);
         } catch (err: any) {
             console.log('err', err);
-        } finally {
-          setLoading(false);
         }
       }
       getCategories();

@@ -60,7 +60,7 @@ const OpenButton = styled.div`
   background-color: var(--pink);
   border-radius: 50%;
   padding-top: .25rem;
-  margin: -30px 0 0 120px;
+  margin: -30px 0 0 150px;
   width: 35px;
   height: 30px;
   border: solid 2px #050505;
