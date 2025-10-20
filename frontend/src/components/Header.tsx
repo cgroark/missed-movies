@@ -31,7 +31,7 @@ const SubHeading = styled.h2`
   gap: 15px;
   flex-wrap: wrap;
   padding: 0 10px;
-  font-size: clamp(1rem, 4vw + .5rem, 2rem);
+  font-size: clamp(.8rem, 3vw + .5rem, 1rem);
 `
 
 const Line = styled.hr`

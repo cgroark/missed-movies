@@ -68,9 +68,13 @@ const OpenButton = styled.div`
   cursor: pointer;
   transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 
+  @media (max-width: 768px) {
+    margin: -30px 0 0 80px;
+  }
+
   &:hover {
-      transform: scale(1.1);
-    }
+    transform: scale(1.1);
+  }
 `
 
 function Modal({action, movie}: ModalProps) {

@@ -6,6 +6,13 @@ import styled from "styled-components";
 import '../index.css';
 import AccordionSection from "./Accordion";
 
+const MovieWrapper = styled.div`
+  max-width: 180px;
+
+  @media (max-width: 768px) {
+    max-width: 110px;
+  }
+`
 const MovieItem = styled.div`
   img {
     width: 100%;
@@ -39,6 +46,9 @@ const CheckIcon = styled(CheckFatIcon)`
   position: absolute;
   transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 
+  @media (max-width: 768px) {
+      margin: -8px 0 0 -70px;
+  }
 `
 
 function Movie ({movie}: {movie: movie}) {
@@ -47,7 +57,7 @@ function Movie ({movie}: {movie: movie}) {
   const overview = `${movie.release_date.split('-')[0]} - ${movie.overview}`
   return (
     <>
-    <div style={{maxWidth: '180px'}}>
+    <MovieWrapper>
       {movie.status === 2 && <CheckIcon />}
       <MovieItem>
         <div className={movie.status === 2 ? 'watched' : ''}>
@@ -58,7 +68,7 @@ function Movie ({movie}: {movie: movie}) {
         action={isSearchPage ? 'add' : 'edit'} movie={movie}
       />
       <AccordionSection title="Details" content={overview} />
-    </div>
+    </MovieWrapper>
     </>
   )
 }
