@@ -2,7 +2,7 @@
 export interface movieSummary {
   id: number,
   title: string,
-  release_date: Date,
+  release_date: string,
   poster_path: string,
   category: number | '',
   status: number | '',

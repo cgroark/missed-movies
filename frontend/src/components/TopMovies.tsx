@@ -25,8 +25,7 @@ const CategoryButton = styled.button`
   transition: all 0.3s ease;
 
   &.active, &:hover {
-    background-color: var(--pink);
-    color: var(--lightBlack);
+    background-color: var(--teal);
   }
 `
 
