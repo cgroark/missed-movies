@@ -57,7 +57,6 @@ const StyledLink = styled(Link)`
 
 function MyMovies() {
   const [myMovies, setMyMovies] = useState<movie[]>([]);
-  const [filteredMovies, setFilteredMovies] = useState<movie[]>([]);
   const [categories, setCategories] = useState<category[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [isLoading, setLoading] = useState<boolean>(false);

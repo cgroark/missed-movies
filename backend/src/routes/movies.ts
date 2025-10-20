@@ -25,6 +25,33 @@ movieRouter.post('/', async (req, res ) => {
   }
 })
 
+movieRouter.patch('/:id', async (req, res ) => {
+  try {
+    const { id } = req.params;
+    const movieItem: Partial<movie> = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    const { data, error } = await supabase
+      .from('movies')
+      .update([movieItem])
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'Movie not found' });
+    }
+    res.status(201).json(data[0]);
+
+  } catch (error: any) {
+    res.status(500).json({error: error.message})
+  }
+})
+
 movieRouter.get('/', async (_req, res) => {
   try {
     const authHeader = _req.headers.authorization;

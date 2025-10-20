@@ -9,7 +9,7 @@ const Nav = styled.nav`
   background: linear-gradient(315deg, var(--purple) 25%, var(--teal));
   display: flex;
   justify-content: center;
-  padding: 5px 20px;
+  padding: 0 20px;
   margin-bottom: 50px;
 
   @media (max-width: 576px) {
@@ -45,7 +45,8 @@ const StyledNavLink = styled(NavLink)`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   color: var(--offWhite);
-  font-size: 20px;
+  font-size: clamp(.75rem, 3vw + .25rem, 1.25rem);
+
 
   &:hover {
     color: var(--offWhite);

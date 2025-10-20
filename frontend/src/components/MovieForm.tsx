@@ -66,7 +66,7 @@ const StyledLink = styled(Link)`
   }
 `
 
-function MovieForm({currentMovie}: formProps) {
+function MovieForm({currentMovie, action}: formProps) {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isSaved, setSaved] = useState<boolean>(false)
   const [category, setCategory] = useState<number | ''>('');
@@ -92,12 +92,27 @@ function MovieForm({currentMovie}: formProps) {
       getCategories();
     }, [])
 
+    useEffect(() => {
+      if (currentMovie?.status) {
+        setStatus(currentMovie.status);
+        setCategory(currentMovie.category);
+      }
+    }, [currentMovie])
+
   const saveMovie = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     const userId = (await supabase.auth.getUser()).data.user?.id;
     if(currentMovie) {
-      const movieItem: movie = {
+
+      const movieItem: movie | Partial<movie> = action === 'edit' ?
+      {
+        id: currentMovie.id,
+        category: category,
+        status: status,
+      }
+      :
+      {
         id: currentMovie.id,
         title: currentMovie.title,
         release_date: currentMovie.release_date,
@@ -108,12 +123,14 @@ function MovieForm({currentMovie}: formProps) {
         status: status,
         category: category,
       }
-
-          console.log('movie', movieItem);
+      console.log('movie', movieItem);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/movies`, {
-        method: 'POST',
+      const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
+      if (action === 'edit') url.pathname += `/${movieItem.id}`;
+
+      const res = await fetch(url, {
+        method: action === 'add' ? 'POST' : 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Prefer': 'return=representation'

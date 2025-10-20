@@ -10,7 +10,7 @@ const MovieItems = styled.ul`
   justify-content: space-around;
   gap: 25px;
   max-width: 1280px;
-  margin: auto;
+  margin: 10px auto 150px;
 `
 function MovieList({data}: {data: movie[]}) {
   return (
