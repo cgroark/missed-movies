@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import type { movie, category } from "../types/types";
-import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, FilmStripIcon } from '@phosphor-icons/react';
+import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon } from '@phosphor-icons/react';
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useMovies } from "../context/MoviesContext";
+import { useToast } from '../context/ToastContext';
 import '../index.css';
 import Loader from "./Loader";
 
 interface formProps {
-  currentMovie: movie | undefined,
-  action: 'add' | 'edit',
+  currentMovie: movie | undefined;
+  action: 'add' | 'edit';
+  onClose: () =>  void;
 }
 
 const Label = styled.label`
@@ -28,7 +30,7 @@ const Select = styled.select`
   border-radius: 4px;
   border: 1px solid var(--lightBlack);
   background-color: white;
-  color: var(--lightBlack)
+  color: var(--lightBlack);
   min-height: 30px;
   padding: 5px;
 `
@@ -67,12 +69,12 @@ const StyledLink = styled(Link)`
   }
 `
 
-function MovieForm({currentMovie, action}: formProps) {
-  const { isLoading, error, saveMovie } = useMovies();
+function MovieForm({currentMovie, action, onClose}: formProps) {
+  const { isLoading, error, saveMovie, getMovies } = useMovies();
+  const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
   const [categories, setCategories] = useState<category[]>([]);
   const [status, setStatus] = useState<number | ''>('');
-  const [isSaved, setSaved] = useState<boolean>(false);
 
   useEffect(() => {
       const getCategories = async () => {
@@ -102,7 +104,6 @@ function MovieForm({currentMovie, action}: formProps) {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(false)
     const userId = (await supabase.auth.getUser()).data.user?.id;
     if(currentMovie) {
       const movieItem: movie | Partial<movie> = action === 'edit' ?
@@ -125,7 +126,13 @@ function MovieForm({currentMovie, action}: formProps) {
       }
       console.log('movie', movieItem);
       await saveMovie(movieItem, action);
-      setSaved(true);
+      showToast(
+        action === 'edit'
+          ? `${currentMovie?.title} updated successfully`
+          : `${currentMovie?.title} added to your movies`
+      );
+      onClose();
+      getMovies(1);
       }
 
 
@@ -134,7 +141,6 @@ function MovieForm({currentMovie, action}: formProps) {
   return (
     <>
       <div>
-        {!isSaved ? (
         <form onSubmit={save}>
           <div>
             <Label htmlFor='category'>
@@ -168,17 +174,6 @@ function MovieForm({currentMovie, action}: formProps) {
             }
           </Button>
         </form>
-        ) :
-        <div style={{textAlign: 'center'}}>
-          <p>Saved
-            <strong><em> {currentMovie?.title} </em></strong>
-            Successfully!</p>
-          <StyledLink to="/">
-            View all movies
-            <FilmStripIcon size={24} />
-          </StyledLink>
-        </div>
-        }
       </div>
     </>
   )

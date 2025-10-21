@@ -2,6 +2,7 @@ import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from "./context/AuthContext";
 import { MovieProvider } from './context/MoviesContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from './components/Header';
 import Home from './components/Home';
@@ -35,9 +36,11 @@ function App() {
   return (
     <AuthProvider>
       <MovieProvider>
-        <Router>
-          <AppContent />
-        </Router>
+        <ToastProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </ToastProvider>
       </MovieProvider>
     </AuthProvider>
   )

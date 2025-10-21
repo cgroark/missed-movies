@@ -86,6 +86,9 @@ function Modal({action, movie}: ModalProps) {
     if (movie) setCurrentMovie(movie);
   }, [movie]);
 
+  const handleClose = () => setOpen(false);
+
+
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
@@ -110,6 +113,7 @@ function Modal({action, movie}: ModalProps) {
             <MovieForm
               currentMovie={currentMovie}
               action={action}
+              onClose={handleClose}
             />
           </Description>
         </Content>
