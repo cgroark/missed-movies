@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { FilmStripIcon } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
+import { useMovies } from "../context/MoviesContext";
 import type { movie, category } from "../types/types";
 import MovieList from "./MovieList";
 import Loader from "./Loader";
@@ -56,10 +57,11 @@ const StyledLink = styled(Link)`
 `
 
 function MyMovies() {
-  const [myMovies, setMyMovies] = useState<movie[]>([]);
+  const { movies, isLoading, error, getMovies } = useMovies();
+  // const [myMovies, setMyMovies] = useState<movie[]>([]);
   const [categories, setCategories] = useState<category[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [categoryLoading, setLoading] = useState<boolean>(false);
   const { token } = useAuth();
 
   useEffect(() => {
@@ -86,36 +88,13 @@ function MyMovies() {
   }, [])
 
   useEffect(() => {
-    const getMovies = async () => {
-      setLoading(true);
-      try {
-        const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies`);
-        if (activeCategory) url.searchParams.append('category', String(activeCategory));
-        const res = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(!res.ok) throw new Error('Failed to get your movies');
-        const data: movie[] = await res.json();
-        setMyMovies(data);
-      }
-      catch (err: any) {
-        console.log('err', err);
-      }
-      finally {
-        setLoading(false);
-      }
-    }
-    getMovies();
+     getMovies(activeCategory);
   }, [activeCategory]);
 
   return (
     <>
       {isLoading && <Loader size='large' /> }
-          {!isLoading && categories.length && (
+          {!categoryLoading && categories.length && (
             <div>
               <CategoryList>
                 {categories.map((each: category) =>
@@ -132,8 +111,8 @@ function MyMovies() {
             </div>
           )}
       {!isLoading && (
-            myMovies.length ?
-        <MovieList data={myMovies}/>
+            movies.length ?
+        <MovieList data={movies}/>
         :
         <>
         <p>No movies in this category yet</p>

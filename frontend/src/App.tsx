@@ -1,6 +1,7 @@
 import { Routes, Route, BrowserRouter as Router } from 'react-router-dom';
 import './App.css';
 import { AuthProvider } from "./context/AuthContext";
+import { MovieProvider } from './context/MoviesContext';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Header from './components/Header';
 import Home from './components/Home';
@@ -33,9 +34,11 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <MovieProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </MovieProvider>
     </AuthProvider>
   )
 }

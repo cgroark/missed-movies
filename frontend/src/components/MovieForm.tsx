@@ -4,6 +4,7 @@ import type { movie, category } from "../types/types";
 import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, FilmStripIcon } from '@phosphor-icons/react';
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import { useMovies } from "../context/MoviesContext";
 import '../index.css';
 import Loader from "./Loader";
 
@@ -67,11 +68,11 @@ const StyledLink = styled(Link)`
 `
 
 function MovieForm({currentMovie, action}: formProps) {
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [isSaved, setSaved] = useState<boolean>(false)
+  const { isLoading, error, saveMovie } = useMovies();
   const [category, setCategory] = useState<number | ''>('');
   const [categories, setCategories] = useState<category[]>([]);
   const [status, setStatus] = useState<number | ''>('');
+  const [isSaved, setSaved] = useState<boolean>(false);
 
   useEffect(() => {
       const getCategories = async () => {
@@ -99,12 +100,11 @@ function MovieForm({currentMovie, action}: formProps) {
       }
     }, [currentMovie])
 
-  const saveMovie = async (e: React.FormEvent) => {
+  const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSaved(false)
     const userId = (await supabase.auth.getUser()).data.user?.id;
     if(currentMovie) {
-
       const movieItem: movie | Partial<movie> = action === 'edit' ?
       {
         id: currentMovie.id,
@@ -124,41 +124,18 @@ function MovieForm({currentMovie, action}: formProps) {
         category: category,
       }
       console.log('movie', movieItem);
-
-    try {
-      const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
-      if (action === 'edit') url.pathname += `/${movieItem.id}`;
-
-      const res = await fetch(url, {
-        method: action === 'add' ? 'POST' : 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify(movieItem)
-      });
-
-      if(!res.ok) throw new Error('Failed to save movie');
-      const data = await res.json();
+      await saveMovie(movieItem, action);
       setSaved(true);
-      console.log('saved', data);
-    }
-    catch (err: any) {
-      console.log('err', err)
-    }
-    finally {
-      setLoading(false);
-    }
-    }
-
+      }
 
 
   }
+
   return (
     <>
       <div>
         {!isSaved ? (
-        <form onSubmit={saveMovie}>
+        <form onSubmit={save}>
           <div>
             <Label htmlFor='category'>
               <FileVideoIcon size={24} />
@@ -167,7 +144,7 @@ function MovieForm({currentMovie, action}: formProps) {
             <Select id='category' value={category} onChange={(e) => setCategory(Number(e.target.value))} >
               <option disabled value=''>Select Category</option>
               {categories.map((each: category) =>
-                <option value={each.id}>{each.name}</option>
+                <option key={each.id} value={each.id}>{each.name}</option>
               )}
             </Select>
           </div>
