@@ -38,12 +38,8 @@ const Content = styled(Dialog.Content)`
 
 const Title = styled(Dialog.Title)`
   font-size: 1.5rem;
-  margin: 0;
-`;
-
-const Description = styled(Dialog.Description)`
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
+  margin: 0 0 20px 0;
+  text-align: center;
 `;
 
 const CloseButton = styled(Dialog.Close)`
@@ -61,7 +57,6 @@ const CloseButton = styled(Dialog.Close)`
 
 function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
 
-  // const [open, setOpen] = useState(false);
   const [currentMovie, setCurrentMovie] = useState<movie | undefined>(movie);
 
   useEffect(() => {
@@ -70,24 +65,20 @@ function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
 
   const handleClose = () => onOpenChange(false);
 
-
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Overlay />
-        <Content>
+        <Content aria-describedby={undefined}>
           <CloseButton><XCircleIcon size={32} /></CloseButton>
-          <Title style={{display: 'flex', justifyContent: 'center', gap: '15px'}}>
-              <FilmReelIcon size={32} />
+          <Title>
               <em>{currentMovie?.title}</em>
           </Title>
-          <Description>
-            <MovieForm
-              currentMovie={currentMovie}
-              action={action}
-              onClose={handleClose}
+          <MovieForm
+            currentMovie={currentMovie}
+            action={action}
+            onClose={handleClose}
             />
-          </Description>
         </Content>
       </Dialog.Portal>
     </Dialog.Root>

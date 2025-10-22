@@ -84,10 +84,21 @@ function SignUp() {
       setError('Passwords do not match');
       return;
     }
-    if (mode === 'login') await signIn(email, password);
-    else await signUp(email, password);
-    if (!authError && mode === 'login') navigate('/');
-    else if (!authError && mode === 'signup') setMessage('Success! Check for email from Supabase to confirm account')
+    if (mode === 'login') {
+      const { success, error: loginError } = await signIn(email, password);
+      if(!success) {
+        setError(loginError ?? 'unknown error');
+        return;
+      }
+      navigate('/');
+    } else {
+      const { success, error: loginError } = await signUp(email, password);
+      if(!success) {
+        setError(loginError ?? 'unknown error');
+        return;
+      }
+      setMessage('Success! Check for email from Supabase to confirm account')
+    }
   };
 
   return (

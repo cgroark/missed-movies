@@ -7,9 +7,9 @@ interface AuthContextType {
   token: string |null;
   isLoading: boolean;
   authError: string;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{success: boolean, error?: string}>,
+  signUp: (email: string, password: string) => Promise<{success: boolean, error?: string}>,
+  signOut: () => Promise<{success: boolean, error?: string}>,
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,40 +41,60 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<{success: boolean, error?: string}> => {
+    setAuthError('');
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       setUser(data.user);
       setToken(data.session?.access_token ?? null);
+      return {success: true};
     } catch (err: any) {
-      console.error(err);
-      setAuthError(err instanceof Error ? err.message : String(err))
+      const message = err instanceof Error ? err.message : String(err);
+      setAuthError(err instanceof Error ? err.message : String(err));
+      return {success: false, error: message}
     } finally {
       setLoading(false);
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string): Promise<{success: boolean, error?: string}> => {
+    setAuthError('');
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       setUser(data.user);
       setToken(data.session?.access_token ?? null);
+      return {success: true};
     } catch (err: any) {
-      console.error(err);
-      setAuthError(err instanceof Error ? err.message : String(err))
+      const message = err instanceof Error ? err.message : String(err);
+      setAuthError(err instanceof Error ? err.message : String(err));
+      return {success: false, error: message}
     } finally {
       setLoading(false);
     }
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setToken(null);
+  const signOut = async (): Promise<{success: boolean, error?: string}> => {
+    setAuthError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+      setToken(null);
+      console.log('data signout')
+      return {success: true};
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setAuthError(err instanceof Error ? err.message : String(err));
+      return {success: false, error: message}
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   return (

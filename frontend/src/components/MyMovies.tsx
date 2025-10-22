@@ -141,14 +141,14 @@ function MyMovies() {
         </>
       )}
       {open && (
-          <Modal
-            open={open}
-            movie={selectedMovie || ({} as movie)}
-            action={modalAction}
-            onOpenChange={setOpen}
-            onAfterSave={handleAfterSave}
-          />
-        )}
+        <Modal
+          open={open}
+          movie={selectedMovie || ({} as movie)}
+          action={modalAction}
+          onOpenChange={setOpen}
+          onAfterSave={handleAfterSave}
+        />
+      )}
     </>
   )
 }

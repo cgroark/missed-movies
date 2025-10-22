@@ -9,7 +9,10 @@ movieRouter.post('/', async (req, res ) => {
     const movieItem: movie = req.body;
 
     if (!movieItem.title) {
-      return res.status(400).json({ error: 'Title is required' });
+      return res.status(400).json({
+        code: 'MISSING_TITLE',
+        error: 'Title is required',
+      });
     }
 
     const { data, error } = await supabase
@@ -20,8 +23,18 @@ movieRouter.post('/', async (req, res ) => {
     if (error) throw error;
     res.status(201).json(data[0]);
 
-  } catch (error: any) {
-    res.status(500).json({error: error.message})
+  } catch (err: any) {
+    if (err.message?.includes('duplicate key value')) {
+      return res.status(409).json({
+        code: 'DUPLICATE_MOVIE',
+        error: 'This movie already exists in your list.',
+      });
+    }
+
+    res.status(500).json({
+      code: 'INTERNAL_ERROR',
+      error: err.message || 'Something went wrong while saving the movie.',
+    });
   }
 });
 
@@ -31,7 +44,10 @@ movieRouter.patch('/:id', async (req, res ) => {
     const movieItem: Partial<movie> = req.body;
 
     if (!id) {
-      return res.status(400).json({ error: 'ID is required' });
+      return res.status(400).json({
+        code: 'MISSING_ID',
+        error: 'ID is required',
+      });
     }
 
     const { data, error } = await supabase
@@ -41,14 +57,19 @@ movieRouter.patch('/:id', async (req, res ) => {
       .select();
 
     if (error) throw error;
-    if (error) throw error;
     if (!data || data.length === 0) {
-      return res.status(404).json({ error: 'Movie not found' });
+      return res.status(404).json({
+        code: 'NOT_FOUND',
+        error: 'Movie not found',
+      });
     }
     res.status(201).json(data[0]);
 
-  } catch (error: any) {
-    res.status(500).json({error: error.message})
+  } catch (err: any) {
+    res.status(500).json({
+      code: 'INTERNAL_ERROR',
+      error: err.message || 'Error saving this movie.',
+    });
   }
 });
 
@@ -92,7 +113,10 @@ movieRouter.delete('/:id', async (req, res ) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ error: 'Title is required' });
+      return res.status(400).json({
+        code: 'MISSING_ID',
+        error: 'Id is required',
+      });
     }
 
     const { data, error } = await supabase
@@ -104,8 +128,11 @@ movieRouter.delete('/:id', async (req, res ) => {
     if (error) throw error;
     res.status(201).json(data[0]);
 
-  } catch (error: any) {
-    res.status(500).json({error: error.message})
+  } catch (err: any) {
+    res.status(500).json({
+      code: 'INTERNAL_ERROR',
+      error: err.message || 'Unable to delete movie at this time.',
+    });
   }
 })
 
