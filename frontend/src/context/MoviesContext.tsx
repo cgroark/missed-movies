@@ -1,12 +1,12 @@
 import { createContext, useContext, useState } from "react";
-import type { movie } from "../types/types";
+import type { movie, SortOption } from "../types/types";
 import { useAuth } from "./AuthContext";
 
 interface MoviesContextType {
   movies: movie[],
   isLoading: boolean,
   error: string,
-  getMovies: (category: number | null) => Promise<void>,
+  getMovies: (category: number | null, sortBy?: SortOption) => Promise<void>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, error?: string}>,
   deleteMovie: (id: number) => Promise<{success: boolean, error?: string}>;
 }
@@ -19,12 +19,18 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
-  const getMovies = async (category: number | null) => {
+  const getMovies = async (category: number | null, sortBy?: SortOption | null) => {
     setLoading(true);
     setError('');
     try {
       const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies`);
       if (category) url.searchParams.append('category', String(category));
+      if (sortBy) {
+        console.log(sortBy);
+        url.searchParams.append('sortBy', sortBy.key);
+        url.searchParams.append('asc', String(sortBy.ascending));
+      }
+      console.log('URL', url)
       const res = await fetch(url, {
         method: 'GET',
         headers: {

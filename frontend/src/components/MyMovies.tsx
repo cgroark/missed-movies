@@ -1,14 +1,22 @@
-import { useState, useEffect } from "react";
-import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 import { FilmStripIcon } from '@phosphor-icons/react';
-import { useAuth } from '../context/AuthContext';
-import { useMovies } from "../context/MoviesContext";
-import type { movie, category } from "../types/types";
-import MovieList from "./MovieList";
-import Modal from "./Modal";
-import Loader from "./Loader";
+import { useMovies } from '../context/MoviesContext';
+import type { movie, category, SortOption } from '../types/types';
+import MovieList from './MovieList';
+import Modal from './Modal';
+import Loader from './Loader';
 import '../index.css';
+
+
+
+const sortOptions: SortOption[] = [
+  { value: 1, key: 'title', label: 'Title A–Z', ascending: true },
+  { value: 2, key: 'title', label: 'Title Z–A', ascending: false },
+  { value: 3, key: 'status', label: 'Status ↑', ascending: true },
+  { value: 4, key: 'status', label: 'Status ↓', ascending: false },
+];
 
 const CategoryList = styled.ul`
   padding: 0 20px;
@@ -56,6 +64,16 @@ const StyledLink = styled(Link)`
      color: var(--offWhite);
   }
 `
+const Select = styled.select`
+  text-align: left;
+  margin: 5px 0 20px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--lightBlack);
+  background-color: white;
+  color: var(--lightBlack);
+  min-height: 30px;
+  padding: 5px;
+`
 
 function MyMovies() {
   const { movies, isLoading, error, getMovies } = useMovies();
@@ -65,6 +83,8 @@ function MyMovies() {
   const [categories, setCategories] = useState<category[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [categoryLoading, setLoading] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<SortOption>(sortOptions[0]);
+
 
   useEffect(() => {
     const getCategories = async () => {
@@ -90,8 +110,8 @@ function MyMovies() {
   }, [])
 
   useEffect(() => {
-     getMovies(activeCategory);
-  }, [activeCategory]);
+     getMovies(activeCategory, sortBy);
+  }, [activeCategory, sortBy]);
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -109,6 +129,12 @@ function MyMovies() {
     await getMovies(1);
     setOpen(false);
   };
+
+const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const selectedValue = Number(e.target.value);
+  const selectedSort = sortOptions.find(opt => opt.value === selectedValue);
+  if (selectedSort) setSortBy(selectedSort);
+};
 
   return (
     <>
@@ -131,7 +157,17 @@ function MyMovies() {
       {isLoading && <Loader size='large' /> }
       {!isLoading && (
         movies.length ?
-        <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/> :
+        <>
+          <label htmlFor='sort'>Sort by:</label>
+          <Select id='sort' value={sortBy.value} onChange={handleSort}>
+            {sortOptions.map((each) =>
+              <option key={each.value} value={each.value}>{each.label}</option>
+            )}
+          </Select>
+
+          <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+        </>
+         :
         <>
         <p>No movies in this category yet</p>
         <StyledLink to='/search'>
