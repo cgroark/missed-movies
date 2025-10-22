@@ -36,7 +36,7 @@ const SubHeading = styled.h2`
 
 const Line = styled.hr`
   background: linear-gradient(315deg, var(--teal) 25%, var(--purple));
-  height: 6px;
+  height: 12px;
   border: 0;
 
 `

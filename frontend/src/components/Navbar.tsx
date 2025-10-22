@@ -1,11 +1,14 @@
 import { NavLink } from "react-router-dom";
 import styled from "styled-components";
-import '../index.css';
-
 import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
+import '../index.css';
+import Logout from "./Logout";
 
 
 const Nav = styled.nav`
+  position: sticky;
+  top: 0;
+  z-index: 100;
   background: linear-gradient(315deg, var(--purple) 25%, var(--teal));
   display: flex;
   justify-content: center;
@@ -29,11 +32,6 @@ const NavList = styled.ul`
 
 const NavItem = styled.li`
   display: inline-block;
-
-  @media (max-width: 768px) {
-    padding-left: 10px;
-    font-size: 14px;
-  }
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -45,7 +43,7 @@ const StyledNavLink = styled(NavLink)`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   color: var(--offWhite);
-  font-size: clamp(.75rem, 3vw + .25rem, 1.25rem);
+  font-size: clamp(.75rem, 3vw + .25rem, 1);
 
 
   &:hover {
@@ -71,6 +69,9 @@ function Navbar() {
               <StyledNavLink to="/search">
                 Find Movies<MagnifyingGlassPlusIcon size={24} />
               </StyledNavLink>
+            </NavItem>
+            <NavItem>
+              <Logout />
             </NavItem>
           </NavList>
         </Nav>
