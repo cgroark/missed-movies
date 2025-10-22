@@ -65,7 +65,8 @@ function Movie ({movie}: {movie: movie}) {
         </div>
       </MovieItem>
       <Modal
-        action={isSearchPage ? 'add' : 'edit'} movie={movie}
+        action={isSearchPage ? 'add' : 'edit'}
+        movie={movie}
       />
       <AccordionSection title="Details" content={overview} />
     </MovieWrapper>

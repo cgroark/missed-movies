@@ -77,14 +77,14 @@ const OpenButton = styled.div`
   }
 `
 
-function Modal({action, movie}: ModalProps) {
+function Modal({action, movie }: ModalProps) {
 
   const [open, setOpen] = useState(false);
   const [currentMovie, setCurrentMovie] = useState<movie | undefined>(movie);
 
   useEffect(() => {
-    if (movie) setCurrentMovie(movie);
-  }, [movie]);
+    if (open) setCurrentMovie(movie);
+  }, [open, movie]);
 
   const handleClose = () => setOpen(false);
 

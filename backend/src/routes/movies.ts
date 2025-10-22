@@ -23,7 +23,7 @@ movieRouter.post('/', async (req, res ) => {
   } catch (error: any) {
     res.status(500).json({error: error.message})
   }
-})
+});
 
 movieRouter.patch('/:id', async (req, res ) => {
   try {
@@ -50,7 +50,7 @@ movieRouter.patch('/:id', async (req, res ) => {
   } catch (error: any) {
     res.status(500).json({error: error.message})
   }
-})
+});
 
 movieRouter.get('/', async (_req, res) => {
   try {
@@ -84,6 +84,28 @@ movieRouter.get('/', async (_req, res) => {
     res.json(data);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+movieRouter.delete('/:id', async (req, res ) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
+    const { data, error } = await supabase
+      .from('movies')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    res.status(201).json(data[0]);
+
+  } catch (error: any) {
+    res.status(500).json({error: error.message})
   }
 })
 

@@ -8,6 +8,7 @@ interface MoviesContextType {
   error: string,
   getMovies: (category: number | null) => Promise<void>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<void>,
+  deleteMovie: (id: number) => Promise<void>;
 }
 
 const MoviesContext = createContext<MoviesContextType | null>(null);
@@ -15,7 +16,7 @@ const MoviesContext = createContext<MoviesContextType | null>(null);
 export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   const [movies, setMovies] = useState<movie[]>([]);
   const { token } = useAuth();
-  const [isLoading, setLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
     const getMovies = async (category: number | null) => {
@@ -43,10 +44,33 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       }
     }
 
+    const deleteMovie = async (id: number) => {
+      setLoading(true);
+      setError('');
+      try {
+        const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies/${id}`);
+        const res = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+        })
+        if(!res.ok) throw new Error('Delete failed');
+        const data = await res.json();
+        console.log('data', data)
+
+      } catch (err) {
+        console.log('err', err);
+        setError(err instanceof Error ? err.message : String(err) )
+      } finally {
+          setLoading(false);
+      }
+    }
+
     const saveMovie = async(movie: movie | Partial<movie>, action: string) => {
       setLoading(true);
       setError('');
-
       try {
         const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
         if (action === 'edit') url.pathname += `/${movie.id}`;
@@ -62,9 +86,9 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
 
         if(!res.ok) throw new Error('Failed to save movie');
         const data = await res.json();
-        console.log('saved', data);
     }
     catch (err: any) {
+      console.log('err', err);
       setError(err instanceof Error ? err.message : String(err) )
     }
     finally {
@@ -73,7 +97,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   }
 
   return (
-    <MoviesContext.Provider value={{movies, isLoading, error, getMovies, saveMovie }}>
+    <MoviesContext.Provider value={{movies, isLoading, error, getMovies, saveMovie, deleteMovie }}>
       {children}
     </MoviesContext.Provider>
   )

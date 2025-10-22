@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient";
 import type { movie, category } from "../types/types";
-import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon } from '@phosphor-icons/react';
+import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
 import styled from "styled-components";
-import { Link } from "react-router-dom";
 import { useMovies } from "../context/MoviesContext";
 import { useToast } from '../context/ToastContext';
 import '../index.css';
 import Loader from "./Loader";
 
-interface formProps {
+interface FormProps {
   currentMovie: movie | undefined;
   action: 'add' | 'edit';
   onClose: () =>  void;
@@ -38,39 +37,25 @@ const Select = styled.select`
 const Button = styled.button`
   background-color: var(--purple);
   display: flex;
-  margin: auto;
   gap: 5px;
   align-items: center;
   transition: all 0.3s ease;
+
+  &.delete {
+    background-color: var(--darkTeal);
+
+    &:hover {
+     background-color: var(--teal);
+    }
+  }
 
   &:hover {
      background-color: var(--darkPurple);
   }
 `
 
-const StyledLink = styled(Link)`
-  background-color: var(--teal);
-  display: flex;
-  margin: 25px auto 10px;
-  gap: 5px;
-  align-items: center;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.4em 1.4em;
-  font-size: 1em;
-  font-weight: 500;
-  color: var(--offWhite);
-  width: fit-content;
-  transition: all 0.3s ease;
-
-  &:hover {
-     background-color: var(--darkTeal);
-     color: var(--offWhite);
-  }
-`
-
-function MovieForm({currentMovie, action, onClose}: formProps) {
-  const { isLoading, error, saveMovie, getMovies } = useMovies();
+function MovieForm({currentMovie, action, onClose}: FormProps) {
+  const { isLoading, error, saveMovie, getMovies, deleteMovie } = useMovies();
   const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
   const [categories, setCategories] = useState<category[]>([]);
@@ -95,53 +80,58 @@ function MovieForm({currentMovie, action, onClose}: formProps) {
       getCategories();
     }, [])
 
-    useEffect(() => {
-      if (currentMovie?.status) {
-        setStatus(currentMovie.status);
-        setCategory(currentMovie.category);
-      }
-    }, [currentMovie])
+  useEffect(() => {
+    if (currentMovie?.status) {
+      setStatus(currentMovie.status);
+      setCategory(currentMovie.category);
+    }
+  }, [currentMovie])
 
-  const save = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!currentMovie) return;
+
     const userId = (await supabase.auth.getUser()).data.user?.id;
-    if(currentMovie) {
-      const movieItem: movie | Partial<movie> = action === 'edit' ?
-      {
-        id: currentMovie.id,
-        category: category,
-        status: status,
-      }
-      :
-      {
-        id: currentMovie.id,
-        title: currentMovie.title,
-        release_date: currentMovie.release_date,
-        poster_path: currentMovie.poster_path,
-        overview: currentMovie.overview,
-        genre_ids: currentMovie.genre_ids,
-        user_id: userId,
-        status: status,
-        category: category,
-      }
-      console.log('movie', movieItem);
-      await saveMovie(movieItem, action);
-      showToast(
-        action === 'edit'
-          ? `${currentMovie?.title} updated successfully`
-          : `${currentMovie?.title} added to your movies`
-      );
-      onClose();
-      getMovies(1);
-      }
+    const movieItem: movie | Partial<movie> = action === 'edit' ?
+    {
+      id: currentMovie.id,category, status
+    }
+    :
+    {
+      id: currentMovie.id,
+      title: currentMovie.title,
+      release_date: currentMovie.release_date,
+      poster_path: currentMovie.poster_path,
+      overview: currentMovie.overview,
+      genre_ids: currentMovie.genre_ids,
+      user_id: userId,
+      status,
+      category,
+    }
 
+    await saveMovie(movieItem, action);
+    showToast(
+      action === 'edit'
+        ? `${currentMovie?.title} updated successfully`
+        : `${currentMovie?.title} added to your movies`
+    );
+    onClose();
+    getMovies(1);
+  }
 
+  const handleDelete = async () => {
+    if (!currentMovie) return;
+
+    await deleteMovie(currentMovie.id);
+    showToast(`${currentMovie?.title} has been deleted`);
+    onClose();
+    getMovies(1);
   }
 
   return (
     <>
       <div>
-        <form onSubmit={save}>
+        <form onSubmit={handleSave}>
           <div>
             <Label htmlFor='category'>
               <FileVideoIcon size={24} />
@@ -165,14 +155,22 @@ function MovieForm({currentMovie, action, onClose}: formProps) {
               <option value='2'>Already watched</option>
             </Select>
           </div>
-          <Button type='submit'>
-            {isLoading ? 'Saving' : 'Save'}
-            {isLoading ?
-              <Loader size='small' />
-              :
-              <FloppyDiskIcon size={24} />
-            }
-          </Button>
+          <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'  }}>
+            <Button type='submit'>
+              {isLoading ? 'Saving' : 'Save'}
+              {isLoading ?
+                <Loader size='small' />
+                :
+                <FloppyDiskIcon size={24} />
+              }
+            </Button>
+            {action === 'edit' && (
+              <Button className='delete' type='button' onClick={handleDelete}>
+                {isLoading ? 'Deleting' : 'Delete'}
+                <TrashIcon size={24} />
+              </Button>
+            )}
+          </div>
         </form>
       </div>
     </>
