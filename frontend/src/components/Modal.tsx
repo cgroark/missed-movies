@@ -6,9 +6,12 @@ import type { movie } from '../types/types';
 import MovieForm from './MovieForm';
 
 type ModalProps = {
-  action: 'add' | 'edit',
-  movie: movie,
-}
+  action: 'add' | 'edit';
+  movie: movie;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAfterSave: () => Promise<void>;
+};
 
 const Overlay = styled(Dialog.Overlay)`
   position: fixed;
@@ -56,51 +59,20 @@ const CloseButton = styled(Dialog.Close)`
   }
 `;
 
-const OpenButton = styled.div`
-  background-color: var(--purple);
-  border-radius: 50%;
-  padding-top: .25rem;
-  margin: -30px 0 0 150px;
-  width: 35px;
-  height: 30px;
-  border: solid 2px #050505;
-  position: absolute;
-  cursor: pointer;
-  transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
 
-  @media (max-width: 768px) {
-    margin: -30px 0 0 80px;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-`
-
-function Modal({action, movie }: ModalProps) {
-
-  const [open, setOpen] = useState(false);
+  // const [open, setOpen] = useState(false);
   const [currentMovie, setCurrentMovie] = useState<movie | undefined>(movie);
 
   useEffect(() => {
     if (open) setCurrentMovie(movie);
   }, [open, movie]);
 
-  const handleClose = () => setOpen(false);
+  const handleClose = () => onOpenChange(false);
 
 
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <OpenButton>
-          {action === 'add' ?
-          <PlusIcon size={24} />
-        :
-          <PencilIcon size={24} />
-        }
-        </OpenButton>
-      </Dialog.Trigger>
-
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Overlay />
         <Content>

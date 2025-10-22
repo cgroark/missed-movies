@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useMovies } from "../context/MoviesContext";
 import type { movie, category } from "../types/types";
 import MovieList from "./MovieList";
+import Modal from "./Modal";
 import Loader from "./Loader";
 import '../index.css';
 
@@ -58,11 +59,12 @@ const StyledLink = styled(Link)`
 
 function MyMovies() {
   const { movies, isLoading, error, getMovies } = useMovies();
-  // const [myMovies, setMyMovies] = useState<movie[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
+  const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
+  const [open, setOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<category[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [categoryLoading, setLoading] = useState<boolean>(false);
-  const { token } = useAuth();
 
   useEffect(() => {
     const getCategories = async () => {
@@ -91,29 +93,45 @@ function MyMovies() {
      getMovies(activeCategory);
   }, [activeCategory]);
 
+  const handleAdd = (movie: movie) => {
+    setModalAction('add');
+    setSelectedMovie(movie);
+    setOpen(true);
+  };
+
+  const handleEdit = (movie: movie) => {
+    setModalAction('edit');
+    setSelectedMovie(movie);
+    setOpen(true);
+  };
+
+  const handleAfterSave = async () => {
+    await getMovies(1);
+    setOpen(false);
+  };
+
   return (
     <>
+      {!categoryLoading && categories.length && (
+        <div>
+          <CategoryList>
+            {categories.map((each: category) =>
+                <li key={each.id}>
+                <CategoryButton
+                  onClick={() => setActiveCategory(each.id)}
+                  className={ activeCategory === each.id ? 'active' : ''}
+                >
+                  {each.name}
+                </CategoryButton>
+              </li>
+            )}
+          </CategoryList>
+        </div>
+      )}
       {isLoading && <Loader size='large' /> }
-          {!categoryLoading && categories.length && (
-            <div>
-              <CategoryList>
-                {categories.map((each: category) =>
-                   <li key={each.id}>
-                    <CategoryButton
-                      onClick={() => setActiveCategory(each.id)}
-                      className={ activeCategory === each.id ? 'active' : ''}
-                    >
-                      {each.name}
-                    </CategoryButton>
-                  </li>
-                )}
-              </CategoryList>
-            </div>
-          )}
       {!isLoading && (
-            movies.length ?
-        <MovieList data={movies}/>
-        :
+        movies.length ?
+        <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/> :
         <>
         <p>No movies in this category yet</p>
         <StyledLink to='/search'>
@@ -121,8 +139,16 @@ function MyMovies() {
           <FilmStripIcon size={24} />
         </StyledLink>
         </>
-      )
-      }
+      )}
+      {open && (
+          <Modal
+            open={open}
+            movie={selectedMovie || ({} as movie)}
+            action={modalAction}
+            onOpenChange={setOpen}
+            onAfterSave={handleAfterSave}
+          />
+        )}
     </>
   )
 }

@@ -115,7 +115,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
         ? `${currentMovie?.title} updated successfully`
         : `${currentMovie?.title} added to your movies`
     );
-    onClose();
+    await onClose();
     getMovies(1);
   }
 

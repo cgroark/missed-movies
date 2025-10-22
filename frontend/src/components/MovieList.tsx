@@ -2,6 +2,12 @@ import type { movie} from "../types/types";
 import styled from "styled-components";
 import Movie from "./Movie";
 
+interface MoveListProps {
+  movies: movie[];
+  onAdd: (movie: movie) => void;
+  onEdit: (movie: movie) =>void;
+}
+
 const MovieItems = styled.ul`
   list-style: none;
   padding: 10px 20px;
@@ -12,17 +18,21 @@ const MovieItems = styled.ul`
   max-width: 1280px;
   margin: 10px auto 150px;
 `
-function MovieList({data}: {data: movie[]}) {
+function MovieList({movies, onAdd, onEdit}: MoveListProps) {
+  if (!Array.isArray(movies)) return null;
   return (
     <>
       <MovieItems>
-        {data.map((movie) =>
+        {movies.map((movie: movie) =>
           movie.poster_path &&
           <li key={movie.id}>
-            <Movie movie={movie}/>
+            <Movie
+              movie={movie}
+              onAdd={() => onAdd(movie)}
+              onEdit={() => onEdit(movie)}
+            />
           </li>
         )}
-
       </MovieItems>
     </>
   )

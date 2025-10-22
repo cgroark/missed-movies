@@ -1,10 +1,15 @@
 import { useLocation } from "react-router-dom";
 import type { movie } from "../types/types";
-import { CheckFatIcon } from '@phosphor-icons/react';
-import Modal from "./Modal";
+import {CheckFatIcon, PencilIcon, PlusIcon} from '@phosphor-icons/react';
 import styled from "styled-components";
 import '../index.css';
 import AccordionSection from "./Accordion";
+
+interface MovieProps {
+  movie: movie;
+  onEdit: () => void;
+  onAdd: () => void;
+}
 
 const MovieWrapper = styled.div`
   max-width: 180px;
@@ -33,7 +38,6 @@ const MovieItem = styled.div`
     }
   }
 `
-
 const CheckIcon = styled(CheckFatIcon)`
   background-color: var(--teal);
   border-radius: 50%;
@@ -51,7 +55,28 @@ const CheckIcon = styled(CheckFatIcon)`
   }
 `
 
-function Movie ({movie}: {movie: movie}) {
+const OpenButton = styled.div`
+  background-color: var(--purple);
+  border-radius: 50%;
+  padding-top: .25rem;
+  margin: -30px 0 0 150px;
+  width: 35px;
+  height: 30px;
+  border: solid 2px #050505;
+  position: absolute;
+  cursor: pointer;
+  transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  @media (max-width: 768px) {
+    margin: -30px 0 0 80px;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`
+
+function Movie ({movie, onEdit, onAdd}: MovieProps) {
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
   const overview = `${movie.release_date.split('-')[0]} - ${movie.overview}`
@@ -63,11 +88,16 @@ function Movie ({movie}: {movie: movie}) {
         <div className={movie.status === 2 ? 'watched' : ''}>
           <img alt={`movie poster for ${movie.title}`} src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}.jpg`}/>
         </div>
+        {isSearchPage ?
+        <OpenButton onClick={onAdd}>
+          <PlusIcon size={24} />
+        </OpenButton>
+        :
+        <OpenButton onClick={onEdit}>
+          <PencilIcon size={24} />
+        </OpenButton>
+      }
       </MovieItem>
-      <Modal
-        action={isSearchPage ? 'add' : 'edit'}
-        movie={movie}
-      />
       <AccordionSection title="Details" content={overview} />
     </MovieWrapper>
     </>

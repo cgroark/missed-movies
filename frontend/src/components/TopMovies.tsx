@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import type { movie, JSONSearchResults } from '../types/types';
 import MovieList from './MovieList';
+import Modal from './Modal';
 import styled from 'styled-components';
 import Loader from './Loader';
 
@@ -51,6 +52,9 @@ const categories = [
 function TopMovies() {
   const [movies, setMovies] = useState<movie[]>([]);
   const [category, setCategory] = useState<string>('top_rated')
+  const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
+  const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
+  const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -82,6 +86,22 @@ function TopMovies() {
 
   }, [category]);
 
+  const handleAdd = (movie: movie) => {
+    setModalAction('add');
+    setSelectedMovie(movie);
+    setOpen(true);
+  };
+
+  const handleEdit = (movie: movie) => {
+    setModalAction('edit');
+    setSelectedMovie(movie);
+    setOpen(true);
+  };
+
+  const handleAfterSave = async () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <div>
@@ -102,9 +122,20 @@ function TopMovies() {
       {isLoading && <Loader size='large' />}
 
       {!isLoading && !error && (
-        movies.length ? <MovieList data={movies}/> : <p>No results available</p>
+        movies.length ?
+        <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+        : <p>No results available</p>
       )
       }
+      {open && (
+          <Modal
+            open={open}
+            movie={selectedMovie || ({} as movie)}
+            action={modalAction}
+            onOpenChange={setOpen}
+            onAfterSave={handleAfterSave}
+          />
+      )}
     </>
   )
 }
