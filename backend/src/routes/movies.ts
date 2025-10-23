@@ -90,14 +90,13 @@ movieRouter.get('/', async (_req, res) => {
     }
 
     const { category, sortBy, asc } = _req.query
-    console.log('SORT OPTION', category, sortBy, asc)
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
 
     let query = supabase
       .from('movies')
       .select('*')
       .eq('user_id', user.id)
-      // .order('status', { ascending: true })
+      .order('status', { ascending: true })
       .order(String(sortBy), direction)
 
     if (category) {

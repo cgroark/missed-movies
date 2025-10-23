@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { FilmStripIcon } from '@phosphor-icons/react';
+import { FilmStripIcon, ArrowUpIcon } from '@phosphor-icons/react';
 import { useMovies } from '../context/MoviesContext';
 import type { movie, category, SortOption } from '../types/types';
 import MovieList from './MovieList';
@@ -14,8 +14,8 @@ import '../index.css';
 const sortOptions: SortOption[] = [
   { value: 1, key: 'title', label: 'Title A–Z', ascending: true },
   { value: 2, key: 'title', label: 'Title Z–A', ascending: false },
-  { value: 3, key: 'status', label: 'Status ↑', ascending: true },
-  { value: 4, key: 'status', label: 'Status ↓', ascending: false },
+  { value: 3, key: 'release_date', label: 'Release Date ↑', ascending: true },
+  { value: 4, key: 'release_date', label: 'Release Date ↓', ascending: false },
 ];
 
 const CategoryList = styled.ul`
