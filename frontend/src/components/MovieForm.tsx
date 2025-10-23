@@ -68,11 +68,11 @@ const ErrorField = styled.div`
 `
 
 function MovieForm({currentMovie, action, onClose}: FormProps) {
-  const { isLoading, error, saveMovie, getMovies, deleteMovie } = useMovies();
+  const { isLoading, error, getMovies, saveMovie, deleteMovie, activeCategory, status, sortBy } = useMovies();
   const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
   const [categories, setCategories] = useState<category[]>([]);
-  const [status, setStatus] = useState<number | ''>('');
+  const [movieStatus, setMovieStatus] = useState<number | ''>('');
   const [feError, setError] = useState<string>('');
 
   useEffect(() => {
@@ -96,7 +96,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
 
   useEffect(() => {
     if (currentMovie?.status) {
-      setStatus(currentMovie.status);
+      setMovieStatus(currentMovie.status);
       setCategory(currentMovie.category);
     }
   }, [currentMovie])
@@ -105,14 +105,16 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     e.preventDefault();
     setError('');
     if (!currentMovie) return;
-    if(!category || !status) {
+    if(!category || !movieStatus) {
       setError('Status and Category are required');
       return;
     }
     const userId = (await supabase.auth.getUser()).data.user?.id;
     const movieItem: movie | Partial<movie> = action === 'edit' ?
     {
-      id: currentMovie.id,category, status
+      id: currentMovie.id,
+      category,
+      status: movieStatus
     }
     :
     {
@@ -123,7 +125,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       overview: currentMovie.overview,
       genre_ids: currentMovie.genre_ids,
       user_id: userId,
-      status,
+      status: movieStatus,
       category,
     }
 
@@ -140,7 +142,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       : `${currentMovie?.title} added to your movies`
     );
     await onClose();
-    getMovies(1);
+    getMovies(activeCategory, sortBy, status);
   }
 
   const handleDelete = async () => {
@@ -154,7 +156,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     }
     showToast(`${currentMovie?.title} has been deleted`);
     await onClose();
-    getMovies(1);
+    getMovies(activeCategory, sortBy, status);
   }
 
   return (
@@ -178,7 +180,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
               <FilmSlateIcon size={24} />
               Status
             </Label>
-            <Select id='status' value={status} onChange={(e) => setStatus(Number(e.target.value))} >
+            <Select id='status' value={movieStatus} onChange={(e) => setMovieStatus(Number(e.target.value))} >
               <option disabled value=''>Select Status</option>
               <option value='1'>Want to watch</option>
               <option value='2'>Already watched</option>

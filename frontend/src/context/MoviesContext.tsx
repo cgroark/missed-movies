@@ -6,7 +6,13 @@ interface MoviesContextType {
   movies: movie[],
   isLoading: boolean,
   error: string,
-  getMovies: (category: number | null, sortBy?: SortOption) => Promise<void>,
+  activeCategory: number,
+  status: number,
+  sortBy: SortOption,
+  setActiveCategory: (id: number) => void;
+  setStatus: (status: number) => void;
+  setSortBy: (sort: SortOption) => void;
+  getMovies: (category?: number, sortBy?: SortOption, status?: number) => Promise<void>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, error?: string}>,
   deleteMovie: (id: number) => Promise<{success: boolean, error?: string}>;
 }
@@ -18,18 +24,27 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   const { token } = useAuth();
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [activeCategory, setActiveCategory] = useState<number | null>(1);
+  const [status, setStatus] = useState<number>(1);
+  const [sortBy, setSortBy] = useState<SortOption>({
+    key: 'title',
+    value: 1,
+    label: 'Title A–Z',
+    ascending: true,
+  });
 
-  const getMovies = async (category: number | null, sortBy?: SortOption | null) => {
+  const getMovies = async (category = activeCategory, sortOption = sortBy, movieStatus = status) => {
     setLoading(true);
     setError('');
     try {
       const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies`);
       if (category) url.searchParams.append('category', String(category));
-      if (sortBy) {
-        console.log(sortBy);
-        url.searchParams.append('sortBy', sortBy.key);
-        url.searchParams.append('asc', String(sortBy.ascending));
+      if (sortOption) {
+        url.searchParams.append('sortBy', sortOption.key);
+        url.searchParams.append('asc', String(sortOption.ascending));
       }
+      if (movieStatus) url.searchParams.append('status', String(movieStatus));
+
       console.log('URL', url)
       const res = await fetch(url, {
         method: 'GET',
@@ -135,7 +150,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   }
 
   return (
-    <MoviesContext.Provider value={{movies, isLoading, error, getMovies, saveMovie, deleteMovie }}>
+    <MoviesContext.Provider value={{movies, isLoading, error, activeCategory, status, sortBy, setActiveCategory, setStatus, setSortBy, getMovies, saveMovie, deleteMovie }}>
       {children}
     </MoviesContext.Provider>
   )

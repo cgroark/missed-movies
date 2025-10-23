@@ -31,3 +31,8 @@ export interface SortOption {
   label: string;
   ascending: boolean;
 }
+
+export interface StatusOption {
+  value: number;
+  label: string;
+}
