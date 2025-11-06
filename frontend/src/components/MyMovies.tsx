@@ -91,30 +91,32 @@ const FilterSection = styled.div`
 `
 
 function MyMovies() {
-  const { movies, isLoading, error, getMovies, activeCategory, setActiveCategory, status, setStatus, sortBy, setSortBy } = useMovies();
+  const { movies, isLoading, error, getMovies, activeCategory, setActiveCategory, status, setStatus, sortBy, setSortBy, rangeFrom, setRangeFrom, rangeTo, setRangeTo } = useMovies();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
   const [open, setOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<category[]>([]);
-  // const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [categoryLoading, setLoading] = useState<boolean>(false);
-  // const [sortBy, setSortBy] = useState<SortOption>(sortOptions[0]);
-  // const [status, setStatus] = useState<number>(0);
 
   useEffect(() => {
     const categoryParam = Number(searchParams.get('category')) || 1;
     const statusParam = Number(searchParams.get('status')) || 1;
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
     const ascendingParam = searchParams.get('asc') === 'true';
+    const fromParam = Number(searchParams.get('from') || 0);
+    const toParam = Number(searchParams.get('to') || 5);
+
     console.log('asc', ascendingParam)
 
     const currentSort = sortOptions.find((each) => each.key === sortByKeyParam && each.ascending === ascendingParam);
     if (currentSort) setSortBy(currentSort);
     setActiveCategory(categoryParam);
     setStatus(statusParam);
+    setRangeFrom(fromParam);
+    setRangeTo(toParam);
 
-    getMovies(categoryParam, currentSort, statusParam);
+    getMovies(fromParam, toParam, categoryParam, currentSort, statusParam);
 
   }, [searchParams])
 
@@ -154,7 +156,7 @@ function MyMovies() {
   };
 
   const handleAfterSave = async () => {
-    await getMovies(activeCategory, sortBy, status);
+    await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
     setOpen(false);
   };
 
@@ -171,6 +173,8 @@ function MyMovies() {
           asc: String(selectedSort.ascending),
           category: String(activeCategory),
           status: String(status),
+          from: String(rangeFrom),
+          to: String(rangeTo),
         }
       )
     }
@@ -185,6 +189,8 @@ function MyMovies() {
         asc: String(sortBy.ascending),
         category: String(activeCategory),
         status: String(selectedStatus),
+        from: String(rangeFrom),
+        to: String(rangeTo),
       }
     )
   }
@@ -197,6 +203,8 @@ function MyMovies() {
         asc: String(sortBy.ascending),
         category: String(id),
         status: String(status),
+        from: String(rangeFrom),
+        to: String(rangeTo),
       }
     )
   };

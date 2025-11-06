@@ -89,7 +89,7 @@ movieRouter.get('/', async (_req, res) => {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
 
-    const { category, sortBy, asc, status } = _req.query
+    const { category, sortBy, asc, status, from, to } = _req.query
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
 
     let query = supabase
@@ -98,6 +98,7 @@ movieRouter.get('/', async (_req, res) => {
       .eq('user_id', user.id)
       .order('status', { ascending: true })
       .order(String(sortBy), direction)
+      .range(Number(from), Number(to))
 
     if (category) {
       query = query.eq('category', category);

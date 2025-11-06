@@ -6,13 +6,17 @@ interface MoviesContextType {
   movies: movie[],
   isLoading: boolean,
   error: string,
-  activeCategory: number,
+  activeCategory: number | null,
   status: number,
   sortBy: SortOption,
+  rangeFrom: number,
+  rangeTo: number,
   setActiveCategory: (id: number) => void;
   setStatus: (status: number) => void;
   setSortBy: (sort: SortOption) => void;
-  getMovies: (category?: number, sortBy?: SortOption, status?: number) => Promise<void>,
+  setRangeFrom: (rangeFrom: number) => void;
+  setRangeTo: (rangeTo: number) => void;
+  getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<void>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, error?: string}>,
   deleteMovie: (id: number) => Promise<{success: boolean, error?: string}>;
 }
@@ -26,6 +30,8 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   const [error, setError] = useState<string>('');
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [status, setStatus] = useState<number>(1);
+  const [rangeFrom, setRangeFrom] = useState<number>(0);
+  const [rangeTo, setRangeTo] = useState<number>(5);
   const [sortBy, setSortBy] = useState<SortOption>({
     key: 'title',
     value: 1,
@@ -33,11 +39,11 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
     ascending: true,
   });
 
-  const getMovies = async (category = activeCategory, sortOption = sortBy, movieStatus = status) => {
+  const getMovies = async (from = rangeFrom, to = rangeTo, category = activeCategory, sortOption = sortBy, movieStatus = status) => {
     setLoading(true);
     setError('');
     try {
-      const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies`);
+      const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies?from=${String(from)}&to=${String(to)}`);
       if (category) url.searchParams.append('category', String(category));
       if (sortOption) {
         url.searchParams.append('sortBy', sortOption.key);
@@ -150,7 +156,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   }
 
   return (
-    <MoviesContext.Provider value={{movies, isLoading, error, activeCategory, status, sortBy, setActiveCategory, setStatus, setSortBy, getMovies, saveMovie, deleteMovie }}>
+    <MoviesContext.Provider value={{movies, isLoading, error, activeCategory, status, sortBy, rangeFrom, rangeTo, setActiveCategory, setStatus, setSortBy, setRangeFrom, setRangeTo, getMovies, saveMovie, deleteMovie }}>
       {children}
     </MoviesContext.Provider>
   )
