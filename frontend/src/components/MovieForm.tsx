@@ -142,7 +142,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       : `${currentMovie?.title} added to your movies`
     );
     await onClose();
-    getMovies(activeCategory, sortBy, status);
+    getMovies(0, 5, activeCategory, sortBy, status);
   }
 
   const handleDelete = async () => {
@@ -156,7 +156,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     }
     showToast(`${currentMovie?.title} has been deleted`);
     await onClose();
-    getMovies(activeCategory, sortBy, status);
+    getMovies(0, 5, activeCategory, sortBy, status);
   }
 
   return (
