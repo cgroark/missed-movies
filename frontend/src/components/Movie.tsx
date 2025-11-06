@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import type { movie } from "../types/types";
 import {CheckFatIcon, PencilIcon, PlusIcon} from '@phosphor-icons/react';
@@ -11,10 +12,32 @@ interface MovieProps {
   onAdd: () => void;
 }
 
-const MovieWrapper = styled.div`
-  max-width: 180px;
+const PosterWrapper = styled.div<{ $loaded: boolean }>`
+  position: relative;
+  background: var(--gray-800);
+  overflow: hidden;
+  border-radius: 4px;
+  min-height: 270px;
 
   @media (max-width: 768px) {
+    min-height: 170px;
+  }
+
+  img {
+    width: 100%;
+    opacity: ${({ $loaded }) => ($loaded ? 1 : 0)};
+    filter: ${({ $loaded }) => ($loaded ? 'blur(0)' : 'blur(10px)')};
+    transform: scale(${({ $loaded }) => ($loaded ? 1 : 1.05)});
+    transition: opacity 0.4s ease, filter 0.6s ease, transform 0.6s ease;
+  }
+`;
+
+const MovieWrapper = styled.div`
+  min-width: 180px;
+  max-width:  180px;
+
+  @media (max-width: 768px) {
+    min-width: 110px;
     max-width: 110px;
   }
 `
@@ -77,6 +100,7 @@ const OpenButton = styled.div`
 `
 
 function Movie ({movie, onEdit, onAdd}: MovieProps) {
+  const [loaded, setLoaded] = useState(false);
   const location = useLocation();
   const isSearchPage = location.pathname === "/search";
   const overview = `${movie.release_date.split('-')[0]} - ${movie.overview}`
@@ -85,9 +109,16 @@ function Movie ({movie, onEdit, onAdd}: MovieProps) {
     <MovieWrapper>
       {movie.status === 2 && <CheckIcon />}
       <MovieItem>
-        <div className={movie.status === 2 ? 'watched' : ''}>
-          <img alt={`movie poster for ${movie.title}`} src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}.jpg`}/>
-        </div>
+        <PosterWrapper $loaded={loaded}>
+          <div className={movie.status === 2 ? 'watched' : ''}>
+            <img
+              loading="lazy"
+              alt={`movie poster for ${movie.title}`}
+              src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}.jpg`}
+              onLoad={() => setLoaded(true)}
+              />
+          </div>
+        </PosterWrapper>
         {isSearchPage ?
         <OpenButton onClick={onAdd}>
           <PlusIcon size={24} />

@@ -4,24 +4,27 @@ import { useAuth } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 
+const HeaderSection = styled.header`
+  margin-bottom: 50px;
+  height: 40vh;
+  border-bottom: solid 8px teal;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
 const Heading = styled.div`
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 15px;
-  font-size: 30px;
 `
-
 const GradientHeading = styled.h1`
   background: linear-gradient(315deg, var(--teal) 25%, var(--purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
-  font-size: clamp(3.5rem, 4vw + 2rem, 6rem);
+  font-size: clamp(5rem, 10vw + 1rem, 7.5rem);
   margin: 0;
-  text-align: center;
-  padding: 0 10px;
+  padding: 0 20px;
 `;
 
 const SubHeading = styled.h2`
@@ -30,15 +33,8 @@ const SubHeading = styled.h2`
   align-items: center;
   gap: 15px;
   flex-wrap: wrap;
-  padding: 0 10px;
-  font-size: clamp(.8rem, 3vw + .5rem, 1rem);
-`
-
-const Line = styled.hr`
-  background: linear-gradient(315deg, var(--teal) 25%, var(--purple));
-  height: 12px;
-  border: 0;
-
+  padding: 0 20px;
+  font-size: clamp(1.2rem, 3vw + .5rem, 1rem);
 `
 
 function Header() {
@@ -48,16 +44,14 @@ function Header() {
   return (
     <>
       {user && !isLoginPage && <Navbar />}
-      <div style={{marginBottom: '50px'}}>
+      <HeaderSection>
         <Heading>
           <GradientHeading style={{margin: 0}}>Missed Movies</GradientHeading>
         </Heading>
         <SubHeading>
           Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
         </SubHeading>
-        <Line ></Line>
-      </div>
-
+      </HeaderSection>
     </>
   )
 }

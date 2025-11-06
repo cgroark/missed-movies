@@ -16,7 +16,7 @@ const MovieItems = styled.ul`
   justify-content: space-around;
   gap: 25px;
   max-width: 1280px;
-  margin: 10px auto 150px;
+  margin: 10px auto 50px;
 `
 function MovieList({movies, onAdd, onEdit}: MoveListProps) {
   if (!Array.isArray(movies)) return null;

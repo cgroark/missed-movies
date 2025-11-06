@@ -17,14 +17,13 @@ const CategoryList = styled.ul`
 `
 
 const CategoryButton = styled.button`
-  background-color: var(--lightBlack);
+  background-color: var(--darkGray);
   display: flex;
   margin: auto;
   gap: 5px;
   align-items: center;
-  border: solid 2px var(--offWhite);
   transition: all 0.3s ease;
-
+  padding: 1.4rem 2.4rem;
   &.active, &:hover {
     background-color: var(--teal);
   }
@@ -120,13 +119,16 @@ function TopMovies() {
       </div>
 
       {isLoading && <Loader size='large' />}
+      <div style={{minHeight: '1000px'}}>
+        {!isLoading && !error && (
+          movies.length ?
 
-      {!isLoading && !error && (
-        movies.length ?
-        <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
-        : <p>No results available</p>
-      )
-      }
+            <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+
+          : <p>No results available</p>
+        )
+        }
+      </div>
       {open && (
           <Modal
             open={open}

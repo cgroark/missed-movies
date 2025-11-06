@@ -34,13 +34,13 @@ const CategoryList = styled.ul`
 `
 
 const CategoryButton = styled.button`
-  background-color: var(--lightBlack);
+  background-color: var(--darkGray);
   display: flex;
   margin: auto;
   gap: 5px;
   align-items: center;
-  border: solid 2px var(--offWhite);
   transition: all 0.3s ease;
+  padding: 1.4rem 2.4rem;
 
   &.active, &:hover {
     background-color: var(--pink);
