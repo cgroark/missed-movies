@@ -16,7 +16,7 @@ interface MoviesContextType {
   setSortBy: (sort: SortOption) => void;
   setRangeFrom: (rangeFrom: number) => void;
   setRangeTo: (rangeTo: number) => void;
-  getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<void>,
+  getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<movie[]>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, error?: string}>,
   deleteMovie: (id: number) => Promise<{success: boolean, error?: string}>;
 }
@@ -62,7 +62,8 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       console.log('RES get', res)
       if(!res.ok) throw new Error('Failed to get your movies');
       const data: movie[] = await res.json();
-      setMovies(data);
+      setMovies((prev) => from === 0 ? data : [...prev, ...data]);
+      return data;
     }
     catch (err: any) {
       setError(err instanceof Error ? err.message : String(err) )

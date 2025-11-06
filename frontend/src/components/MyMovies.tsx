@@ -1,4 +1,4 @@
-import { useState, useEffect, act } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon } from '@phosphor-icons/react';
@@ -98,14 +98,18 @@ function MyMovies() {
   const [open, setOpen] = useState<boolean>(false);
   const [categories, setCategories] = useState<category[]>([]);
   const [categoryLoading, setLoading] = useState<boolean>(false);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const categoryParam = Number(searchParams.get('category')) || 1;
     const statusParam = Number(searchParams.get('status')) || 1;
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
     const ascendingParam = searchParams.get('asc') === 'true';
-    const fromParam = Number(searchParams.get('from') || 0);
-    const toParam = Number(searchParams.get('to') || 5);
 
     console.log('asc', ascendingParam)
 
@@ -113,12 +117,12 @@ function MyMovies() {
     if (currentSort) setSortBy(currentSort);
     setActiveCategory(categoryParam);
     setStatus(statusParam);
-    setRangeFrom(fromParam);
-    setRangeTo(toParam);
+    setIsInitialLoading(true);
 
-    getMovies(fromParam, toParam, categoryParam, currentSort, statusParam);
-
-  }, [searchParams])
+    getMovies(rangeFrom, rangeTo, categoryParam, currentSort, statusParam)
+      .finally(() => setIsInitialLoading(false));
+    ;
+  }, [searchParams]);
 
   useEffect(() => {
     const getCategories = async () => {
@@ -141,7 +145,59 @@ function MyMovies() {
       }
     }
     getCategories();
-  }, [])
+  }, []);
+
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      const first = entries[0];
+      if(first.isIntersecting) {
+        setRangeFrom((prevFrom) => prevFrom + 6);
+        setRangeTo((prevTo) => prevTo + 6);
+      }
+    },
+    {threshold: 0.5}
+    );
+    const currentLoader = loaderRef.current;
+    const currentObserver = observerRef.current;
+
+    if (currentLoader && currentObserver) currentObserver.observe(currentLoader);
+
+    return () => {
+      if (currentLoader && currentObserver) currentObserver.unobserve(currentLoader);
+    };
+  }, [hasMore, isFetchingMore, isLoading]);
+
+  useEffect(() => {
+    if (rangeFrom === 0 && rangeTo === 5) return;
+    if (isFetchingMore || !hasMore) return;
+
+    const fetchMore = async () => {
+      setIsFetchingMore(true);
+
+      const newMovies = await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
+
+      if (newMovies.length < 6) {
+        setHasMore(false);
+        if(loaderRef.current) observerRef.current?.unobserve(loaderRef.current);
+      }
+      setIsFetchingMore(false);
+    }
+
+    fetchMore();
+  }, [rangeTo]);
+
+ useEffect(() => {
+  setHasMore(true);
+  setIsFetchingMore(false);
+  setRangeFrom(0);
+  setRangeTo(5);
+
+  if (observerRef.current && loaderRef.current) {
+    observerRef.current.observe(loaderRef.current);
+  }
+}, [activeCategory, sortBy, status]);
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -165,7 +221,6 @@ function MyMovies() {
     const selectedSort = sortOptions.find(opt => opt.value === selectedValue);
     if (selectedSort) {
       setSortBy(selectedSort);
-          console.log('sel status', selectedSort)
 
       setSearchParams(
         {
@@ -173,8 +228,6 @@ function MyMovies() {
           asc: String(selectedSort.ascending),
           category: String(activeCategory),
           status: String(status),
-          from: String(rangeFrom),
-          to: String(rangeTo),
         }
       )
     }
@@ -189,13 +242,13 @@ function MyMovies() {
         asc: String(sortBy.ascending),
         category: String(activeCategory),
         status: String(selectedStatus),
-        from: String(rangeFrom),
-        to: String(rangeTo),
       }
     )
   }
 
   const handleCategoryChange = (id: number) => {
+    console.log('NEW CHEK', movies, isLoading)
+
     setActiveCategory(id);
     setSearchParams(
       {
@@ -203,8 +256,6 @@ function MyMovies() {
         asc: String(sortBy.ascending),
         category: String(id),
         status: String(status),
-        from: String(rangeFrom),
-        to: String(rangeTo),
       }
     )
   };
@@ -227,9 +278,8 @@ function MyMovies() {
           </CategoryList>
         </div>
       )}
-      {isLoading && <Loader size='large' /> }
-      {!isLoading && (
-        movies.length ?
+      {isInitialLoading && <Loader size='large' /> }
+      {movies.length > 0  && !isInitialLoading && (
         <>
           <FilterSection>
             <label htmlFor='sort'>Sort by:</label>
@@ -250,16 +300,22 @@ function MyMovies() {
           </FilterSection>
 
           <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+          <div ref={loaderRef} style={{ height: '40px' }} />
         </>
-         :
-        <>
-        <p>No movies in this category yet</p>
-        <StyledLink to='/search'>
-          Find movies
-          <FilmStripIcon size={24} />
-        </StyledLink>
-        </>
-      )}
+        )
+      }
+      {!isLoading && movies.length === 0 &&
+        (
+          <>
+          <p>No movies in this category yet</p>
+          <StyledLink to='/search'>
+            Find movies
+            <FilmStripIcon size={24} />
+          </StyledLink>
+          </>
+        )
+      }
+      {isFetchingMore && <Loader size='small' />}
       {open && (
         <Modal
           open={open}
