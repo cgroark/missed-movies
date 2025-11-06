@@ -107,11 +107,9 @@ function MyMovies() {
 
   useEffect(() => {
     const categoryParam = Number(searchParams.get('category')) || 1;
-    const statusParam = Number(searchParams.get('status')) || 1;
+    const statusParam = Number(searchParams.get('status'));
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
     const ascendingParam = searchParams.get('asc') === 'true';
-
-    console.log('asc', ascendingParam)
 
     const currentSort = sortOptions.find((each) => each.key === sortByKeyParam && each.ascending === ascendingParam);
     if (currentSort) setSortBy(currentSort);

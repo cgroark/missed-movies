@@ -51,7 +51,6 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       }
       if (movieStatus) url.searchParams.append('status', String(movieStatus));
 
-      console.log('URL', url)
       const res = await fetch(url, {
         method: 'GET',
         headers: {
@@ -59,7 +58,6 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('RES get', res)
       if(!res.ok) throw new Error('Failed to get your movies');
       const data: movie[] = await res.json();
       setMovies((prev) => from === 0 ? data : [...prev, ...data]);
