@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import type { movie, JSONSearchResults } from '../types/types';
 import MovieList from './MovieList';
 import Modal from './Modal';
@@ -48,14 +48,20 @@ const categories = [
 
 function TopMovies() {
   const [movies, setMovies] = useState<movie[]>([]);
-  const [category, setCategory] = useState<string>('top_rated')
+  const [category, setCategory] = useState<string>('top_rated');
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(Infinity)
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  const loaderRef = useRef<HTMLDivElement | null>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
   useEffect(() => {
+    let ignore = false;
     setLoading(true);
     setError('');
     const options = {
@@ -63,14 +69,16 @@ function TopMovies() {
         Authorization: `Bearer ${import.meta.env.VITE_OMDB_ACCESS_TOKEN}`,
       }
     }
-    console.log('header', options)
     const findMovies = async () => {
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/movie/${category}`, options);
+        const res = await fetch(`https://api.themoviedb.org/3/movie/${category}?page=${String(page)}`, options);
         if(!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        console.log('data cat', category, data)
-        setMovies(data.results);
+        console.log('data cat', category, data);
+        if (!ignore) {
+          setMovies(prev => [...prev, ...data.results]);
+          setTotalPages(data.total_pages);
+        }
       }
       catch (err) {
         setError(err instanceof Error ? err.message : String(err))
@@ -80,8 +88,46 @@ function TopMovies() {
       }
     }
     findMovies();
+    return () => {
+      ignore = true;
+    };
 
-  }, [category]);
+  }, [category, page]);
+
+  useEffect(() => {
+    if (observerRef.current) observerRef.current.disconnect();
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting) {
+          setPage(prev => (prev < totalPages ? prev + 1 : prev));
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    const currentLoader = loaderRef.current;
+    const currentObserver = observerRef.current;
+
+    if (currentLoader && currentObserver) {
+      currentObserver.observe(currentLoader);
+    }
+
+    return () => {
+      if (currentLoader && currentObserver) {
+        currentObserver.unobserve(currentLoader);
+      }
+    };
+  }, [movies, totalPages]);
+
+  useEffect(() => {
+    setMovies([]);
+    setTotalPages(Infinity);
+    setPage(1);
+
+  }, [category])
+
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -118,11 +164,13 @@ function TopMovies() {
 
       {isLoading && <Loader size='large' />}
       <div style={{minHeight: '1000px'}}>
-        {!isLoading && !error && (
+        {!error && (
           movies.length ?
-
-            <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
-
+            <>
+              <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+              <div ref={loaderRef} style={{ height: '40px' }} />
+              {isLoading && <Loader size='small' />}
+            </>
           : <p>No results available</p>
         )
         }
