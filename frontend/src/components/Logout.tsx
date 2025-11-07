@@ -13,13 +13,17 @@ const LinkButton = styled.a`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   background-color: transparent;
-  font-size: clamp(.75rem, 3vw + .25rem, 1);
+  font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
   color: var(--offWhite);
   cursor: pointer;
 
   &:hover {
     color: var(--offWhite);
     border-bottom: 4px solid var(--teal);
+  }
+
+  @media (max-width: 576px) {
+    gap: 3px;
   }
 `;
 

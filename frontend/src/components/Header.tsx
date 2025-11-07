@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import {FilmReelIcon} from '@phosphor-icons/react';
 import styled from 'styled-components';
 import { useAuth } from "../context/AuthContext";
@@ -5,9 +6,9 @@ import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 
 const HeaderSection = styled.header`
+  background: linear-gradient(255deg, var(--purple) 5%, var(--lightBlack));
   margin-bottom: 50px;
-  height: 40vh;
-  border-bottom: solid 8px teal;
+  height: 50vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -37,14 +38,53 @@ const SubHeading = styled.h2`
   font-size: clamp(1.2rem, 3vw + .5rem, 1rem);
 `
 
+const NavbarWrapper = styled.nav<{ scrolled: boolean }>`
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding: 0 20px;
+  box-shadow: 0 4px 6px var(--lightBlack60);
+  transition: background 0.5s ease;
+
+  background: ${({ scrolled }) =>
+    scrolled
+      ? 'linear-gradient(255deg, var(--purple), var(--lightBlack))'
+      : 'var(--lightBlack)'};
+
+  @media (max-width: 576px) {
+    justify-content: center;
+    padding: 0 10px;
+  }
+`;
+
 function Header() {
     const { user } = useAuth();
     const location = useLocation();
     const isLoginPage = location.pathname === "/login";
+    const [scrolled, setScrolled] = useState(false);
+    const headerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+      const handleScroll = () => {
+        if (!headerRef.current) return;
+        const headerBottom = headerRef.current.offsetHeight;
+        setScrolled(window.scrollY >= headerBottom);
+      };
+
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
   return (
     <>
-      {user && !isLoginPage && <Navbar />}
-      <HeaderSection>
+      {user && !isLoginPage &&
+      <NavbarWrapper scrolled={scrolled}>
+          <Navbar />
+      </NavbarWrapper>
+      }
+      <HeaderSection ref={headerRef}  >
         <Heading>
           <GradientHeading style={{margin: 0}}>Missed Movies</GradientHeading>
         </Heading>

@@ -4,22 +4,6 @@ import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
 import '../index.css';
 import Logout from "./Logout";
 
-
-const Nav = styled.nav`
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: linear-gradient(315deg, var(--purple) 25%, var(--teal));
-  display: flex;
-  justify-content: center;
-  padding: 0 20px;
-  margin-bottom: 50px;
-
-  @media (max-width: 576px) {
-    justify-content: center;
-  }
-`;
-
 const NavList = styled.ul`
   list-style: none;
   padding-left: 0;
@@ -28,6 +12,13 @@ const NavList = styled.ul`
   max-width: 1280px;
   justify-content: end;
   width: 100%;
+  max-width: 1280px;
+
+
+  @media (max-width: 576px) {
+    gap: 10px;
+    justify-content: center;
+  }
 `;
 
 const NavItem = styled.li`
@@ -43,8 +34,7 @@ const StyledNavLink = styled(NavLink)`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   color: var(--offWhite);
-  font-size: clamp(.75rem, 3vw + .25rem, 1);
-
+  font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
 
   &:hover {
     color: var(--offWhite);
@@ -54,27 +44,29 @@ const StyledNavLink = styled(NavLink)`
   &.active {
     border-bottom: 4px solid var(--pink);
   }
+
+  @media (max-width: 576px) {
+    gap: 3px;
+  }
 `;
 
 function Navbar() {
     return (
-        <Nav>
-          <NavList>
-            <NavItem>
-              <StyledNavLink to="/" end>
-                Your Movies<FilmStripIcon size={24} />
-              </StyledNavLink>
-            </NavItem>
-            <NavItem>
-              <StyledNavLink to="/search">
-                Find Movies<MagnifyingGlassPlusIcon size={24} />
-              </StyledNavLink>
-            </NavItem>
-            <NavItem>
-              <Logout />
-            </NavItem>
-          </NavList>
-        </Nav>
+      <NavList>
+        <NavItem>
+          <StyledNavLink to="/" end>
+            My Movies<FilmStripIcon size={24} />
+          </StyledNavLink>
+        </NavItem>
+        <NavItem>
+          <StyledNavLink to="/search">
+            Find Movies<MagnifyingGlassPlusIcon size={24} />
+          </StyledNavLink>
+        </NavItem>
+        <NavItem>
+          <Logout />
+        </NavItem>
+      </NavList>
     )
 }
 
