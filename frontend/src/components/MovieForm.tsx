@@ -35,11 +35,8 @@ const Select = styled.select`
 `
 
 const Button = styled.button`
+  padding: .6rem 1.4rem;
   background-color: var(--purple);
-  display: flex;
-  gap: 5px;
-  align-items: center;
-  transition: all 0.3s ease;
 
   &.delete {
     background-color: var(--darkTeal);

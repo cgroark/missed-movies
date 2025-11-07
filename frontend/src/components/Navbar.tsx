@@ -34,6 +34,7 @@ const StyledNavLink = styled(NavLink)`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   color: var(--offWhite);
+  font-weight: 500;
   font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
 
   &:hover {

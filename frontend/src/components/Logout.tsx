@@ -15,6 +15,7 @@ const LinkButton = styled.a`
   background-color: transparent;
   font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
   color: var(--offWhite);
+  font-weight: 500;
   cursor: pointer;
 
   &:hover {

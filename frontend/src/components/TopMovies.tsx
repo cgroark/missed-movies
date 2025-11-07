@@ -18,14 +18,12 @@ const CategoryList = styled.ul`
 
 const CategoryButton = styled.button`
   background-color: var(--darkGray);
-  display: flex;
-  margin: auto;
-  gap: 5px;
-  align-items: center;
-  transition: all 0.3s ease;
-  padding: 1.4rem 2.4rem;
+  box-shadow: 3px 3px 3px var(--teal) ;
+
   &.active, &:hover {
     background-color: var(--teal);
+    color: var(--lightBlack);
+    box-shadow: 3px 3px 3px var(--offWhite) ;
   }
 `
 
