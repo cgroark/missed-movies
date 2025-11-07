@@ -50,7 +50,7 @@ function Search() {
         const res = await fetch(`https://api.themoviedb.org/3/search/movie?&query=${debounceSearch}`, options);
         if(!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        setMovies(data.results.slice(0,5));
+        setMovies(data.results.slice(0,12));
         setData(data);
         console.log(movies);
       }

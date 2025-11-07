@@ -5,6 +5,10 @@ import { useAuth } from "../context/AuthContext";
 import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 
+interface NavbarWrapperProps {
+  scrolled: boolean;
+}
+
 const HeaderSection = styled.header`
   background: linear-gradient(255deg, var(--purple) 5%, var(--lightBlack));
   margin-bottom: 50px;
@@ -38,7 +42,9 @@ const SubHeading = styled.h2`
   font-size: clamp(1.2rem, 3vw + .5rem, 1rem);
 `
 
-const NavbarWrapper = styled.nav<{ scrolled: boolean }>`
+const NavbarWrapper = styled.nav.withConfig({
+  shouldForwardProp: (prop) => prop !== 'scrolled',
+})<NavbarWrapperProps>`
   position: sticky;
   top: 0;
   z-index: 100;
@@ -63,7 +69,7 @@ function Header() {
     const { user } = useAuth();
     const location = useLocation();
     const isLoginPage = location.pathname === "/login";
-    const [scrolled, setScrolled] = useState(false);
+    const [scrolled, setScrolled] = useState<boolean>(false);
     const headerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
