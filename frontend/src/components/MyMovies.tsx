@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FilmStripIcon } from '@phosphor-icons/react';
+import { FilmStripIcon, FunnelIcon } from '@phosphor-icons/react';
+import * as Popover from '@radix-ui/react-popover';
 import { useMovies } from '../context/MoviesContext';
 import type { movie, category, SortOption, StatusOption } from '../types/types';
 import MovieList from './MovieList';
@@ -87,6 +88,25 @@ const FilterSection = styled.div`
   gap: 10px;
   max-width: 1280px;
 `
+const FilterButton = styled(Popover.Trigger)`
+  background-color: var(--teal);
+  margin-left: auto;
+
+  &:hover {
+     background-color: var(--darkTeal);
+  }
+
+  &:disabled {
+    background-color: lightgrey;
+  }
+`;
+
+const FilterContent = styled(Popover.Content)`
+  background: var(--lightBlack);
+  border: 2px solid var(--offWhite);
+  border-radius: 8px;
+  padding: 15px;
+`;
 
 function MyMovies() {
   const { movies, isLoading, error, getMovies, activeCategory, setActiveCategory, status, setStatus, sortBy, setSortBy, rangeFrom, setRangeFrom, rangeTo, setRangeTo } = useMovies();
@@ -272,29 +292,43 @@ function MyMovies() {
               </li>
             )}
           </CategoryList>
+          <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
+          <Popover.Root>
+          <FilterButton className='slimmer' disabled={isLoading}>
+            {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
+            Filters
+          </FilterButton>
+            <Popover.Portal>
+              <FilterContent align="end" sideOffset={8}>
+                <>
+                <FilterSection>
+                  <label htmlFor='sort'>Sort by:</label>
+                  <Select id='sort' value={sortBy.value} onChange={handleSort}>
+                    {sortOptions.map((each) =>
+                      <option key={each.value} value={each.value}>{each.label}</option>
+                    )}
+                  </Select>
+                </FilterSection>
+
+                <FilterSection>
+                  <label htmlFor='status'>Status:</label>
+                  <Select id='status' value={status} onChange={handleStatusChange}>
+                    {statusOptions.map((each) =>
+                      <option key={each.value} value={each.value}>{each.label}</option>
+                    )}
+                  </Select>
+                </FilterSection>
+                </>
+
+              </FilterContent>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
         </div>
       )}
       {isInitialLoading && <Loader size='large' /> }
       {movies.length > 0  && !isInitialLoading && (
         <>
-          <FilterSection>
-            <label htmlFor='sort'>Sort by:</label>
-          <Select id='sort' value={sortBy.value} onChange={handleSort}>
-            {sortOptions.map((each) =>
-              <option key={each.value} value={each.value}>{each.label}</option>
-            )}
-          </Select>
-          </FilterSection>
-
-          <FilterSection>
-            <label htmlFor='status'>Status:</label>
-            <Select id='status' value={status} onChange={handleStatusChange}>
-              {statusOptions.map((each) =>
-                <option key={each.value} value={each.value}>{each.label}</option>
-              )}
-            </Select>
-          </FilterSection>
-
           <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
           <div ref={loaderRef} style={{ height: '40px' }} />
         </>

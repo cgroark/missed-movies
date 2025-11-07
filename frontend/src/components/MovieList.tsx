@@ -13,7 +13,7 @@ const MovieItems = styled.ul`
   padding: 10px 20px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-around;
+  justify-content: space-between;
   gap: 25px;
   max-width: 1280px;
   margin: 10px auto 50px;

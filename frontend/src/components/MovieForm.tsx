@@ -35,7 +35,6 @@ const Select = styled.select`
 `
 
 const Button = styled.button`
-  padding: .6rem 1.4rem;
   background-color: var(--purple);
 
   &.delete {
@@ -185,12 +184,12 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
           </div>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'  }}>
             {action === 'edit' && (
-              <Button className='delete' type='button' onClick={handleDelete}>
+              <Button className='delete slimmer' type='button' onClick={handleDelete}>
                 {isLoading ? 'Deleting' : 'Delete'}
                 <TrashIcon size={24} />
               </Button>
             )}
-            <Button type='submit'>
+            <Button className='slimmer' type='submit'>
               {isLoading ? 'Saving' : 'Save'}
               {isLoading ?
                 <Loader size='small' />
