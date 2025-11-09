@@ -78,7 +78,9 @@ function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
             }
           </Title>
             {action === 'category' ?
-            <CategoryForm />
+            <CategoryForm
+              onClose={handleClose}
+            />
             :
             <MovieForm
               currentMovie={currentMovie}

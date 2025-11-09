@@ -4,6 +4,7 @@ import type { movie, category } from "../types/types";
 import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
 import styled from "styled-components";
 import { useMovies } from "../context/MoviesContext";
+import { useCategories } from '../context/CategoriesContext';
 import { useToast } from '../context/ToastContext';
 import '../index.css';
 import Loader from "./Loader";
@@ -65,30 +66,15 @@ const ErrorField = styled.div`
 
 function MovieForm({currentMovie, action, onClose}: FormProps) {
   const { isLoading, error, getMovies, saveMovie, deleteMovie, activeCategory, status, sortBy } = useMovies();
+  const { categories, getCategories } = useCategories();
   const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
-  const [categories, setCategories] = useState<category[]>([]);
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
   const [feError, setError] = useState<string>('');
 
   useEffect(() => {
-      const getCategories = async () => {
-        try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          });
-          if(!res.ok) throw new Error('Category error');
-          const data = await res.json();
-          setCategories(data);
-        } catch (err: any) {
-            console.log('err', err);
-        }
-      }
-      getCategories();
-    }, [])
+    getCategories();
+  }, [])
 
   useEffect(() => {
     if (currentMovie?.status) {

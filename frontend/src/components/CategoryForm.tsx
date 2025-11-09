@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { PlusIcon} from '@phosphor-icons/react';
-import { useAuth } from '../context/AuthContext';
+import { useCategories } from "../context/CategoriesContext";
 import type { category } from "../types/types";
 import Loader from "./Loader";
+
+interface CategoryFormProps {
+  onClose: () =>  void;
+}
 
 const CategoryList = styled.ul`
   padding: 0 20px;
@@ -39,34 +43,13 @@ const Button = styled.button`
   }
 `
 
-function CategoryForm() {
-  const { token } = useAuth();
-  const [categories, setCategories] = useState<category[]>([]);
+function CategoryForm({onClose}: CategoryFormProps) {
+  const { isLoading, categories, getCategories, saveCategory } = useCategories();
   const [name, setName] = useState<string>('');
-  const [isLoading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
   const [isAdding, setAdding] = useState<boolean>(false);
 
   useEffect(() => {
-    setLoading(true);
-    const getCategories = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-
-          },
-        });
-        if(!res.ok) throw new Error('Category error');
-        const data = await res.json();
-        setCategories(data);
-      } catch (err: any) {
-          console.log('err', err);
-      } finally {
-        setLoading(false);
-      }
-    }
     getCategories();
   }, [])
 
@@ -74,28 +57,15 @@ function CategoryForm() {
     e.preventDefault();
     console.log(e.target);
     const newCategory: Partial<category> = {name}
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newCategory)
-      });
-      if(!res.ok) throw new Error('Category error');
-      const data = await res.json();
-      console.log("DATA back", data)
-    } catch (err: any) {
-        console.log('err', err);
-    } finally {
-      // setLoading(false);
+    const { success, error: saveError } = await saveCategory(newCategory)
+
+    if(!success) {
+      setError(saveError ?? 'unknown error');
+      return;
     }
-
+    await onClose();
+    getCategories(true);
   }
-
-
-
 
   return (
     <>

@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon, FunnelIcon } from '@phosphor-icons/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useMovies } from '../context/MoviesContext';
-import { useAuth } from '../context/AuthContext';
+import { useCategories } from '../context/CategoriesContext';
 import type { movie, category, SortOption, StatusOption } from '../types/types';
 import MovieList from './MovieList';
 import Modal from './Modal';
@@ -110,14 +110,12 @@ const FilterContent = styled(Popover.Content)`
 `;
 
 function MyMovies() {
-  const { token } = useAuth();
   const { movies, isLoading, error, getMovies, activeCategory, setActiveCategory, status, setStatus, sortBy, setSortBy, rangeFrom, setRangeFrom, rangeTo, setRangeTo } = useMovies();
+  const { categories, getCategories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit' | 'category'>('add');
   const [open, setOpen] = useState<boolean>(false);
-  const [categories, setCategories] = useState<category[]>([]);
-  const [categoryLoading, setLoading] = useState<boolean>(false);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -144,27 +142,6 @@ function MyMovies() {
   }, [searchParams]);
 
   useEffect(() => {
-    const getCategories = async () => {
-      setLoading(true);
-
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(!res.ok) throw new Error('Category error');
-        const data = await res.json();
-        console.log('DATA CATegories', data)
-        setCategories(data);
-      } catch (err: any) {
-          console.log('err', err);
-      } finally {
-        setLoading(false);
-      }
-    }
     getCategories();
   }, []);
 
@@ -289,7 +266,7 @@ function MyMovies() {
 
   return (
     <>
-      {!categoryLoading && categories.length && (
+      {categories.length > 0 && (
         <div>
           <CategoryList>
             {categories.map((each: category) =>
