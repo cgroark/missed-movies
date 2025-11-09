@@ -9,7 +9,7 @@ import '../index.css';
 import Loader from "./Loader";
 
 interface FormProps {
-  currentMovie: movie | undefined;
+  currentMovie: movie | null;
   action: 'add' | 'edit';
   onClose: () =>  void;
 }
