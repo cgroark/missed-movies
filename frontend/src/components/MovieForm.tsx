@@ -15,41 +15,6 @@ interface FormProps {
   onClose: () =>  void;
 }
 
-const Label = styled.label`
-  display: flex;
-  text-align: left;
-  gap: 5px;
-  align-items: center;
-`
-
-const Select = styled.select`
-  display: block;
-  text-align: left;
-  width: 100%;
-  margin: 5px 0 20px 0;
-  border-radius: 4px;
-  border: 1px solid var(--lightBlack);
-  background-color: white;
-  color: var(--lightBlack);
-  min-height: 30px;
-  padding: 5px;
-`
-
-const Button = styled.button`
-  background-color: var(--purple);
-
-  &.delete {
-    background-color: var(--darkTeal);
-
-    &:hover {
-     background-color: var(--teal);
-    }
-  }
-
-  &:hover {
-     background-color: var(--darkPurple);
-  }
-`
 const ErrorField = styled.div`
   background-color: var(--teal);
   border-radius: 10px;
@@ -146,43 +111,43 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       <div>
         <form onSubmit={handleSave}>
           <div>
-            <Label htmlFor='category'>
+            <label htmlFor='category'>
               <FileVideoIcon size={24} />
               Category
-            </Label>
-            <Select id='category' value={category} onChange={(e) => setCategory(Number(e.target.value))} >
+            </label>
+            <select id='category' value={category} onChange={(e) => setCategory(Number(e.target.value))} >
               <option disabled value=''>Select Category</option>
               {categories.map((each: category) =>
                 <option key={each.id} value={each.id}>{each.name}</option>
               )}
-            </Select>
+            </select>
           </div>
           <div>
-            <Label htmlFor='status'>
+            <label htmlFor='status'>
               <FilmSlateIcon size={24} />
               Status
-            </Label>
-            <Select id='status' value={movieStatus} onChange={(e) => setMovieStatus(Number(e.target.value))} >
+            </label>
+            <select id='status' value={movieStatus} onChange={(e) => setMovieStatus(Number(e.target.value))} >
               <option disabled value=''>Select Status</option>
               <option value='1'>Want to watch</option>
               <option value='2'>Already watched</option>
-            </Select>
+            </select>
           </div>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'  }}>
             {action === 'edit' && (
-              <Button className='delete slimmer' type='button' onClick={handleDelete}>
+              <button className='teal slimmer' type='button' onClick={handleDelete}>
                 {isLoading ? 'Deleting' : 'Delete'}
                 <TrashIcon size={24} />
-              </Button>
+              </button>
             )}
-            <Button className='slimmer' type='submit'>
+            <button className='slimmer' type='submit'>
               {isLoading ? 'Saving' : 'Save'}
               {isLoading ?
                 <Loader size='small' />
                 :
                 <FloppyDiskIcon size={24} />
               }
-            </Button>
+            </button>
           </div>
           {(feError || error ) && (
             <ErrorField>

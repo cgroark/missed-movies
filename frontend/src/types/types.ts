@@ -21,7 +21,7 @@ export interface JSONSearchResults {
 }
 
 export interface category {
-  id: number;
+  id: number | null;
   name: string;
 }
 

@@ -52,6 +52,11 @@ button {
   cursor: pointer;
   color: var(--offWhite);
   transition: all 0.3s ease;
+  background-color: var(--purple);
+
+  &:hover {
+    background-color: var(--darkPurple);
+  }
 
   @media (max-width: 768px) {
     padding: .6rem 1rem;
@@ -61,4 +66,49 @@ button {
 
 button.slimmer {
   padding: .5rem 1rem;
+}
+
+button.teal {
+  background-color: var(--teal);
+
+  &:hover {
+    background-color: var(--darkTeal);
+  }
+}
+
+label {
+  display: flex;
+  text-align: left;
+  gap: 5px;
+  align-items: center;
+}
+
+input {
+  display: block;
+  text-align: left;
+  width: 100%;
+  margin: 5px 0 20px 0;
+  border-radius: 4px;
+  border: 1px solid var(--offWhite);
+  min-height: 30px;
+  padding: 5px;
+}
+
+select {
+  display: block;
+  text-align: left;
+  width: 100%;
+  margin: 5px 0 20px 0;
+  border-radius: 4px;
+  border: 1px solid var(--lightBlack);
+  background-color: white;
+  color: var(--lightBlack);
+  min-height: 30px;
+  padding: 5px;
+}
+
+input.light {
+  border: 1px solid var(--lightBlack);
+  background-color: white;
+  color: var(--lightBlack);
 }

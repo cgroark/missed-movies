@@ -6,37 +6,6 @@ import { useNavigate } from "react-router-dom";
 import Loader from './Loader';
 import '../index.css';
 
-const Label = styled.label`
-  display: flex;
-  text-align: left;
-  color: var(--offWhite);
-  gap: 5px;
-  align-items: center;
-`
-
-const Input = styled.input`
-  display: block;
-  text-align: left;
-  width: 100%;
-  margin: 5px 0 20px 0;
-  border-radius: 4px;
-  border: 1px solid var(--offWhite);
-  min-height: 30px;
-  padding: 5px;
-`
-
-const Button = styled.button`
-  background-color: var(--purple);
-  display: flex;
-  margin: auto;
-  gap: 5px;
-  align-items: center;
-
-  &:hover {
-     background-color: var(--darkPurple);
-  }
-`
-
 const ToggleButton = styled.button`
   display: flex;
   margin: auto;
@@ -106,53 +75,50 @@ function SignUp() {
       <div>
       <form style={{maxWidth: '400px', margin: '20px auto'}} onSubmit={handleSubmit}>
           <div>
-            <Label htmlFor='email'>
+            <label htmlFor='email'>
               <FinnTheHumanIcon size={24} />
               Email
-            </Label>
-            <Input
+            </label>
+            <input
               id='email'
               type='email'
               placeholder='Email'
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-            >
-            </Input>
+            />
           </div>
           <div>
-            <Label htmlFor='password'>
+            <label htmlFor='password'>
               <PasswordIcon size={24} />
               Password
-            </Label>
-            <Input
+            </label>
+            <input
               id='password'
               type='password'
               placeholder='Password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-            >
-            </Input>
+            />
           </div>
         {mode === 'signup' && (
           <>
             <div>
-              <Label htmlFor='confirmPassword'>
+              <label htmlFor='confirmPassword'>
                 <PasswordIcon size={24} />
                 Confirm Password
-              </Label>
-              <Input
+              </label>
+              <input
                 id='confirmPassword'
                 type='password'
                 placeholder='Confirm Password'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-              >
-              </Input>
+              />
             </div>
           </>
         )}
 
-        <Button type='submit'>
+        <button style={{margin: 'auto'}} type='submit' className='slimmer'>
 
           {isLoading ?
             mode === 'login' ? 'Logging In' : 'Signing Up'
@@ -160,7 +126,7 @@ function SignUp() {
             mode === 'login' ? 'Login' : 'Sign Up'
           }
           {isLoading ? <Loader size={'small'} /> : <FilmSlateIcon size={24} />}
-        </Button>
+        </button>
 
           {(authError || error || message) && (
           <ErrorField>

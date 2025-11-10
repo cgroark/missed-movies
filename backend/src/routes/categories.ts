@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { supabase } from "../services/supabaseClient";
+import type { category } from "../../../frontend/src/types/types";
+
 
 const categoryRouter = Router();
 
@@ -74,6 +76,41 @@ categoryRouter.post("/", async (_req, res) => {
   } catch (err: any) {
     console.error("Error creating category:", err);
     res.status(500).json({ error: err.message || "Unexpected error" });
+  }
+});
+
+categoryRouter.patch('/:id', async (req, res ) => {
+  try {
+    const { id } = req.params;
+    const categoryItem: Partial<category> = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        code: 'MISSING_ID',
+        error: 'ID is required',
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('categories')
+      .update([categoryItem])
+      .eq('id', id)
+      .select();
+
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        code: 'NOT_FOUND',
+        error: 'Movie not found',
+      });
+    }
+    res.status(201).json(data[0]);
+
+  } catch (err: any) {
+    res.status(500).json({
+      code: 'INTERNAL_ERROR',
+      error: err.message || 'Error saving this category.',
+    });
   }
 });
 

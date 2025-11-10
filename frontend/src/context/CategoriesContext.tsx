@@ -43,15 +43,20 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
   const saveCategory = async (category: Partial<category>) => {
     setLoading(true);
     setError(null);
+    let isEditing = category.id;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-        method: 'POST',
+      const url = new URL(`${import.meta.env.VITE_API_URL}/api/categories`);
+      if (isEditing) url.pathname += `/${category.id}`;
+
+      const res = await fetch(url, {
+        method: isEditing ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(category)
       });
+
       if(!res.ok) throw new Error('Category error');
       const data = await res.json().catch(() => ({}));
       if(!res.ok) {
