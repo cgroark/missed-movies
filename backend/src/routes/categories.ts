@@ -8,17 +8,16 @@ const categoryRouter = Router();
 categoryRouter.get('/', async (_req, res) => {
   try {
     const authHeader = _req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Missing Authorization header' });
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid Authorization header" });
     }
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Invalid token format' });
-    }
+
+    const token = authHeader.substring("Bearer ".length);
+
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      return res.status(401).json({ error: "Invalid or expired token" });
+      return res.status(401).json({ error: "Your session has expired. Please log in again." });
     }
 
     const { data, error } = await supabase
@@ -36,21 +35,20 @@ categoryRouter.get('/', async (_req, res) => {
 categoryRouter.post("/", async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Missing Authorization header' });
+    if (!authHeader?.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Missing or invalid Authorization header" });
     }
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Invalid token format' });
-    }
+
+    const token = authHeader.substring("Bearer ".length);
+
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
     if (authError || !user) {
-      return res.status(401).json({ error: "Invalid or expired token" });
+      return res.status(401).json({ error: "Your session has expired. Please log in again." });
     }
 
     const categoryItem: category = {...req.body, user_id: user.id};
-    console.log('CAT ITEM', categoryItem)
+
     if (!categoryItem.name) {
       return res.status(400).json({ error: "Category name is required" });
     }

@@ -40,12 +40,10 @@ const CategoryButton = styled.button`
   box-shadow: 3px 3px 3px var(--teal) ;
 
   &.active, &:hover {
-    background-color: var(--pink);
+    background-color: var(--pink) !important;
     color: var(--lightBlack);
     box-shadow: 3px 3px 3px var(--offWhite) ;
   }
-
-
 `
 
 const StyledLink = styled(Link)`
@@ -109,9 +107,21 @@ const FilterContent = styled(Popover.Content)`
   padding: 15px;
 `;
 
+const ErrorField = styled.div`
+  background-color: var(--lightBlack);
+  border: solid 2px var(--pink);
+  border-radius: 10px;
+  width: fit-content;
+  margin: 25px auto;
+  padding: 10px 25px;
+
+  p {
+    margin: 0;
+  }
+`
 function MyMovies() {
   const { movies, isLoading, error, getMovies, activeCategory, setActiveCategory, status, setStatus, sortBy, setSortBy, rangeFrom, setRangeFrom, rangeTo, setRangeTo } = useMovies();
-  const { categories, getCategories } = useCategories();
+  const { categories, categoryError, getCategories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit' | 'category'>('add');
@@ -288,6 +298,9 @@ function MyMovies() {
               </button>
             </li>
           </CategoryList>
+            {categoryError &&
+        <ErrorField>{categoryError}</ErrorField>
+      }
           <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
           <Popover.Root>
           <FilterButton className='slimmer' disabled={isLoading}>

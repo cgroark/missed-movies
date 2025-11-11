@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { FloppyDiskIcon, PlusIcon, XCircleIcon } from '@phosphor-icons/react';
-
-import { useCategories } from "../context/CategoriesContext";
+import { useCategories,  } from "../context/CategoriesContext";
+import { useToast } from '../context/ToastContext';
 import type { category } from "../types/types";
 import Loader from "./Loader";
 
@@ -27,10 +27,25 @@ const CategoryItem = styled.li`
   padding: 4px 0;
 `
 
+const ErrorField = styled.div`
+  background-color: var(--lightBlack);
+  color: var(--offWhite);
+  border: solid 2px var(--pink);
+  border-radius: 10px;
+  width: fit-content;
+  margin: 25px auto;
+  padding: 10px 25px;
+
+  p {
+    margin: 0;
+  }
+`
+
 function CategoryForm({onClose}: CategoryFormProps) {
-  const { isLoading, categories, getCategories, saveCategory } = useCategories();
+  const { isLoading, categories, getCategories, saveCategory, categoryError, setCategoryError } = useCategories();
+  const { showToast } = useToast();
   const [name, setName] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const [isAdding, setAdding] = useState<boolean>(false);
   const [isEditing, setEditing] = useState<boolean>(false);
   const [currentlyEditing, setCurrentlyEditing] = useState<number | null>(null)
@@ -42,6 +57,15 @@ function CategoryForm({onClose}: CategoryFormProps) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setCategoryError(null);
+    console.log(isEditing, name, editingValue)
+    if((!isEditing && !name) || (isEditing && !editingValue)) {
+      setError('Category name is required');
+      console.log('ateg')
+      console.log(error)
+      return;
+    }
     const newCategory: Partial<category> =
     isEditing ? {name: editingValue, id: currentlyEditing} : {name}
     const { success, error: saveError } = await saveCategory(newCategory)
@@ -50,6 +74,11 @@ function CategoryForm({onClose}: CategoryFormProps) {
       setError(saveError ?? 'unknown error');
       return;
     }
+    showToast(
+      isEditing
+      ? 'Category updated successfully'
+      : 'Category added successfully'
+    );
     await onClose();
     getCategories(true);
   }
@@ -77,27 +106,61 @@ function CategoryForm({onClose}: CategoryFormProps) {
                 {each.id !== 1 && (
                   isEditing && currentlyEditing === each.id ?
                   <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%'}}>
-                    <button className='slimmer teal' type="button" onClick={() => setEditing(false)}>Cancel <XCircleIcon size={24} /></button>
+                    <button className='slimmer teal' type="button"
+                      onClick={() => {
+                        setEditing(false);
+                        setError(null);
+                        setCategoryError(null);
+                      }
+                      }>
+                      Cancel <XCircleIcon size={24} /></button>
                     <button className='slimmer' type='submit' onClick={handleSave}>Save <FloppyDiskIcon size={24} /></button>
                   </div>
                   :
                   <button className='slimmer' type="button" onClick={() => handleEdit(each.id, each.name)}>Edit</button>
                 )
                 }
+
               </CategoryItem>
+            )}
+            {(categoryError || error) && !isAdding &&  (
+              <ErrorField>{categoryError ? categoryError : error}</ErrorField>
             )}
           </CategoryList>
           {!isAdding && !isEditing &&
-            <button style={{margin: 'auto'}} className='slimmer teal' onClick={() => setAdding(true)}><PlusIcon size={24} /> Add Category</button>
+            <button style={{margin: 'auto'}} className='slimmer teal'
+              onClick={() => {
+                setAdding(true);
+                setError(null);
+                setCategoryError(null);
+                setEditing(false);
+
+              }
+            }>
+              Add Category
+              <PlusIcon size={24} />
+            </button>
           }
           {isAdding && !isEditing &&
           <form style={{padding: '0 20px'}} onSubmit={handleSave}>
             <label htmlFor="name">Category Name</label>
             <input className="light" id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%'}}>
-              <button className='slimmer teal' type="button" onClick={() => setAdding(false)}>Cancel <XCircleIcon size={24} /></button>
+              <button className='slimmer teal' type="button"
+                onClick={() => {
+                  setAdding(false);
+                  setError(null);
+                  setCategoryError(null);
+                  setName('');
+                }
+                }>
+                  Cancel <XCircleIcon size={24} />
+                </button>
               <button className='slimmer' type="submit">Save <FloppyDiskIcon size={24} /></button>
             </div>
+            {categoryError || error && (
+              <ErrorField>{categoryError ? categoryError : error}</ErrorField>
+            )}
           </form>
           }
         </>

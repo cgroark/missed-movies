@@ -5,7 +5,8 @@ import type { category } from "../types/types";
 interface CategoryContextType {
   categories: category[];
   isLoading: boolean;
-  error: string | null;
+  categoryError: string | null;
+  setCategoryError: (categoryError: string | null) => void;
   getCategories: (force?: boolean) => Promise<void>;
   saveCategory: (category: Partial<category>) => Promise<{success: boolean, error?: string}>
 }
@@ -15,13 +16,13 @@ const CategoryContext = createContext<CategoryContextType | null>(null);
 export const CategoryProvider = ({ children }: { children: React.ReactNode }) => {
   const [categories, setCategories] = useState<category[]>([]);
   const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
   const { token } = useAuth();
 
   const getCategories = async (force = false) => {
     if (!force && categories.length > 0) return;
     setLoading(true);
-    setError(null);
+    setCategoryError(null);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
         method: "GET",
@@ -30,11 +31,27 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!res.ok) throw new Error("Failed to load categories");
+
+      if (!res.ok) {
+        let message: string;
+        try {
+          const errData = await res.json();
+          message = errData.error;
+        } catch {
+          message = "Failed to load categories";
+        }
+
+        if (res.status === 401) message = "Your session has expired. Please log in again.";
+
+        else if (res.status === 500) message = "Server error: categories could not be loaded";
+
+        throw new Error(message);
+      }
+
       const data: category[] = await res.json();
       setCategories(data);
     } catch (err: any) {
-      setError(err.message || "Unknown error");
+      setCategoryError(err.message || "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -42,8 +59,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
 
   const saveCategory = async (category: Partial<category>) => {
     setLoading(true);
-    setError(null);
-    console.log("FE CAT", category)
+    setCategoryError(null);
     let isEditing = category.id;
     try {
       const url = new URL(`${import.meta.env.VITE_API_URL}/api/categories`);
@@ -58,18 +74,24 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
         body: JSON.stringify(category)
       });
 
-      if(!res.ok) throw new Error('Category error');
       const data = await res.json().catch(() => ({}));
+
       if(!res.ok) {
-        const backendError = data?.error || res.statusText || 'Unknown error';
-        // const backendCode = data?.code;
+        let backendError: string;
+
+        if (res.status === 401) backendError = "Your session has expired. Please log in again.";
+
+        else if (res.status === 500) backendError = "Server error: categories could not be saved";
+
+        else (backendError = data?.error || res.statusText || 'Unknown error')
+
         throw new Error(backendError);
-      };
+      }
       return {success: true}
     }
     catch (err: any) {
       const message = err instanceof Error ? err.message : String(err);
-      setError(message);
+      setCategoryError(message);
       return {success: false, error: message}
     }
     finally {
@@ -78,7 +100,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
   }
 
   return (
-    <CategoryContext.Provider value={{ categories, isLoading, error, getCategories, saveCategory }}>
+    <CategoryContext.Provider value={{ categories, isLoading, categoryError, setCategoryError, getCategories, saveCategory }}>
       {children}
     </CategoryContext.Provider>
   );
