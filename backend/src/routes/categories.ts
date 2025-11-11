@@ -1,24 +1,14 @@
 import { Router } from "express";
 import { supabase } from "../services/supabaseClient";
 import type { category } from "../../../frontend/src/types/types";
-
+import { getUserFromRequest } from "../utils/utils";
 
 const categoryRouter = Router();
 
 categoryRouter.get('/', async (_req, res) => {
   try {
-    const authHeader = _req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Missing or invalid Authorization header" });
-    }
-
-    const token = authHeader.substring("Bearer ".length);
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return res.status(401).json({ error: "Your session has expired. Please log in again." });
-    }
+    const user = await getUserFromRequest(_req, res);
+    if (!user) return;
 
     const { data, error } = await supabase
       .from('categories')
@@ -34,23 +24,16 @@ categoryRouter.get('/', async (_req, res) => {
 
 categoryRouter.post("/", async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
-      return res.status(401).json({ error: "Missing or invalid Authorization header" });
-    }
-
-    const token = authHeader.substring("Bearer ".length);
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return res.status(401).json({ error: "Your session has expired. Please log in again." });
-    }
+    const user = await getUserFromRequest(req, res);
+    if (!user) return;
 
     const categoryItem: category = {...req.body, user_id: user.id};
 
     if (!categoryItem.name) {
-      return res.status(400).json({ error: "Category name is required" });
+       return res.status(400).json({
+        code: 'MISSING_CATEGORY_NAME',
+        error: 'Category name is required',
+      });
     }
 
     const { data, error } = await supabase
@@ -60,7 +43,6 @@ categoryRouter.post("/", async (req, res) => {
 
     if (error) throw error;
     res.status(201).json(data[0]);
-
   } catch (err: any) {
     res.status(500).json({
       code: 'INTERNAL_ERROR',
@@ -103,6 +85,5 @@ categoryRouter.patch('/:id', async (req, res ) => {
     });
   }
 });
-
 
 export default categoryRouter;

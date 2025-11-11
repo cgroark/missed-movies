@@ -59,11 +59,8 @@ function CategoryForm({onClose}: CategoryFormProps) {
     e.preventDefault();
     setError(null);
     setCategoryError(null);
-    console.log(isEditing, name, editingValue)
     if((!isEditing && !name) || (isEditing && !editingValue)) {
       setError('Category name is required');
-      console.log('ateg')
-      console.log(error)
       return;
     }
     const newCategory: Partial<category> =
@@ -74,6 +71,7 @@ function CategoryForm({onClose}: CategoryFormProps) {
       setError(saveError ?? 'unknown error');
       return;
     }
+    console.log('SUCCESS,', success)
     showToast(
       isEditing
       ? 'Category updated successfully'

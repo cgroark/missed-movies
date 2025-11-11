@@ -1,11 +1,12 @@
 import { createContext, useContext, useState } from "react";
+import { handleApiError } from "../utils/utils";
 import type { movie, SortOption } from "../types/types";
 import { useAuth } from "./AuthContext";
 
 interface MoviesContextType {
   movies: movie[],
   isLoading: boolean,
-  error: string,
+  error: string | null,
   activeCategory: number | null,
   status: number,
   sortBy: SortOption,
@@ -17,8 +18,8 @@ interface MoviesContextType {
   setRangeFrom: (rangeFrom: number) => void;
   setRangeTo: (rangeTo: number) => void;
   getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<movie[]>,
-  saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, error?: string}>,
-  deleteMovie: (id: number) => Promise<{success: boolean, error?: string}>;
+  saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, movie?: movie, error?: string | null}>,
+  deleteMovie: (id: number) => Promise<{success: boolean, movie?: movie, error?: string}>;
 }
 
 const MoviesContext = createContext<MoviesContextType | null>(null);
@@ -27,11 +28,11 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   const [movies, setMovies] = useState<movie[]>([]);
   const { token } = useAuth();
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [status, setStatus] = useState<number>(1);
   const [rangeFrom, setRangeFrom] = useState<number>(0);
-  const [rangeTo, setRangeTo] = useState<number>(5);
+  const [rangeTo, setRangeTo] = useState<number>(11);
   const [sortBy, setSortBy] = useState<SortOption>({
     key: 'title',
     value: 1,
@@ -41,7 +42,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
 
   const getMovies = async (from = rangeFrom, to = rangeTo, category = activeCategory, sortOption = sortBy, movieStatus = status) => {
     setLoading(true);
-    setError('');
+    setError(null);
     try {
       const url = new URL (`${import.meta.env.VITE_API_URL}/api/movies?from=${String(from)}&to=${String(to)}`);
       if (category) url.searchParams.append('category', String(category));
@@ -58,58 +59,23 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      if(!res.ok) throw new Error('Failed to get your movies');
+      if (!res.ok) await handleApiError(res, "load movies");
+
       const data: movie[] = await res.json();
       setMovies((prev) => from === 0 ? data : [...prev, ...data]);
       return data;
     }
     catch (err: any) {
-      setError(err instanceof Error ? err.message : String(err) )
+      setError(err instanceof Error ? err.message : String(err))
     }
     finally {
       setLoading(false);
     }
   }
 
-  const deleteMovie = async (id: number): Promise<{ success: boolean; error?: string }> => {
+   const saveMovie = async(movie: movie | Partial<movie>, action: string): Promise<{ success: boolean; movie?: movie, error?:string}> => {
     setLoading(true);
-    setError('');
-    try {
-      const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies/${id}`);
-      const res = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-      })
-
-      const data = await res.json().catch(() => ({}));
-      if(!res.ok) {
-        const backendError = data?.error || res.statusText || 'Unknown error';
-        const backendCode = data?.code;
-
-        if (backendCode === 'INTERNAL_ERROR') {
-          throw new Error('That movie is already in your list.');
-        } else if (backendCode === 'MISSING_ID') {
-          throw new Error('Movie is missing ID');
-        } else {
-          throw new Error(backendError);
-        }
-      };
-      return {success: true}
-    } catch (err: any) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message);
-      return {success: false, error: message}
-    } finally {
-        setLoading(false);
-    }
-  }
-
-  const saveMovie = async(movie: movie | Partial<movie>, action: string): Promise<{ success: boolean; error?:string}> => {
-    setLoading(true);
-    setError('');
+    setError(null);
     try {
       const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
       if (action === 'edit') url.pathname += `/${movie.id}`;
@@ -125,33 +91,56 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       });
 
       const data = await res.json().catch(() => ({}));
-
-      if(!res.ok) {
-        const backendError = data?.error || res.statusText || 'Unknown error';
-        const backendCode = data?.code;
-
-        if (backendCode === 'DUPLICATE_MOVIE') {
-          throw new Error('That movie is already in your list.');
-        } else if (backendCode === 'MISSING_TITLE') {
-          throw new Error('A title is required before saving.');
-        } else if (backendCode === 'MISSING_ID') {
-          throw new Error('Movie is missing ID');
-        } else if (backendCode === 'NOT FOUND') {
-          throw new Error('Movie not found.');
-        }
-        else {
-          throw new Error(backendError);
-        }
-      };
-      return {success: true}
+      if (!res.ok) await handleApiError(res, "save movie");
+      return {success: true, movie: data}
     }
     catch (err: any) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message);
-      return {success: false, error: message}
+      switch (err.code) {
+        case "DUPLICATE_MOVIE":
+          setError("That movie is already in your list.");
+          break;
+        case "MISSING_TITLE":
+          setError("A title is required before saving.");
+          break;
+        case "MISSING_ID":
+          setError("Movie is missing ID.");
+          break;
+        case "NOT_FOUND":
+          setError("Movie not found.");
+          break;
+        default:
+          setError(err.message || "Unknown error occurred.");
+      }
+      return {success: false, error: error}
     }
     finally {
       setLoading(false);
+    }
+  }
+
+  const deleteMovie = async (id: number): Promise<{ success: boolean; movie?: movie, error?: string | null }> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies/${id}`);
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+      })
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) await handleApiError(res, "delete movie");
+      return {success: true, movie: data}
+    } catch (err: any) {
+      const message = err instanceof Error ? err.message : String(err);
+      setError(message);
+      return {success: false, error: message}
+    } finally {
+        setLoading(false);
     }
   }
 

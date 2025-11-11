@@ -178,7 +178,7 @@ function MyMovies() {
   }, [hasMore, isFetchingMore, isLoading]);
 
   useEffect(() => {
-    if (rangeFrom === 0 && rangeTo === 5) return;
+    if (rangeFrom === 0 && rangeTo === 11) return;
     if (isFetchingMore || !hasMore) return;
 
     const fetchMore = async () => {
@@ -200,7 +200,7 @@ function MyMovies() {
   setHasMore(true);
   setIsFetchingMore(false);
   setRangeFrom(0);
-  setRangeTo(5);
+  setRangeTo(11);
 
   if (observerRef.current && loaderRef.current) {
     observerRef.current.observe(loaderRef.current);

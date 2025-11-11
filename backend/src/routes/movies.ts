@@ -1,24 +1,47 @@
 import { Router } from "express";
 import { supabase } from "../services/supabaseClient";
 import type { movie } from "../../../frontend/src/types/types";
+import { getUserFromRequest } from "../utils/utils";
 
 const movieRouter = Router();
 
+movieRouter.get('/', async (_req, res) => {
+  try {
+    const user = await getUserFromRequest(_req, res);
+    if (!user) return;
+
+    const { category, sortBy, asc, status, from, to } = _req.query
+    const direction = asc === 'true' ? { ascending: true } : { ascending: false };
+
+    let query = supabase
+      .from('movies')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('status', { ascending: true })
+      .order(String(sortBy), direction)
+      .range(Number(from), Number(to))
+
+    if (category) {
+      query = query.eq('category', category);
+    }
+
+    if (status) {
+      query.eq('status', status)
+    }
+
+    const { data, error } = await query;
+
+    if (error) throw error;
+    res.json(data);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 movieRouter.post('/', async (req, res ) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Missing Authorization header' });
-    }
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Invalid token format' });
-    }
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return res.status(401).json({ error: "Invalid or expired token" });
-    }
+    const user = await getUserFromRequest(req, res);
+    if (!user) return;
 
     const movieItem: movie = {...req.body, user_id: user.id};
 
@@ -84,49 +107,6 @@ movieRouter.patch('/:id', async (req, res ) => {
       code: 'INTERNAL_ERROR',
       error: err.message || 'Error saving this movie.',
     });
-  }
-});
-
-movieRouter.get('/', async (_req, res) => {
-  try {
-    const authHeader = _req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: 'Missing Authorization header' });
-    }
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: 'Invalid token format' });
-    }
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-
-    if (authError || !user) {
-      return res.status(401).json({ error: "Invalid or expired token" });
-    }
-
-    const { category, sortBy, asc, status, from, to } = _req.query
-    const direction = asc === 'true' ? { ascending: true } : { ascending: false };
-
-    let query = supabase
-      .from('movies')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('status', { ascending: true })
-      .order(String(sortBy), direction)
-      .range(Number(from), Number(to))
-
-    if (category) {
-      query = query.eq('category', category);
-    }
-
-    if (status) {
-      query.eq('status', status)
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    res.json(data);
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
   }
 });
 
