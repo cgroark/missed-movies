@@ -54,14 +54,14 @@ button {
   transition: all 0.3s ease;
   background-color: var(--purple);
 
-  &:hover {
-    background-color: var(--darkPurple);
-  }
-
   @media (max-width: 768px) {
     padding: .6rem 1rem;
     border-radius: 4px;
   }
+}
+
+button:not(.no-hover):hover {
+  background-color: var(--darkPurple);
 }
 
 button.slimmer {
@@ -70,10 +70,10 @@ button.slimmer {
 
 button.teal {
   background-color: var(--teal);
+}
 
-  &:hover {
-    background-color: var(--darkTeal);
-  }
+button.teal:hover {
+  background-color: var(--darkTeal);
 }
 
 label {
@@ -84,7 +84,7 @@ label {
 }
 
 input {
-  display: block;
+  display: inline-block;
   box-sizing: border-box;
   text-align: left;
   width: 100%;

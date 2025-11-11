@@ -7,6 +7,7 @@ interface AuthContextType {
   token: string |null;
   isLoading: boolean;
   authError: string;
+  setAuthError: (authError: string) => void;
   signIn: (email: string, password: string) => Promise<{success: boolean, error?: string}>,
   signUp: (email: string, password: string) => Promise<{success: boolean, error?: string}>,
   signOut: () => Promise<{success: boolean, error?: string}>,
@@ -85,7 +86,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       setUser(null);
       setToken(null);
-      console.log('data signout')
       return {success: true};
     } catch (err: any) {
       const message = err instanceof Error ? err.message : String(err);
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, authError, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, token, isLoading, authError, setAuthError, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
