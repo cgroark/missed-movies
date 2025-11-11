@@ -23,6 +23,7 @@ export interface JSONSearchResults {
 export interface category {
   id: number | null;
   name: string;
+  user_id: string | undefined;
 }
 
 export interface SortOption {

@@ -43,6 +43,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
   const saveCategory = async (category: Partial<category>) => {
     setLoading(true);
     setError(null);
+    console.log("FE CAT", category)
     let isEditing = category.id;
     try {
       const url = new URL(`${import.meta.env.VITE_API_URL}/api/categories`);
