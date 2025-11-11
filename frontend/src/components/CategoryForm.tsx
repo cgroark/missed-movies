@@ -87,11 +87,11 @@ function CategoryForm({onClose}: CategoryFormProps) {
               </CategoryItem>
             )}
           </CategoryList>
-          {!isAdding &&
+          {!isAdding && !isEditing &&
             <button style={{margin: 'auto'}} className='slimmer teal' onClick={() => setAdding(true)}><PlusIcon size={24} /> Add Category</button>
           }
-          {isAdding &&
-          <form onSubmit={handleSave}>
+          {isAdding && !isEditing &&
+          <form style={{padding: '0 20px'}} onSubmit={handleSave}>
             <label htmlFor="name">Category Name</label>
             <input className="light" id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} />
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%'}}>

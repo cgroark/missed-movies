@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FilmStripIcon, FunnelIcon } from '@phosphor-icons/react';
+import { FilmStripIcon, FunnelIcon, NotePencilIcon } from '@phosphor-icons/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useMovies } from '../context/MoviesContext';
 import { useCategories } from '../context/CategoriesContext';
@@ -270,7 +270,7 @@ function MyMovies() {
         <div>
           <CategoryList>
             {categories.map((each: category) =>
-                <li key={each.id}>
+              <li key={each.id}>
                 <CategoryButton
                   onClick={() => handleCategoryChange(each.id)}
                   className={ activeCategory === each.id ? 'active' : ''}
@@ -279,8 +279,15 @@ function MyMovies() {
                 </CategoryButton>
               </li>
             )}
+            <li>
+              <button
+                className='slimmer'
+                onClick={handleEditCategory}>
+                {categories.length > 1 ? 'Edit Categories' :
+                'Add Category'}<NotePencilIcon size={24} />
+              </button>
+            </li>
           </CategoryList>
-          <button onClick={handleEditCategory}>{categories.length > 1 ? 'Edit Categories' : 'Add Category'}</button>
           <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
           <Popover.Root>
           <FilterButton className='slimmer' disabled={isLoading}>
