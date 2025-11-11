@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseClient";
 import type { movie, category } from "../types/types";
 import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
 import styled from "styled-components";
@@ -56,8 +55,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       setError('Status and Category are required');
       return;
     }
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    const movieItem: movie | Partial<movie> = action === 'edit' ?
+    const movieItem: Partial<movie> = action === 'edit' ?
     {
       id: currentMovie.id,
       category,
@@ -71,7 +69,6 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       poster_path: currentMovie.poster_path,
       overview: currentMovie.overview,
       genre_ids: currentMovie.genre_ids,
-      user_id: userId,
       status: movieStatus,
       category,
     }

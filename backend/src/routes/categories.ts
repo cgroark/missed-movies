@@ -35,21 +35,21 @@ categoryRouter.get('/', async (_req, res) => {
 
 categoryRouter.post("/", async (req, res) => {
   try {
-    // const authHeader = req.headers.authorization;
-    // if (!authHeader) {
-    //   return res.status(401).json({ error: 'Missing Authorization header' });
-    // }
-    // const token = authHeader.split(" ")[1];
-    // if (!token) {
-    //   return res.status(401).json({ error: 'Invalid token format' });
-    // }
-    // const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Missing Authorization header' });
+    }
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: 'Invalid token format' });
+    }
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
-    // if (authError || !user) {
-    //   return res.status(401).json({ error: "Invalid or expired token" });
-    // }
+    if (authError || !user) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
 
-    const categoryItem: category = req.body;
+    const categoryItem: category = {...req.body, user_id: user.id};
     console.log('CAT ITEM', categoryItem)
     if (!categoryItem.name) {
       return res.status(400).json({ error: "Category name is required" });

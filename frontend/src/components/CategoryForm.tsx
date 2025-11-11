@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../lib/supabaseClient";
 import styled from "styled-components";
 import { FloppyDiskIcon, PlusIcon, XCircleIcon } from '@phosphor-icons/react';
 
@@ -43,9 +42,8 @@ function CategoryForm({onClose}: CategoryFormProps) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const userId = (await supabase.auth.getUser()).data.user?.id;
-    const newCategory: Partial<category> | category =
-    isEditing ? {name: editingValue, id: currentlyEditing} : {name, user_id: userId}
+    const newCategory: Partial<category> =
+    isEditing ? {name: editingValue, id: currentlyEditing} : {name}
     const { success, error: saveError } = await saveCategory(newCategory)
 
     if(!success) {

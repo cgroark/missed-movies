@@ -118,6 +118,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
         method: action === 'add' ? 'POST' : 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
           'Prefer': 'return=representation'
         },
         body: JSON.stringify(movie)
