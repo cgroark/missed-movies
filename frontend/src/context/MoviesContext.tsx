@@ -73,7 +73,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
     }
   }
 
-   const saveMovie = async(movie: movie | Partial<movie>, action: string): Promise<{ success: boolean; movie?: movie, error?:string}> => {
+  const saveMovie = async(movie: movie | Partial<movie>, action: string): Promise<{ success: boolean; movie?: movie, error?:string}> => {
     setLoading(true);
     setError(null);
     try {
@@ -90,28 +90,26 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
         body: JSON.stringify(movie)
       });
 
-      const data = await res.json().catch(() => ({}));
       if (!res.ok) await handleApiError(res, "save movie");
+
+      const data = await res.json();
       return {success: true, movie: data}
-    }
-    catch (err: any) {
+    } catch (err: any) {
+      console.error('ERR context', err);
+
+      let errorMessage: string;
       switch (err.code) {
         case "DUPLICATE_MOVIE":
-          setError("That movie is already in your list.");
+          errorMessage = "That movie is already in your list.";
           break;
-        case "MISSING_TITLE":
-          setError("A title is required before saving.");
-          break;
-        case "MISSING_ID":
-          setError("Movie is missing ID.");
-          break;
-        case "NOT_FOUND":
-          setError("Movie not found.");
+        case "INTERNAL_ERROR":
+          errorMessage = "Something went wrong while saving the movie.";
           break;
         default:
-          setError(err.message || "Unknown error occurred.");
+          errorMessage = err.message || "Unknown error saving movie.";
       }
-      return {success: false, error: error}
+      setError(errorMessage);
+      return {success: false, error: errorMessage}
     }
     finally {
       setLoading(false);

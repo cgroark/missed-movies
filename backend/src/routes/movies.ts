@@ -58,17 +58,25 @@ movieRouter.post('/', async (req, res ) => {
       .select();
 
     if (error) throw error;
-    res.status(201).json(data[0]);
+
+    res.status(201).json({
+      success: true,
+      data: data[0],
+    });
 
   } catch (err: any) {
+    console.error('Movie POST error router:', err.message);
+
     if (err.message?.includes('duplicate key value')) {
       return res.status(409).json({
+        success: false,
         code: 'DUPLICATE_MOVIE',
         error: 'This movie already exists in your list.',
       });
     }
 
     res.status(500).json({
+      success: false,
       code: 'INTERNAL_ERROR',
       error: err.message || 'Something went wrong while saving the movie.',
     });

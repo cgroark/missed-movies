@@ -63,7 +63,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     }
     :
     {
-      id: currentMovie.id,
+      movie_id: currentMovie.id,
       title: currentMovie.title,
       release_date: currentMovie.release_date,
       poster_path: currentMovie.poster_path,
@@ -72,6 +72,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       status: movieStatus,
       category,
     }
+    console.log("MOVIE Item and ID check", movieItem, currentMovie)
 
     const { success, error: saveError } = await saveMovie(movieItem, action);
 
