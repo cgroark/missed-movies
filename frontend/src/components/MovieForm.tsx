@@ -14,33 +14,20 @@ interface FormProps {
   onClose: () =>  void;
 }
 
-const ErrorField = styled.div`
-  background-color: var(--teal);
-  border-radius: 10px;
-  width: 75%;
-  margin: 15px auto;
-  padding: 10px;
-  color: var(--offWhite);
-  text-align: center;
-
-  p {
-    margin: 0;
-  }
-`
-
 function MovieForm({currentMovie, action, onClose}: FormProps) {
-  const { isLoading, error, getMovies, saveMovie, deleteMovie, activeCategory, status, sortBy } = useMovies();
+  const { isLoading, error, setError, getMovies, saveMovie, deleteMovie, activeCategory, status, sortBy } = useMovies();
   const { categories, getCategories } = useCategories();
   const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
-  const [feError, setError] = useState<string>('');
+  const [feError, setFeError] = useState<string | null>(null);
 
   useEffect(() => {
     getCategories();
   }, [])
 
   useEffect(() => {
+    setError(null);
     if (currentMovie?.status) {
       setMovieStatus(currentMovie.status);
       setCategory(currentMovie.category);
@@ -49,10 +36,11 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setFeError(null);
+    setError(null);
     if (!currentMovie) return;
     if(!category || !movieStatus) {
-      setError('Status and Category are required');
+      setFeError('Status and Category are required');
       return;
     }
     const movieItem: Partial<movie> = action === 'edit' ?
@@ -77,14 +65,21 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     const { success, error: saveError } = await saveMovie(movieItem, action);
 
     if(!success) {
-      setError(saveError ?? 'unknown error');
+      setFeError(saveError ? `${currentMovie?.title} ${saveError}` : 'unknown error');
+      showToast(
+        saveError
+        ? `${currentMovie?.title} ${saveError}`
+        : `${currentMovie?.title} could not be saved.`,
+        false
+      );
       return;
     }
 
     showToast(
-    action === 'edit'
-      ? `${currentMovie?.title} updated successfully`
-      : `${currentMovie?.title} added to your movies`
+      action === 'edit'
+        ? `${currentMovie?.title} updated successfully`
+        : `${currentMovie?.title} added to your movies`,
+        true
     );
     await onClose();
     getMovies(0, 5, activeCategory, sortBy, status);
@@ -96,10 +91,10 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     const { success, error: deleteError } = await deleteMovie(currentMovie.id);
 
     if(!success) {
-      setError(deleteError ?? 'unknown error');
+      setFeError(deleteError ?? 'unknown error');
       return;
     }
-    showToast(`${currentMovie?.title} has been deleted`);
+    showToast(`${currentMovie?.title} has been deleted`, true);
     await onClose();
     getMovies(0, 5, activeCategory, sortBy, status);
   }
@@ -131,6 +126,9 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
               <option value='2'>Already watched</option>
             </select>
           </div>
+          {(feError || error ) && (
+            <p style={{color: 'red', textAlign: 'center'}}>{feError || error }</p>
+          )}
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'  }}>
             {action === 'edit' && (
               <button className='teal slimmer' type='button' onClick={handleDelete}>
@@ -147,11 +145,6 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
               }
             </button>
           </div>
-          {(feError || error ) && (
-            <ErrorField>
-                <p>{feError || error }</p>
-            </ErrorField>
-          )}
         </form>
       </div>
     </>

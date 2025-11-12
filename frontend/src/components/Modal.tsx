@@ -51,9 +51,6 @@ const CloseButton = styled(Dialog.Close)`
   color: var(--purple);
   border: none;
   cursor: pointer;
-  &:hover {
-    color: var(--darkPurple);
-  }
 `;
 
 function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
@@ -71,7 +68,7 @@ function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
       <Dialog.Portal>
         <Overlay />
         <Content aria-describedby={undefined}>
-          <CloseButton><XCircleIcon size={32} /></CloseButton>
+          <CloseButton className='no-hover'><XCircleIcon size={32} /></CloseButton>
           <Title>
             {action === 'category' ? 'Categories' :
               <em>{currentMovie?.title}</em>

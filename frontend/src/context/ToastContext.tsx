@@ -5,7 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import '../index.css';
 
 interface ToastContextType {
-  showToast: (message: string) => void;
+  showToast: (message: string, success: boolean) => void;
 }
 
 const slideIn = keyframes`
@@ -33,6 +33,10 @@ const StyledToastRoot = styled(Toast.Root)`
   max-width: 350px;
   font-size: 1rem;
   animation: ${slideIn} 0.3s ease-out;
+
+  &.error {
+    background-color: red;
+  }
 `;
 
 const StyledToastTitle = styled(Toast.Title)`
@@ -54,9 +58,11 @@ const ToastContext = createContext<ToastContextType | null>(null);
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(true);
 
-  const showToast = useCallback((msg: string) => {
+  const showToast = useCallback((msg: string, succ: boolean) => {
     setMessage(msg);
+    setSuccess(succ)
     setOpen(false);
     setTimeout(() => setOpen(true), 50);
   }, []);
@@ -66,7 +72,7 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     >
       <ToastContext.Provider value={{ showToast }}>
         {children}
-        <StyledToastRoot open={open} onOpenChange={setOpen}>
+        <StyledToastRoot open={open} onOpenChange={setOpen} className={!success ? 'error' : '' }>
           <ConfettiIcon size={24} />
           <StyledToastTitle>
             {message}

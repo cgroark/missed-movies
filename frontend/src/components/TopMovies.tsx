@@ -17,15 +17,30 @@ const CategoryList = styled.ul`
 `
 
 const CategoryButton = styled.button`
-  background-color: var(--darkGray);
-  box-shadow: 3px 3px 3px var(--teal) ;
+  position: relative;
+  border-radius: 8px;
+  background-color: transparent;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    padding: 2px;
+    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
 
   &.active, &:hover {
-    background-color: var(--teal);
-    color: var(--lightBlack);
-    box-shadow: 3px 3px 3px var(--offWhite) ;
+    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
+    color: black;
   }
-`
+`;
 
 const categories = [
   {

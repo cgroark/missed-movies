@@ -36,18 +36,34 @@ const CategoryList = styled.ul`
 `
 
 const CategoryButton = styled.button`
-  background-color: var(--darkGray);
-  box-shadow: 3px 3px 3px var(--teal) ;
+  position: relative;
+  border-radius: 8px;
+  background-color: transparent;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    padding: 2px;
+    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
 
   &.active, &:hover {
-    background-color: var(--pink) !important;
-    color: var(--lightBlack);
-    box-shadow: 3px 3px 3px var(--offWhite) ;
+    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
+    color: black;
   }
-`
+`;
 
 const StyledLink = styled(Link)`
   background-color: var(--teal);
+  text-decoration: none;
   display: flex;
   margin: 25px auto 10px;
   gap: 5px;
@@ -145,7 +161,6 @@ function MyMovies() {
     setActiveCategory(categoryParam);
     setStatus(statusParam);
     setIsInitialLoading(true);
-
     getMovies(rangeFrom, rangeTo, categoryParam, currentSort, statusParam)
       .finally(() => setIsInitialLoading(false));
     ;
@@ -156,56 +171,55 @@ function MyMovies() {
   }, []);
 
   useEffect(() => {
-    if (observerRef.current) observerRef.current.disconnect();
-
-    observerRef.current = new IntersectionObserver((entries) => {
+  if (!loaderRef.current) return;
+  if (observerRef.current) observerRef.current.disconnect();
+  observerRef.current = new IntersectionObserver(
+    (entries) => {
       const first = entries[0];
-      if(first.isIntersecting) {
-        setRangeFrom((prevFrom) => prevFrom + 6);
-        setRangeTo((prevTo) => prevTo + 6);
+      if (first.isIntersecting && !isFetchingMore && hasMore) {
+        setRangeFrom((prev: number) => prev + 12);
+        setRangeTo((prev:number ) => prev + 12);
       }
     },
-    {threshold: 0.5}
-    );
-    const currentLoader = loaderRef.current;
-    const currentObserver = observerRef.current;
+    { threshold: 0.5 }
+  );
 
-    if (currentLoader && currentObserver) currentObserver.observe(currentLoader);
+  observerRef.current.observe(loaderRef.current);
 
-    return () => {
-      if (currentLoader && currentObserver) currentObserver.unobserve(currentLoader);
-    };
+  return () => {
+    if (observerRef.current && loaderRef.current) {
+      observerRef.current.unobserve(loaderRef.current);
+    }
+  };
   }, [hasMore, isFetchingMore, isLoading]);
+
 
   useEffect(() => {
     if (rangeFrom === 0 && rangeTo === 11) return;
     if (isFetchingMore || !hasMore) return;
-
     const fetchMore = async () => {
       setIsFetchingMore(true);
-
-      const newMovies = await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
-
-      if (newMovies.length < 6) {
+      const result = await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
+      const newMovies = result.data || [];
+      console.log('result', result, newMovies, newMovies.length)
+      if (newMovies.length < 12) {
         setHasMore(false);
-        if(loaderRef.current) observerRef.current?.unobserve(loaderRef.current);
+        if (loaderRef.current) observerRef.current?.unobserve(loaderRef.current);
       }
       setIsFetchingMore(false);
+    };
+
+    if (!(rangeFrom === 0 && rangeTo === 11)) {
+      fetchMore();
     }
+  }, [rangeFrom, rangeTo]);
 
-    fetchMore();
-  }, [rangeTo]);
-
- useEffect(() => {
-  setHasMore(true);
-  setIsFetchingMore(false);
-  setRangeFrom(0);
-  setRangeTo(11);
-
-  if (observerRef.current && loaderRef.current) {
-    observerRef.current.observe(loaderRef.current);
-  }
-}, [activeCategory, sortBy, status]);
+  useEffect(() => {
+    setHasMore(true);
+    setIsFetchingMore(false);
+    setRangeFrom(0);
+    setRangeTo(11);
+  }, [activeCategory, sortBy, status]);
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -261,8 +275,6 @@ function MyMovies() {
   }
 
   const handleCategoryChange = (id: number) => {
-    console.log('NEW CHEK', movies, isLoading)
-
     setActiveCategory(id);
     setSearchParams(
       {
@@ -302,36 +314,38 @@ function MyMovies() {
         <ErrorField>{categoryError}</ErrorField>
       }
           <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
-          <Popover.Root>
-          <FilterButton className='slimmer' disabled={isLoading}>
-            {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
-            Filters
-          </FilterButton>
-            <Popover.Portal>
-              <FilterContent align="end" sideOffset={8}>
-                <>
-                <FilterSection>
-                  <label htmlFor='sort'>Sort by:</label>
-                  <Select id='sort' value={sortBy.value} onChange={handleSort}>
-                    {sortOptions.map((each) =>
-                      <option key={each.value} value={each.value}>{each.label}</option>
-                    )}
-                  </Select>
-                </FilterSection>
+          {movies.length > 1 && (
+            <Popover.Root>
+            <FilterButton className='slimmer' disabled={isLoading}>
+              {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
+              Filters
+            </FilterButton>
+              <Popover.Portal>
+                <FilterContent align="end" sideOffset={8}>
+                  <>
+                  <FilterSection>
+                    <label htmlFor='sort'>Sort by:</label>
+                    <Select id='sort' value={sortBy.value} onChange={handleSort}>
+                      {sortOptions.map((each) =>
+                        <option key={each.value} value={each.value}>{each.label}</option>
+                      )}
+                    </Select>
+                  </FilterSection>
 
-                <FilterSection>
-                  <label htmlFor='status'>Status:</label>
-                  <Select id='status' value={status} onChange={handleStatusChange}>
-                    {statusOptions.map((each) =>
-                      <option key={each.value} value={each.value}>{each.label}</option>
-                    )}
-                  </Select>
-                </FilterSection>
-                </>
+                  <FilterSection>
+                    <label htmlFor='status'>Status:</label>
+                    <Select id='status' value={status} onChange={handleStatusChange}>
+                      {statusOptions.map((each) =>
+                        <option key={each.value} value={each.value}>{each.label}</option>
+                      )}
+                    </Select>
+                  </FilterSection>
+                  </>
 
-              </FilterContent>
-            </Popover.Portal>
-          </Popover.Root>
+                </FilterContent>
+              </Popover.Portal>
+            </Popover.Root>
+          )}
         </div>
         </div>
       )}

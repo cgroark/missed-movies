@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, Dispatch, SetStateAction, useContext, useState } from "react";
 import { handleApiError } from "../utils/utils";
 import type { movie, SortOption } from "../types/types";
 import { useAuth } from "./AuthContext";
@@ -12,12 +12,13 @@ interface MoviesContextType {
   sortBy: SortOption,
   rangeFrom: number,
   rangeTo: number,
+  setError: (error: string | null) => void;
   setActiveCategory: (id: number) => void;
   setStatus: (status: number) => void;
   setSortBy: (sort: SortOption) => void;
-  setRangeFrom: (rangeFrom: number) => void;
-  setRangeTo: (rangeTo: number) => void;
-  getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<movie[]>,
+  setRangeFrom: Dispatch<SetStateAction<number>>;
+  setRangeTo: Dispatch<SetStateAction<number>>;
+  getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<{ success: boolean; data: movie[] }>,
   saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, movie?: movie, error?: string | null}>,
   deleteMovie: (id: number) => Promise<{success: boolean, movie?: movie, error?: string}>;
 }
@@ -64,6 +65,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
 
       const result = await res.json();
       const moviesData: movie[] = result.data || [];
+      console.log('result context', result, moviesData)
       setMovies((prev) => from === 0 ? moviesData : [...prev, ...moviesData]);
       return { success: true, data: moviesData };
     } catch (err: any) {
@@ -98,7 +100,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       let errorMessage: string;
       switch (err.code) {
         case "DUPLICATE_MOVIE":
-          errorMessage = "That movie is already in your list.";
+          errorMessage = "is already in your list.";
           break;
         case "MISSING_TITLE":
           errorMessage = "Title is required.";
@@ -160,7 +162,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
   }
 
   return (
-    <MoviesContext.Provider value={{movies, isLoading, error, activeCategory, status, sortBy, rangeFrom, rangeTo, setActiveCategory, setStatus, setSortBy, setRangeFrom, setRangeTo, getMovies, saveMovie, deleteMovie }}>
+    <MoviesContext.Provider value={{movies, isLoading, error, activeCategory, status, sortBy, rangeFrom, rangeTo, setError, setActiveCategory, setStatus, setSortBy, setRangeFrom, setRangeTo, getMovies, saveMovie, deleteMovie }}>
       {children}
     </MoviesContext.Provider>
   )

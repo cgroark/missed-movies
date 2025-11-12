@@ -1,21 +1,14 @@
 import {useEffect, useState} from 'react';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react';
+
 import type { movie, JSONSearchResults } from '../types/types';
 import MovieList from './MovieList';
 import styled from 'styled-components';
 import Loader from './Loader';
 import Modal from './Modal';
 
-const Input = styled.input`
-  text-align: left;
-  min-width: 300px;
-  border-radius: 4px;
-  border: 1px solid var(--offWhite);
-  padding: 5px;
-  margin-bottom: 50px;
-`
-
 const Label = styled.label`
-  display: block;
+  justify-content: center;
   margin: 50px 0 20px 0;
   font-size: 24px;
 `
@@ -29,7 +22,7 @@ function Search() {
   const [open, setOpen] = useState<boolean>(false);
   const [data, setData] = useState<JSONSearchResults>()
   const [isLoading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handler = setTimeout(() => setDebounce(search),300);
@@ -38,7 +31,7 @@ function Search() {
 
   useEffect(() => {
     setLoading(true);
-    setError('');
+    setError(null);
     const options = {
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_OMDB_ACCESS_TOKEN}`,
@@ -52,7 +45,6 @@ function Search() {
         const data: JSONSearchResults = await res.json();
         setMovies(data.results.slice(0,12));
         setData(data);
-        console.log(movies);
       }
       catch (err) {
         setError(err instanceof Error ? err.message : String(err))
@@ -83,9 +75,9 @@ function Search() {
 
   return (
     <>
-      <div>
-        <Label htmlFor="search">Find a movie</Label>
-        <Input placeholder="search for movies..." value={search} id="search" onChange={(e) => setSearch(e.target.value)} ></Input>
+      <div style={{maxWidth: '400px', margin: 'auto'}}>
+        <Label htmlFor="search">Find a movie<MagnifyingGlassIcon size={24} /></Label>
+        <input placeholder="search for movies..." value={search} id="search" onChange={(e) => setSearch(e.target.value)} />
       </div>
       {isLoading && search && <Loader size='large' />}
 

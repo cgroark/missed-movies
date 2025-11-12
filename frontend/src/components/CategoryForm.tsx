@@ -75,7 +75,8 @@ function CategoryForm({onClose}: CategoryFormProps) {
     showToast(
       isEditing
       ? 'Category updated successfully'
-      : 'Category added successfully'
+      : 'Category added successfully',
+      true
     );
     await onClose();
     getCategories(true);
