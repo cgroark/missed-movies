@@ -83,44 +83,12 @@ const StyledLink = styled(Link)`
   }
 `
 
-const Select = styled.select`
-  text-align: left;
-  margin: 5px 0 20px 10px;
-  border-radius: 4px;
-  border: 1px solid var(--lightBlack);
-  background-color: white;
-  color: var(--lightBlack);
-  min-height: 30px;
-  padding: 5px;
-  min-width: 150px;
-`
-
-const FilterSection = styled.div`
-  display: flex;
-  justify-content: end;
-  align-items: baseline;
-  padding: 0 20px;
-  gap: 10px;
-  max-width: 1280px;
-`
-const FilterButton = styled(Popover.Trigger)`
-  background-color: var(--teal);
-  margin-left: auto;
-
-  &:hover {
-     background-color: var(--darkTeal);
-  }
-
-  &:disabled {
-    background-color: lightgrey;
-  }
-`;
-
 const FilterContent = styled(Popover.Content)`
   background: var(--lightBlack);
   border: 2px solid var(--offWhite);
   border-radius: 8px;
   padding: 15px;
+  min-width: 200px;
 `;
 
 const ErrorField = styled.div`
@@ -201,7 +169,6 @@ function MyMovies() {
       setIsFetchingMore(true);
       const result = await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
       const newMovies = result.data || [];
-      console.log('result', result, newMovies, newMovies.length)
       if (newMovies.length < 12) {
         setHasMore(false);
         if (loaderRef.current) observerRef.current?.unobserve(loaderRef.current);
@@ -316,30 +283,30 @@ function MyMovies() {
           <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
           {movies.length > 1 && (
             <Popover.Root>
-            <FilterButton className='slimmer' disabled={isLoading}>
+            <button className='slimmer teal' style={{marginLeft: 'auto'}} disabled={isLoading}>
               {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
               Filters
-            </FilterButton>
+            </button>
               <Popover.Portal>
                 <FilterContent align="end" sideOffset={8}>
                   <>
-                  <FilterSection>
+                  <div>
                     <label htmlFor='sort'>Sort by:</label>
-                    <Select id='sort' value={sortBy.value} onChange={handleSort}>
+                    <select id='sort' value={sortBy.value} onChange={handleSort}>
                       {sortOptions.map((each) =>
                         <option key={each.value} value={each.value}>{each.label}</option>
                       )}
-                    </Select>
-                  </FilterSection>
+                    </select>
+                  </div>
 
-                  <FilterSection>
+                  <div>
                     <label htmlFor='status'>Status:</label>
-                    <Select id='status' value={status} onChange={handleStatusChange}>
+                    <select id='status' value={status} onChange={handleStatusChange}>
                       {statusOptions.map((each) =>
                         <option key={each.value} value={each.value}>{each.label}</option>
                       )}
-                    </Select>
-                  </FilterSection>
+                    </select>
+                  </div>
                   </>
 
                 </FilterContent>

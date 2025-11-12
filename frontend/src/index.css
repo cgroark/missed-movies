@@ -76,6 +76,10 @@ button.teal:hover {
   background-color: var(--darkTeal);
 }
 
+button:disabled {
+  background-color: lightgrey;
+}
+
 label {
   display: flex;
   text-align: left;

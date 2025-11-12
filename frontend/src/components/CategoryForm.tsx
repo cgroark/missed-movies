@@ -27,20 +27,6 @@ const CategoryItem = styled.li`
   padding: 4px 0;
 `
 
-const ErrorField = styled.div`
-  background-color: var(--lightBlack);
-  color: var(--offWhite);
-  border: solid 2px var(--pink);
-  border-radius: 10px;
-  width: fit-content;
-  margin: 25px auto;
-  padding: 10px 25px;
-
-  p {
-    margin: 0;
-  }
-`
-
 function CategoryForm({onClose}: CategoryFormProps) {
   const { isLoading, categories, getCategories, saveCategory, categoryError, setCategoryError } = useCategories();
   const { showToast } = useToast();
@@ -48,6 +34,8 @@ function CategoryForm({onClose}: CategoryFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setAdding] = useState<boolean>(false);
   const [isEditing, setEditing] = useState<boolean>(false);
+  const [isSaving, setSaving] = useState<boolean>(false);
+
   const [currentlyEditing, setCurrentlyEditing] = useState<number | null>(null)
   const [editingValue, setEditingValue] = useState<string>('')
 
@@ -59,8 +47,10 @@ function CategoryForm({onClose}: CategoryFormProps) {
     e.preventDefault();
     setError(null);
     setCategoryError(null);
+    setSaving(true);
     if((!isEditing && !name) || (isEditing && !editingValue)) {
       setError('Category name is required');
+      setSaving(false);
       return;
     }
     const newCategory: Partial<category> =
@@ -69,15 +59,22 @@ function CategoryForm({onClose}: CategoryFormProps) {
 
     if(!success) {
       setError(saveError ?? 'unknown error');
+      setSaving(false);
+      showToast(
+        saveError
+        ? saveError
+        : "Category could not be saved.",
+        false
+      );
       return;
     }
-    console.log('SUCCESS,', success)
     showToast(
       isEditing
       ? 'Category updated successfully'
       : 'Category added successfully',
       true
     );
+    setSaving(false);
     await onClose();
     getCategories(true);
   }
@@ -90,7 +87,7 @@ function CategoryForm({onClose}: CategoryFormProps) {
 
   return (
     <>
-      {isLoading ? <Loader size='large' /> : (
+      {isLoading && !isSaving ? <Loader size='large' /> : (
         <>
           <CategoryList>
             {categories.map((each) =>
@@ -113,7 +110,14 @@ function CategoryForm({onClose}: CategoryFormProps) {
                       }
                       }>
                       Cancel <XCircleIcon size={24} /></button>
-                    <button className='slimmer' type='submit' onClick={handleSave}>Save <FloppyDiskIcon size={24} /></button>
+                    <button className='slimmer' type='submit' onClick={handleSave} >
+                      {isSaving ? 'Saving' : 'Save'}
+                      {isSaving ?
+                        <Loader size='small' />
+                        :
+                        <FloppyDiskIcon size={24} />
+                        }
+                    </button>
                   </div>
                   :
                   <button className='slimmer' type="button" onClick={() => handleEdit(each.id, each.name)}>Edit</button>
@@ -123,7 +127,7 @@ function CategoryForm({onClose}: CategoryFormProps) {
               </CategoryItem>
             )}
             {(categoryError || error) && !isAdding &&  (
-              <ErrorField>{categoryError ? categoryError : error}</ErrorField>
+              <p style={{color: 'red', textAlign: 'center'}}>{categoryError ? categoryError : error}</p>
             )}
           </CategoryList>
           {!isAdding && !isEditing &&
@@ -155,10 +159,17 @@ function CategoryForm({onClose}: CategoryFormProps) {
                 }>
                   Cancel <XCircleIcon size={24} />
                 </button>
-              <button className='slimmer' type="submit">Save <FloppyDiskIcon size={24} /></button>
+              <button className='slimmer' type='submit'>
+                {isSaving ? 'Saving' : 'Save'}
+                {isSaving ?
+                  <Loader size='small' />
+                  :
+                  <FloppyDiskIcon size={24} />
+                }
+              </button>
             </div>
             {categoryError || error && (
-              <ErrorField>{categoryError ? categoryError : error}</ErrorField>
+              <p style={{color: 'red', textAlign: 'center'}}>{categoryError ? categoryError : error}</p>
             )}
           </form>
           }

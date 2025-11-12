@@ -65,7 +65,6 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
 
       const result = await res.json();
       const moviesData: movie[] = result.data || [];
-      console.log('result context', result, moviesData)
       setMovies((prev) => from === 0 ? moviesData : [...prev, ...moviesData]);
       return { success: true, data: moviesData };
     } catch (err: any) {
@@ -75,15 +74,16 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
     }
   }
 
-  const saveMovie = async(movie: movie | Partial<movie>, action: string): Promise<{ success: boolean; movie?: movie, error?:string}> => {
+  const saveMovie = async(movie: movie | Partial<movie>): Promise<{ success: boolean; movie?: movie, error?:string}> => {
     setLoading(true);
     setError(null);
+    let isEditing = !!movie.id;
     try {
       const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
-      if (action === 'edit') url.pathname += `/${movie.id}`;
+      if (isEditing) url.pathname += `/${movie.id}`;
 
       const res = await fetch(url, {
-        method: action === 'add' ? 'POST' : 'PATCH',
+        method: isEditing ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

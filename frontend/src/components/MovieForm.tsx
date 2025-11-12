@@ -60,9 +60,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
       status: movieStatus,
       category,
     }
-    console.log("MOVIE Item and ID check", movieItem, currentMovie)
-
-    const { success, error: saveError } = await saveMovie(movieItem, action);
+    const { success, error: saveError } = await saveMovie(movieItem);
 
     if(!success) {
       setFeError(saveError ? `${currentMovie?.title} ${saveError}` : 'unknown error');
@@ -82,7 +80,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
         true
     );
     await onClose();
-    getMovies(0, 5, activeCategory, sortBy, status);
+    getMovies(0, 11, activeCategory, sortBy, status);
   }
 
   const handleDelete = async () => {
@@ -96,7 +94,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
     }
     showToast(`${currentMovie?.title} has been deleted`, true);
     await onClose();
-    getMovies(0, 5, activeCategory, sortBy, status);
+    getMovies(0, 11, activeCategory, sortBy, status);
   }
 
   return (

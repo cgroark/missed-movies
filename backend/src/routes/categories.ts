@@ -7,6 +7,7 @@ const categoryRouter = Router();
 
 categoryRouter.get('/', async (_req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-store');
     const user = await getUserFromRequest(_req, res);
     if (!user) return;
 
@@ -16,7 +17,10 @@ categoryRouter.get('/', async (_req, res) => {
       .or(`user_id.eq.${user.id},id.eq.1`);
 
     if (error) throw error;
-    res.json(data);
+    res.status(200).json({
+      success: true,
+      data,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }

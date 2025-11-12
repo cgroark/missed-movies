@@ -35,7 +35,8 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
 
       if (!res.ok) await handleApiError(res, "load categories");
 
-      const data: category[] = await res.json();
+      const result = await res.json();
+      const data: category[] = result.data;
       setCategories(data);
     } catch (err: any) {
       setCategoryError(err instanceof Error ? err.message : String(err))
@@ -63,7 +64,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
 
       if (!res.ok) await handleApiError(res, "save category");
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json();
       return {success: true, category: data};
     }
     catch (err: any) {
