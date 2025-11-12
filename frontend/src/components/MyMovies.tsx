@@ -283,10 +283,12 @@ function MyMovies() {
           <div style={{maxWidth: '1280px', margin: 'auto',  padding: '0 20px'}}>
           {movies.length > 1 && (
             <Popover.Root>
-            <button className='slimmer teal' style={{marginLeft: 'auto'}} disabled={isLoading}>
-              {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
-              Filters
-            </button>
+            <Popover.Trigger asChild>
+              <button className='slimmer teal' style={{marginLeft: 'auto'}} disabled={isLoading}>
+                {isLoading ? <Loader size='small' /> : <FunnelIcon size={24} />}
+                Filters
+              </button>
+            </Popover.Trigger>
               <Popover.Portal>
                 <FilterContent align="end" sideOffset={8}>
                   <>
