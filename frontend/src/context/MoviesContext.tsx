@@ -59,16 +59,16 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (!res.ok) await handleApiError(res, "load movies");
 
-      const data: movie[] = await res.json();
-      setMovies((prev) => from === 0 ? data : [...prev, ...data]);
-      return data;
-    }
-    catch (err: any) {
+      const result = await res.json();
+      const moviesData: movie[] = result.data || [];
+      setMovies((prev) => from === 0 ? moviesData : [...prev, ...moviesData]);
+      return { success: true, data: moviesData };
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : String(err))
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   }
@@ -92,15 +92,22 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
 
       if (!res.ok) await handleApiError(res, "save movie");
 
-      const data = await res.json();
+      const data: movie = await res.json();
       return {success: true, movie: data}
     } catch (err: any) {
-      console.error('ERR context', err);
-
       let errorMessage: string;
       switch (err.code) {
         case "DUPLICATE_MOVIE":
           errorMessage = "That movie is already in your list.";
+          break;
+        case "MISSING_TITLE":
+          errorMessage = "Title is required.";
+          break;
+        case "MISSING_ID":
+          errorMessage = "ID is required.";
+          break;
+        case "NOT_FOUND":
+          errorMessage = "Movie not found.";
           break;
         case "INTERNAL_ERROR":
           errorMessage = "Something went wrong while saving the movie.";
@@ -110,8 +117,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
       }
       setError(errorMessage);
       return {success: false, error: errorMessage}
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   }
@@ -121,6 +127,7 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
     setError(null);
     try {
       const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies/${id}`);
+
       const res = await fetch(url, {
         method: 'DELETE',
         headers: {
@@ -129,16 +136,26 @@ export const MovieProvider = ({children}: {children: React.ReactNode}) => {
         },
       })
 
-      const data = await res.json().catch(() => ({}));
-
       if (!res.ok) await handleApiError(res, "delete movie");
+
+      const data: movie = await res.json();
       return {success: true, movie: data}
     } catch (err: any) {
-      const message = err instanceof Error ? err.message : String(err);
-      setError(message);
-      return {success: false, error: message}
+      let errorMessage: string;
+      switch (err.code) {
+        case "MISSING_ID":
+          errorMessage = "ID is required.";
+          break;
+        case "INTERNAL_ERROR":
+          errorMessage = "Unable to delete movie at this time.";
+          break;
+        default:
+          errorMessage = err.message || "Unknown error deleting movie.";
+      }
+      setError(errorMessage);
+      return {success: false, error: errorMessage}
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   }
 

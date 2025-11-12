@@ -7,6 +7,7 @@ const movieRouter = Router();
 
 movieRouter.get('/', async (_req, res) => {
   try {
+    res.setHeader('Cache-Control', 'no-store');
     const user = await getUserFromRequest(_req, res);
     if (!user) return;
 
@@ -32,9 +33,18 @@ movieRouter.get('/', async (_req, res) => {
     const { data, error } = await query;
 
     if (error) throw error;
-    res.json(data);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      success: false,
+      code: 'INTERNAL_ERROR',
+      error: err.message || 'Something went wrong while saving the movie.',
+    });
   }
 });
 
@@ -47,6 +57,7 @@ movieRouter.post('/', async (req, res ) => {
 
     if (!movieItem.title) {
       return res.status(400).json({
+        success: false,
         code: 'MISSING_TITLE',
         error: 'Title is required',
       });
@@ -65,8 +76,6 @@ movieRouter.post('/', async (req, res ) => {
     });
 
   } catch (err: any) {
-    console.error('Movie POST error router:', err.message);
-
     if (err.message?.includes('duplicate key value')) {
       return res.status(409).json({
         success: false,
@@ -90,6 +99,7 @@ movieRouter.patch('/:id', async (req, res ) => {
 
     if (!id) {
       return res.status(400).json({
+        sucess: false,
         code: 'MISSING_ID',
         error: 'ID is required',
       });
@@ -102,18 +112,25 @@ movieRouter.patch('/:id', async (req, res ) => {
       .select();
 
     if (error) throw error;
+
     if (!data || data.length === 0) {
       return res.status(404).json({
+        succes: false,
         code: 'NOT_FOUND',
         error: 'Movie not found',
       });
     }
-    res.status(201).json(data[0]);
+
+    res.status(201).json({
+      success: true,
+      data: data[0],
+    });
 
   } catch (err: any) {
     res.status(500).json({
+      success: false,
       code: 'INTERNAL_ERROR',
-      error: err.message || 'Error saving this movie.',
+      error: err.message || 'Something went wrong while saving the movie.',
     });
   }
 });
@@ -124,8 +141,9 @@ movieRouter.delete('/:id', async (req, res ) => {
 
     if (!id) {
       return res.status(400).json({
+        success: false,
         code: 'MISSING_ID',
-        error: 'Id is required',
+        error: 'ID is required',
       });
     }
 
@@ -136,10 +154,15 @@ movieRouter.delete('/:id', async (req, res ) => {
       .select();
 
     if (error) throw error;
-    res.status(201).json(data[0]);
+
+    res.status(201).json({
+      success: true,
+      data: data[0],
+    });
 
   } catch (err: any) {
     res.status(500).json({
+      success: false,
       code: 'INTERNAL_ERROR',
       error: err.message || 'Unable to delete movie at this time.',
     });
