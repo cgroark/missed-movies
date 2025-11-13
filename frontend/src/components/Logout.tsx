@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { HandPeaceIcon } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
