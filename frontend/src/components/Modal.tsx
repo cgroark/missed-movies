@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import styled from 'styled-components';
-import {XCircleIcon} from '@phosphor-icons/react';
+import { XCircleIcon } from '@phosphor-icons/react';
 import type { movie } from '../types/types';
 import MovieForm from './MovieForm';
 import CategoryForm from './CategoryForm';
@@ -53,8 +53,7 @@ const CloseButton = styled(Dialog.Close)`
   cursor: pointer;
 `;
 
-function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
-
+function Modal({ action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
   const [currentMovie, setCurrentMovie] = useState<movie | null>(movie);
 
   useEffect(() => {
@@ -68,23 +67,15 @@ function Modal({action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
       <Dialog.Portal>
         <Overlay />
         <Content aria-describedby={undefined}>
-          <CloseButton className='no-hover'><XCircleIcon size={32} /></CloseButton>
-          <Title>
-            {action === 'category' ? 'Categories' :
-              <em>{currentMovie?.title}</em>
-            }
-          </Title>
-            {action === 'category' ?
-            <CategoryForm
-              onClose={handleClose}
-            />
-            :
-            <MovieForm
-              currentMovie={currentMovie}
-              action={action}
-              onClose={handleClose}
-            />
-          }
+          <CloseButton className="no-hover">
+            <XCircleIcon size={32} />
+          </CloseButton>
+          <Title>{action === 'category' ? 'Categories' : <em>{currentMovie?.title}</em>}</Title>
+          {action === 'category' ? (
+            <CategoryForm onClose={handleClose} />
+          ) : (
+            <MovieForm currentMovie={currentMovie} action={action} onClose={handleClose} />
+          )}
         </Content>
       </Dialog.Portal>
     </Dialog.Root>

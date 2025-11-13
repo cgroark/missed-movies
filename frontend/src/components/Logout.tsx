@@ -1,6 +1,6 @@
-import { useState } from "react";
-import styled from "styled-components";
-import {HandPeaceIcon} from '@phosphor-icons/react';
+import { useState } from 'react';
+import styled from 'styled-components';
+import { HandPeaceIcon } from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import '../index.css';
@@ -14,7 +14,7 @@ const LinkButton = styled.a`
   transition: border-bottom 0.3s ease;
   padding-bottom: 3px;
   background-color: transparent;
-  font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
+  font-size: clamp(0.9rem, 2.5vw + 0.25rem, 1rem);
   color: var(--offWhite);
   font-weight: 500;
   cursor: pointer;
@@ -36,13 +36,13 @@ function Logout() {
 
   const handleClick = async () => {
     const { success, error: error } = await signOut();
-    if(!success) {
+    if (!success) {
       setError(error ?? 'unknown error');
-      showToast(authError || error || "Logout error", false);
+      showToast(authError || error || 'Logout error', false);
       return;
     }
-    showToast("Logged out!", true);
-  }
+    showToast('Logged out!', true);
+  };
   return (
     <>
       <LinkButton onClick={handleClick}>
@@ -50,11 +50,11 @@ function Logout() {
       </LinkButton>
       {(authError || error) && (
         <ErrorField>
-            <p>{authError || error }</p>
+          <p>{authError || error}</p>
         </ErrorField>
       )}
     </>
-  )
+  );
 }
 
 export default Logout;

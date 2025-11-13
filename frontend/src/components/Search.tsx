@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 
 import type { movie, JSONSearchResults } from '../types/types';
@@ -11,7 +11,7 @@ const Label = styled.label`
   justify-content: center;
   margin: 50px 0 20px 0;
   font-size: 24px;
-`
+`;
 
 function Search() {
   const [search, setSearch] = useState<string>('');
@@ -20,12 +20,12 @@ function Search() {
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
   const [open, setOpen] = useState<boolean>(false);
-  const [data, setData] = useState<JSONSearchResults>()
+  const [data, setData] = useState<JSONSearchResults>();
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebounce(search),300);
+    const handler = setTimeout(() => setDebounce(search), 300);
     return () => clearTimeout(handler);
   }, [search]);
 
@@ -35,26 +35,26 @@ function Search() {
     const options = {
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_OMDB_ACCESS_TOKEN}`,
-      }
-    }
-    console.log('header', options)
+      },
+    };
+    console.log('header', options);
     const searchMovies = async () => {
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/search/movie?&query=${debounceSearch}`, options);
-        if(!res.ok) throw new Error('error fetching');
+        const res = await fetch(
+          `https://api.themoviedb.org/3/search/movie?&query=${debounceSearch}`,
+          options
+        );
+        if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        setMovies(data.results.slice(0,12));
+        setMovies(data.results.slice(0, 12));
         setData(data);
-      }
-      catch (err) {
-        setError(err instanceof Error ? err.message : String(err))
-      }
-      finally {
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
         setLoading(false);
       }
-    }
-    if(debounceSearch) searchMovies();
-
+    };
+    if (debounceSearch) searchMovies();
   }, [debounceSearch]);
 
   const handleAdd = (movie: movie) => {
@@ -69,33 +69,45 @@ function Search() {
     setOpen(true);
   };
 
-    const handleAfterSave = async () => {
+  const handleAfterSave = async () => {
     setOpen(false);
   };
 
   return (
     <>
-      <div style={{maxWidth: '400px', margin: 'auto'}}>
-        <Label htmlFor="search">Find a movie<MagnifyingGlassIcon size={24} /></Label>
-        <input placeholder="search for movies..." value={search} id="search" onChange={(e) => setSearch(e.target.value)} />
+      <div style={{ maxWidth: '400px', margin: 'auto' }}>
+        <Label htmlFor="search">
+          Find a movie
+          <MagnifyingGlassIcon size={24} />
+        </Label>
+        <input
+          placeholder="search for movies..."
+          value={search}
+          id="search"
+          onChange={e => setSearch(e.target.value)}
+        />
       </div>
-      {isLoading && search && <Loader size='large' />}
+      {isLoading && search && <Loader size="large" />}
 
-      {search != '' && !isLoading && !error && (
-        movies.length ? <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/> : <p>No results for your search</p>
-      )
-      }
+      {search != '' &&
+        !isLoading &&
+        !error &&
+        (movies.length ? (
+          <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />
+        ) : (
+          <p>No results for your search</p>
+        ))}
       {open && (
-          <Modal
-            open={open}
-            movie={selectedMovie || ({} as movie)}
-            action={modalAction}
-            onOpenChange={setOpen}
-            onAfterSave={handleAfterSave}
-          />
+        <Modal
+          open={open}
+          movie={selectedMovie || ({} as movie)}
+          action={modalAction}
+          onOpenChange={setOpen}
+          onAfterSave={handleAfterSave}
+        />
       )}
     </>
-  )
+  );
 }
 
 export default Search;

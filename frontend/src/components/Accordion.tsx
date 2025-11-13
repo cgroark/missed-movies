@@ -3,8 +3,8 @@ import styled, { keyframes } from 'styled-components';
 import { CaretDownIcon } from '@phosphor-icons/react';
 
 interface AccordionProps {
-  title: string,
-  content: string,
+  title: string;
+  content: string;
 }
 const StyledAccordion = styled(Accordion.Root)`
   width: 100%;
@@ -29,8 +29,8 @@ const Trigger = styled(Accordion.Trigger)`
   transition: background 0.2s ease;
 
   &[data-state='open'] {
-  svg {
-    transform: rotate(180deg);
+    svg {
+      transform: rotate(180deg);
     }
   }
 `;
@@ -44,7 +44,7 @@ const slideDown = keyframes`
     opacity: 1;
     transform: translateY(0);
   }
-`
+`;
 
 const Content = styled(Accordion.Content)`
   background-color: transparent;
@@ -56,16 +56,14 @@ const Content = styled(Accordion.Content)`
   border-top: 1px solid var(--offWhite);
 `;
 
-export default function AccordionSection({title, content}: AccordionProps) {
+export default function AccordionSection({ title, content }: AccordionProps) {
   return (
     <StyledAccordion type="single" collapsible>
       <Item value="item-1">
         <Trigger>
           {title} <CaretDownIcon size={24} />
         </Trigger>
-        <Content>
-          {content}
-        </Content>
+        <Content>{content}</Content>
       </Item>
     </StyledAccordion>
   );

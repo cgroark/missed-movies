@@ -61,7 +61,7 @@ button {
   background-color: var(--purple);
 
   @media (max-width: 768px) {
-    padding: .6rem 1rem;
+    padding: 0.6rem 1rem;
     border-radius: 4px;
   }
 }
@@ -71,7 +71,7 @@ button:not(.no-hover):hover {
 }
 
 button.slimmer {
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
 }
 
 button.teal {

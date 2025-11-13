@@ -6,7 +6,7 @@ function Home() {
     <>
       <MyMovies />
     </>
-  )
+  );
 }
 
 export default Home;

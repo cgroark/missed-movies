@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { supabase } from "../services/supabaseClient";
-import type { movie } from "../../../frontend/src/types/types";
-import { getUserFromRequest } from "../utils/utils";
+import { Router } from 'express';
+import { supabase } from '../services/supabaseClient';
+import type { movie } from '../../../frontend/src/types/types';
+import { getUserFromRequest } from '../utils/utils';
 
 const movieRouter = Router();
 
@@ -11,7 +11,7 @@ movieRouter.get('/', async (_req, res) => {
     const user = await getUserFromRequest(_req, res);
     if (!user) return;
 
-    const { category, sortBy, asc, status, from, to } = _req.query
+    const { category, sortBy, asc, status, from, to } = _req.query;
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
 
     let query = supabase
@@ -20,14 +20,14 @@ movieRouter.get('/', async (_req, res) => {
       .eq('user_id', user.id)
       .order('status', { ascending: true })
       .order(String(sortBy), direction)
-      .range(Number(from), Number(to))
+      .range(Number(from), Number(to));
 
     if (category) {
       query = query.eq('category', category);
     }
 
     if (status) {
-      query.eq('status', status)
+      query.eq('status', status);
     }
 
     const { data, error } = await query;
@@ -38,7 +38,6 @@ movieRouter.get('/', async (_req, res) => {
       success: true,
       data,
     });
-
   } catch (err: any) {
     res.status(500).json({
       success: false,
@@ -48,12 +47,12 @@ movieRouter.get('/', async (_req, res) => {
   }
 });
 
-movieRouter.post('/', async (req, res ) => {
+movieRouter.post('/', async (req, res) => {
   try {
     const user = await getUserFromRequest(req, res);
     if (!user) return;
 
-    const movieItem: movie = {...req.body, user_id: user.id};
+    const movieItem: movie = { ...req.body, user_id: user.id };
 
     if (!movieItem.title) {
       return res.status(400).json({
@@ -63,10 +62,7 @@ movieRouter.post('/', async (req, res ) => {
       });
     }
 
-    const { data, error } = await supabase
-      .from('movies')
-      .insert([movieItem])
-      .select();
+    const { data, error } = await supabase.from('movies').insert([movieItem]).select();
 
     if (error) throw error;
 
@@ -74,7 +70,6 @@ movieRouter.post('/', async (req, res ) => {
       success: true,
       data: data[0],
     });
-
   } catch (err: any) {
     if (err.message?.includes('duplicate key value')) {
       return res.status(409).json({
@@ -92,7 +87,7 @@ movieRouter.post('/', async (req, res ) => {
   }
 });
 
-movieRouter.patch('/:id', async (req, res ) => {
+movieRouter.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const movieItem: Partial<movie> = req.body;
@@ -105,11 +100,7 @@ movieRouter.patch('/:id', async (req, res ) => {
       });
     }
 
-    const { data, error } = await supabase
-      .from('movies')
-      .update([movieItem])
-      .eq('id', id)
-      .select();
+    const { data, error } = await supabase.from('movies').update([movieItem]).eq('id', id).select();
 
     if (error) throw error;
 
@@ -125,7 +116,6 @@ movieRouter.patch('/:id', async (req, res ) => {
       success: true,
       data: data[0],
     });
-
   } catch (err: any) {
     res.status(500).json({
       success: false,
@@ -135,7 +125,7 @@ movieRouter.patch('/:id', async (req, res ) => {
   }
 });
 
-movieRouter.delete('/:id', async (req, res ) => {
+movieRouter.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -147,11 +137,7 @@ movieRouter.delete('/:id', async (req, res ) => {
       });
     }
 
-    const { data, error } = await supabase
-      .from('movies')
-      .delete()
-      .eq('id', id)
-      .select();
+    const { data, error } = await supabase.from('movies').delete().eq('id', id).select();
 
     if (error) throw error;
 
@@ -159,7 +145,6 @@ movieRouter.delete('/:id', async (req, res ) => {
       success: true,
       data: data[0],
     });
-
   } catch (err: any) {
     res.status(500).json({
       success: false,
@@ -167,6 +152,6 @@ movieRouter.delete('/:id', async (req, res ) => {
       error: err.message || 'Unable to delete movie at this time.',
     });
   }
-})
+});
 
 export default movieRouter;

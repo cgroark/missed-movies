@@ -17,7 +17,7 @@ const slideIn = keyframes`
       opacity: 1;
       transform: translateX(0);
     }
-`
+`;
 
 const StyledToastRoot = styled(Toast.Root)`
   background-color: var(--darkTeal);
@@ -62,25 +62,18 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const showToast = useCallback((msg: string, succ: boolean) => {
     setMessage(msg);
-    setSuccess(succ)
+    setSuccess(succ);
     setOpen(false);
     setTimeout(() => setOpen(true), 50);
   }, []);
 
   return (
-    <Toast.Provider swipeDirection="right" duration={2500}
-    >
+    <Toast.Provider swipeDirection="right" duration={2500}>
       <ToastContext.Provider value={{ showToast }}>
         {children}
-        <StyledToastRoot open={open} onOpenChange={setOpen} className={!success ? 'error' : '' }>
-          {success ?
-            <ConfettiIcon size={24} />
-            :
-            <SkullIcon size={24} />
-          }
-          <StyledToastTitle>
-            {message}
-          </StyledToastTitle>
+        <StyledToastRoot open={open} onOpenChange={setOpen} className={!success ? 'error' : ''}>
+          {success ? <ConfettiIcon size={24} /> : <SkullIcon size={24} />}
+          <StyledToastTitle>{message}</StyledToastTitle>
         </StyledToastRoot>
         <StyledToastViewport />
       </ToastContext.Provider>

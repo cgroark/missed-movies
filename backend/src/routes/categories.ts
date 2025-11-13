@@ -1,7 +1,7 @@
-import { Router } from "express";
-import { supabase } from "../services/supabaseClient";
-import type { category } from "../../../frontend/src/types/types";
-import { getUserFromRequest } from "../utils/utils";
+import { Router } from 'express';
+import { supabase } from '../services/supabaseClient';
+import type { category } from '../../../frontend/src/types/types';
+import { getUserFromRequest } from '../utils/utils';
 
 const categoryRouter = Router();
 
@@ -24,26 +24,23 @@ categoryRouter.get('/', async (_req, res) => {
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
-})
+});
 
-categoryRouter.post("/", async (req, res) => {
+categoryRouter.post('/', async (req, res) => {
   try {
     const user = await getUserFromRequest(req, res);
     if (!user) return;
 
-    const categoryItem: category = {...req.body, user_id: user.id};
+    const categoryItem: category = { ...req.body, user_id: user.id };
 
     if (!categoryItem.name) {
-       return res.status(400).json({
+      return res.status(400).json({
         code: 'MISSING_CATEGORY_NAME',
         error: 'Category name is required',
       });
     }
 
-    const { data, error } = await supabase
-      .from("categories")
-      .insert([categoryItem])
-      .select()
+    const { data, error } = await supabase.from('categories').insert([categoryItem]).select();
 
     if (error) throw error;
     res.status(201).json(data[0]);
@@ -55,7 +52,7 @@ categoryRouter.post("/", async (req, res) => {
   }
 });
 
-categoryRouter.patch('/:id', async (req, res ) => {
+categoryRouter.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const categoryItem: Partial<category> = req.body;
@@ -81,7 +78,6 @@ categoryRouter.patch('/:id', async (req, res ) => {
       });
     }
     res.status(201).json(data[0]);
-
   } catch (err: any) {
     res.status(500).json({
       code: 'INTERNAL_ERROR',

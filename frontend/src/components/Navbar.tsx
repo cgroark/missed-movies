@@ -1,8 +1,8 @@
-import { NavLink } from "react-router-dom";
-import styled from "styled-components";
-import {MagnifyingGlassPlusIcon, FilmStripIcon} from '@phosphor-icons/react';
+import { NavLink } from 'react-router-dom';
+import styled from 'styled-components';
+import { MagnifyingGlassPlusIcon, FilmStripIcon } from '@phosphor-icons/react';
 import '../index.css';
-import Logout from "./Logout";
+import Logout from './Logout';
 
 const NavList = styled.ul`
   list-style: none;
@@ -13,7 +13,6 @@ const NavList = styled.ul`
   justify-content: end;
   width: 100%;
   max-width: 1280px;
-
 
   @media (max-width: 576px) {
     gap: 10px;
@@ -35,7 +34,7 @@ const StyledNavLink = styled(NavLink)`
   padding-bottom: 3px;
   color: var(--offWhite);
   font-weight: 500;
-  font-size: clamp(.9rem, 2.5vw + .25rem, 1rem);
+  font-size: clamp(0.9rem, 2.5vw + 0.25rem, 1rem);
 
   &:hover {
     color: var(--offWhite);
@@ -52,23 +51,25 @@ const StyledNavLink = styled(NavLink)`
 `;
 
 function Navbar() {
-    return (
-      <NavList>
-        <NavItem>
-          <StyledNavLink to="/" end>
-            My Movies<FilmStripIcon size={24} />
-          </StyledNavLink>
-        </NavItem>
-        <NavItem>
-          <StyledNavLink to="/search">
-            Find Movies<MagnifyingGlassPlusIcon size={24} />
-          </StyledNavLink>
-        </NavItem>
-        <NavItem>
-          <Logout />
-        </NavItem>
-      </NavList>
-    )
+  return (
+    <NavList>
+      <NavItem>
+        <StyledNavLink to="/" end>
+          My Movies
+          <FilmStripIcon size={24} />
+        </StyledNavLink>
+      </NavItem>
+      <NavItem>
+        <StyledNavLink to="/search">
+          Find Movies
+          <MagnifyingGlassPlusIcon size={24} />
+        </StyledNavLink>
+      </NavItem>
+      <NavItem>
+        <Logout />
+      </NavItem>
+    </NavList>
+  );
 }
 
 export default Navbar;

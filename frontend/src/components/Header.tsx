@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import {FilmReelIcon} from '@phosphor-icons/react';
+import { FilmReelIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
-import { useAuth } from "../context/AuthContext";
-import { useLocation } from "react-router-dom";
-import Navbar from "./Navbar";
+import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
+import Navbar from './Navbar';
 
 interface NavbarWrapperProps {
   scrolled: boolean;
@@ -16,11 +16,11 @@ const HeaderSection = styled.header`
   display: flex;
   flex-direction: column;
   justify-content: center;
-`
+`;
 const Heading = styled.div`
   display: flex;
   justify-content: center;
-`
+`;
 const GradientHeading = styled.h1`
   background: linear-gradient(315deg, var(--teal) 25%, var(--purple));
   -webkit-background-clip: text;
@@ -39,11 +39,11 @@ const SubHeading = styled.h2`
   gap: 15px;
   flex-wrap: wrap;
   padding: 0 20px;
-  font-size: clamp(1.2rem, 3vw + .5rem, 1rem);
-`
+  font-size: clamp(1.2rem, 3vw + 0.5rem, 1rem);
+`;
 
 const NavbarWrapper = styled.nav.withConfig({
-  shouldForwardProp: (prop) => prop !== 'scrolled',
+  shouldForwardProp: prop => prop !== 'scrolled',
 })<NavbarWrapperProps>`
   position: sticky;
   top: 0;
@@ -55,9 +55,7 @@ const NavbarWrapper = styled.nav.withConfig({
   transition: background 0.5s ease;
 
   background: ${({ scrolled }) =>
-    scrolled
-      ? 'linear-gradient(255deg, var(--purple), var(--lightBlack))'
-      : 'var(--lightBlack)'};
+    scrolled ? 'linear-gradient(255deg, var(--purple), var(--lightBlack))' : 'var(--lightBlack)'};
 
   @media (max-width: 576px) {
     justify-content: center;
@@ -66,40 +64,40 @@ const NavbarWrapper = styled.nav.withConfig({
 `;
 
 function Header() {
-    const { user } = useAuth();
-    const location = useLocation();
-    const isLoginPage = location.pathname === "/login";
-    const [scrolled, setScrolled] = useState<boolean>(false);
-    const headerRef = useRef<HTMLDivElement | null>(null);
+  const { user } = useAuth();
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+  const [scrolled, setScrolled] = useState<boolean>(false);
+  const headerRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-      const handleScroll = () => {
-        if (!headerRef.current) return;
-        const headerBottom = headerRef.current.offsetHeight;
-        setScrolled(window.scrollY >= headerBottom);
-      };
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!headerRef.current) return;
+      const headerBottom = headerRef.current.offsetHeight;
+      setScrolled(window.scrollY >= headerBottom);
+    };
 
-      window.addEventListener('scroll', handleScroll);
-      return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
-      {user && !isLoginPage &&
-      <NavbarWrapper scrolled={scrolled}>
+      {user && !isLoginPage && (
+        <NavbarWrapper scrolled={scrolled}>
           <Navbar />
-      </NavbarWrapper>
-      }
-      <HeaderSection ref={headerRef}  >
+        </NavbarWrapper>
+      )}
+      <HeaderSection ref={headerRef}>
         <Heading>
-          <GradientHeading style={{margin: 0}}>Missed Movies</GradientHeading>
+          <GradientHeading style={{ margin: 0 }}>Missed Movies</GradientHeading>
         </Heading>
         <SubHeading>
           Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
         </SubHeading>
       </HeaderSection>
     </>
-  )
+  );
 }
 
 export default Header;

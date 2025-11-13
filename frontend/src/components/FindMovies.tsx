@@ -1,5 +1,5 @@
-import Search from "./Search";
-import TopMovies from "./TopMovies";
+import Search from './Search';
+import TopMovies from './TopMovies';
 
 function FindMovies() {
   return (
@@ -7,7 +7,7 @@ function FindMovies() {
       <Search />
       <TopMovies />
     </>
-  )
+  );
 }
 
 export default FindMovies;

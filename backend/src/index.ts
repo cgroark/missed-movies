@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import movieRouter from './routes/movies';
-import categoryRouter from './routes/categories'
+import categoryRouter from './routes/categories';
 
 dotenv.config();
 

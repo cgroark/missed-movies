@@ -1,4 +1,4 @@
-import {useEffect, useState, useRef} from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { movie, JSONSearchResults } from '../types/types';
 import MovieList from './MovieList';
 import Modal from './Modal';
@@ -14,7 +14,7 @@ const CategoryList = styled.ul`
   align-items: center;
   gap: 15px;
   margin-bottom: 40px;
-`
+`;
 
 const CategoryButton = styled.button`
   position: relative;
@@ -32,11 +32,12 @@ const CategoryButton = styled.button`
       linear-gradient(#fff 0 0) content-box,
       linear-gradient(#fff 0 0);
     -webkit-mask-composite: destination-out;
-            mask-composite: exclude;
+    mask-composite: exclude;
     pointer-events: none;
   }
 
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
     color: black;
   }
@@ -65,7 +66,7 @@ function TopMovies() {
   const [movies, setMovies] = useState<movie[]>([]);
   const [category, setCategory] = useState<string>('top_rated');
   const [page, setPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(Infinity)
+  const [totalPages, setTotalPages] = useState<number>(Infinity);
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
   const [open, setOpen] = useState<boolean>(false);
@@ -82,38 +83,38 @@ function TopMovies() {
     const options = {
       headers: {
         Authorization: `Bearer ${import.meta.env.VITE_OMDB_ACCESS_TOKEN}`,
-      }
-    }
+      },
+    };
     const findMovies = async () => {
       try {
-        const res = await fetch(`https://api.themoviedb.org/3/movie/${category}?page=${String(page)}`, options);
-        if(!res.ok) throw new Error('error fetching');
+        const res = await fetch(
+          `https://api.themoviedb.org/3/movie/${category}?page=${String(page)}`,
+          options
+        );
+        if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
         console.log('data cat', category, data);
         if (!ignore) {
           setMovies(prev => [...prev, ...data.results]);
           setTotalPages(data.total_pages);
         }
-      }
-      catch (err) {
-        setError(err instanceof Error ? err.message : String(err))
-      }
-      finally {
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
+      } finally {
         setLoading(false);
       }
-    }
+    };
     findMovies();
     return () => {
       ignore = true;
     };
-
   }, [category, page]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
 
     observerRef.current = new IntersectionObserver(
-      (entries) => {
+      entries => {
         const first = entries[0];
         if (first.isIntersecting) {
           setPage(prev => (prev < totalPages ? prev + 1 : prev));
@@ -140,9 +141,7 @@ function TopMovies() {
     setMovies([]);
     setTotalPages(Infinity);
     setPage(1);
-
-  }, [category])
-
+  }, [category]);
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -164,43 +163,43 @@ function TopMovies() {
     <>
       <div>
         <CategoryList>
-          {categories.map((each) =>
+          {categories.map(each => (
             <li key={each.slug}>
               <CategoryButton
                 onClick={() => setCategory(each.slug)}
-                className={ category === each.slug ? 'active' : ''}
+                className={category === each.slug ? 'active' : ''}
               >
                 {each.text}
               </CategoryButton>
             </li>
-          )}
+          ))}
         </CategoryList>
       </div>
 
-      {isLoading && <Loader size='large' />}
-      <div style={{minHeight: '1000px'}}>
-        {!error && (
-          movies.length ?
+      {isLoading && <Loader size="large" />}
+      <div style={{ minHeight: '1000px' }}>
+        {!error &&
+          (movies.length ? (
             <>
-              <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit}/>
+              <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />
               <div ref={loaderRef} style={{ height: '40px' }} />
-              {isLoading && <Loader size='small' />}
+              {isLoading && <Loader size="small" />}
             </>
-          : <p>No results available</p>
-        )
-        }
+          ) : (
+            <p>No results available</p>
+          ))}
       </div>
       {open && (
-          <Modal
-            open={open}
-            movie={selectedMovie || ({} as movie)}
-            action={modalAction}
-            onOpenChange={setOpen}
-            onAfterSave={handleAfterSave}
-          />
+        <Modal
+          open={open}
+          movie={selectedMovie || ({} as movie)}
+          action={modalAction}
+          onOpenChange={setOpen}
+          onAfterSave={handleAfterSave}
+        />
       )}
     </>
-  )
+  );
 }
 
 export default TopMovies;

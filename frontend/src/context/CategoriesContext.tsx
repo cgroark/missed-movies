@@ -1,7 +1,7 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { handleApiError } from "../utils/utils";
-import type { category } from "../types/types";
+import { handleApiError } from '../utils/utils';
+import type { category } from '../types/types';
 
 interface CategoryContextType {
   categories: category[];
@@ -9,7 +9,9 @@ interface CategoryContextType {
   categoryError: string | null;
   setCategoryError: (categoryError: string | null) => void;
   getCategories: (force?: boolean) => Promise<void>;
-  saveCategory: (category: Partial<category>) => Promise<{success: boolean, category?: category, error?: string}>
+  saveCategory: (
+    category: Partial<category>
+  ) => Promise<{ success: boolean; category?: category; error?: string }>;
 }
 
 const CategoryContext = createContext<CategoryContextType | null>(null);
@@ -26,20 +28,20 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
     setCategoryError(null);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!res.ok) await handleApiError(res, "load categories");
+      if (!res.ok) await handleApiError(res, 'load categories');
 
       const result = await res.json();
       const data: category[] = result.data;
       setCategories(data);
     } catch (err: any) {
-      setCategoryError(err instanceof Error ? err.message : String(err))
+      setCategoryError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
     }
@@ -59,26 +61,33 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(category)
+        body: JSON.stringify(category),
       });
 
-      if (!res.ok) await handleApiError(res, "save category");
+      if (!res.ok) await handleApiError(res, 'save category');
 
       const data = await res.json();
-      return {success: true, category: data};
-    }
-    catch (err: any) {
+      return { success: true, category: data };
+    } catch (err: any) {
       const message = err instanceof Error ? err.message : String(err);
       setCategoryError(message);
-      return {success: false, error: message}
-    }
-    finally {
+      return { success: false, error: message };
+    } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <CategoryContext.Provider value={{ categories, isLoading, categoryError, setCategoryError, getCategories, saveCategory }}>
+    <CategoryContext.Provider
+      value={{
+        categories,
+        isLoading,
+        categoryError,
+        setCategoryError,
+        getCategories,
+        saveCategory,
+      }}
+    >
       {children}
     </CategoryContext.Provider>
   );
@@ -86,6 +95,6 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
 
 export const useCategories = () => {
   const ctx = useContext(CategoryContext);
-  if (!ctx) throw new Error("useCategories must be used within a CategoryProvider");
+  if (!ctx) throw new Error('useCategories must be used within a CategoryProvider');
   return ctx;
 };
