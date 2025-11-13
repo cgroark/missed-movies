@@ -108,7 +108,6 @@ function MyMovies() {
   const {
     movies,
     isLoading,
-    error,
     getMovies,
     activeCategory,
     setActiveCategory,
@@ -183,7 +182,7 @@ function MyMovies() {
     if (isFetchingMore || !hasMore) return;
     const fetchMore = async () => {
       setIsFetchingMore(true);
-      const result = await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
+      const result = await getMovies(rangeFrom, rangeTo, activeCategory ?? undefined, sortBy, status);
       const newMovies = result.data || [];
       if (newMovies.length < 12) {
         setHasMore(false);
@@ -223,7 +222,7 @@ function MyMovies() {
   };
 
   const handleAfterSave = async () => {
-    await getMovies(rangeFrom, rangeTo, activeCategory, sortBy, status);
+    await getMovies(rangeFrom, rangeTo, activeCategory ?? undefined, sortBy, status);
     setOpen(false);
   };
 
@@ -268,10 +267,12 @@ function MyMovies() {
       {categories.length > 0 && (
         <div>
           <CategoryList>
-            {categories.map((each: category) => (
+            {categories
+            .filter((each) => each.id !== null)
+            .map((each: category) => (
               <li key={each.id}>
                 <CategoryButton
-                  onClick={() => handleCategoryChange(each.id)}
+                  onClick={() => handleCategoryChange(each.id!)}
                   className={activeCategory === each.id ? 'active' : ''}
                 >
                   {each.name}

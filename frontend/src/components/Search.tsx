@@ -20,7 +20,6 @@ function Search() {
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit'>('add');
   const [open, setOpen] = useState<boolean>(false);
-  const [data, setData] = useState<JSONSearchResults>();
   const [isLoading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +46,6 @@ function Search() {
         if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
         setMovies(data.results.slice(0, 12));
-        setData(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       } finally {

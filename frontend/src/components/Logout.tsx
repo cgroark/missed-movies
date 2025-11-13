@@ -30,14 +30,12 @@ const LinkButton = styled.a`
 `;
 
 function Logout() {
-  const { isLoading, authError, signOut } = useAuth();
-  const [error, setError] = useState<string>('');
+  const { authError, signOut } = useAuth();
   const { showToast } = useToast();
 
   const handleClick = async () => {
-    const { success, error: error } = await signOut();
+    const { success, error } = await signOut();
     if (!success) {
-      setError(error ?? 'unknown error');
       showToast(authError || error || 'Logout error', false);
       return;
     }
@@ -48,11 +46,6 @@ function Logout() {
       <LinkButton onClick={handleClick}>
         Logout <HandPeaceIcon size={24} />
       </LinkButton>
-      {(authError || error) && (
-        <ErrorField>
-          <p>{authError || error}</p>
-        </ErrorField>
-      )}
     </>
   );
 }

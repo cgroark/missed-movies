@@ -1,4 +1,6 @@
-import { createContext, Dispatch, SetStateAction, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+
 import { handleApiError } from '../utils/utils';
 import type { movie, SortOption } from '../types/types';
 import { useAuth } from './AuthContext';
@@ -28,7 +30,7 @@ interface MoviesContextType {
   saveMovie: (
     movie: movie | Partial<movie>
   ) => Promise<{ success: boolean; movie?: movie; error?: string | null }>;
-  deleteMovie: (id: number) => Promise<{ success: boolean; movie?: movie; error?: string }>;
+  deleteMovie: (id: number) => Promise<{ success: boolean; movie?: movie; error?: string | null }>;
 }
 
 const MoviesContext = createContext<MoviesContextType | null>(null);
@@ -85,6 +87,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
       return { success: true, data: moviesData };
     } catch (err: any) {
       setError(err instanceof Error ? err.message : String(err));
+      return { success: false, data: [] };
     } finally {
       setLoading(false);
     }

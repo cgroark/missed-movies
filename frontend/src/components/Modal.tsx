@@ -53,7 +53,7 @@ const CloseButton = styled(Dialog.Close)`
   cursor: pointer;
 `;
 
-function Modal({ action, movie, onOpenChange, open, onAfterSave }: ModalProps) {
+function Modal({ action, movie, onOpenChange, open }: ModalProps) {
   const [currentMovie, setCurrentMovie] = useState<movie | null>(movie);
 
   useEffect(() => {

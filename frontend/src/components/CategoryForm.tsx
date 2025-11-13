@@ -133,7 +133,7 @@ function CategoryForm({ onClose }: CategoryFormProps) {
                     <button
                       className="slimmer"
                       type="button"
-                      onClick={() => handleEdit(each.id, each.name)}
+                      onClick={() => each.id != null && handleEdit(each.id, each.name)}
                     >
                       Edit
                     </button>
