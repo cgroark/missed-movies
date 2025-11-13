@@ -19,7 +19,7 @@ interface MoviesContextType {
   setRangeFrom: Dispatch<SetStateAction<number>>;
   setRangeTo: Dispatch<SetStateAction<number>>;
   getMovies: (from: number, to: number, category?: number, sortBy?: SortOption, status?: number) => Promise<{ success: boolean; data: movie[] }>,
-  saveMovie: (movie: movie | Partial<movie>, action: string) => Promise<{success: boolean, movie?: movie, error?: string | null}>,
+  saveMovie: (movie: movie | Partial<movie>) => Promise<{success: boolean, movie?: movie, error?: string | null}>,
   deleteMovie: (id: number) => Promise<{success: boolean, movie?: movie, error?: string}>;
 }
 

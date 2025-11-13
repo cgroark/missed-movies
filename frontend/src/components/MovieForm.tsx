@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { movie, category } from "../types/types";
 import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
-import styled from "styled-components";
 import { useMovies } from "../context/MoviesContext";
 import { useCategories } from '../context/CategoriesContext';
 import { useToast } from '../context/ToastContext';
@@ -125,7 +124,7 @@ function MovieForm({currentMovie, action, onClose}: FormProps) {
             </select>
           </div>
           {(feError || error ) && (
-            <p style={{color: 'red', textAlign: 'center'}}>{feError || error }</p>
+            <p className="error">{feError || error }</p>
           )}
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'  }}>
             {action === 'edit' && (

@@ -60,12 +60,7 @@ function CategoryForm({onClose}: CategoryFormProps) {
     if(!success) {
       setError(saveError ?? 'unknown error');
       setSaving(false);
-      showToast(
-        saveError
-        ? saveError
-        : "Category could not be saved.",
-        false
-      );
+      showToast(saveError || "Category could not be saved.", false);
       return;
     }
     showToast(
@@ -127,7 +122,7 @@ function CategoryForm({onClose}: CategoryFormProps) {
               </CategoryItem>
             )}
             {(categoryError || error) && !isAdding &&  (
-              <p style={{color: 'red', textAlign: 'center'}}>{categoryError ? categoryError : error}</p>
+              <p className="error">{categoryError ? categoryError : error}</p>
             )}
           </CategoryList>
           {!isAdding && !isEditing &&

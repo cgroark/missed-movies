@@ -1,6 +1,6 @@
 import * as Toast from '@radix-ui/react-toast';
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { ConfettiIcon } from '@phosphor-icons/react';
+import { ConfettiIcon, SkullIcon } from '@phosphor-icons/react';
 import styled, { keyframes } from 'styled-components';
 import '../index.css';
 
@@ -73,7 +73,11 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       <ToastContext.Provider value={{ showToast }}>
         {children}
         <StyledToastRoot open={open} onOpenChange={setOpen} className={!success ? 'error' : '' }>
-          <ConfettiIcon size={24} />
+          {success ?
+            <ConfettiIcon size={24} />
+            :
+            <SkullIcon size={24} />
+          }
           <StyledToastTitle>
             {message}
           </StyledToastTitle>

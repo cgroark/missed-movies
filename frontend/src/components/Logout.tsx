@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import {HandPeaceIcon} from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import '../index.css';
 
 const LinkButton = styled.a`
@@ -28,28 +29,19 @@ const LinkButton = styled.a`
   }
 `;
 
-const ErrorField = styled.div`
-  background-color: var(--teal);
-  border-radius: 10px;
-  width: 75%;
-  margin: 15px auto;
-  padding: 10px;
-
-  p {
-    margin: 0;
-  }
-`
-
 function Logout() {
   const { isLoading, authError, signOut } = useAuth();
   const [error, setError] = useState<string>('');
+  const { showToast } = useToast();
 
   const handleClick = async () => {
-    const { success, error: loginError } = await signOut();
+    const { success, error: error } = await signOut();
     if(!success) {
-      setError(loginError ?? 'unknown error');
+      setError(error ?? 'unknown error');
+      showToast(authError || error || "Logout error", false);
       return;
     }
+    showToast("Logged out!", true);
   }
   return (
     <>

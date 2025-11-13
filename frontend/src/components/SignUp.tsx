@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import {FinnTheHumanIcon, PasswordIcon, FilmSlateIcon, CaretDoubleRightIcon, EyeIcon, EyeClosedIcon} from '@phosphor-icons/react';
+import {FinnTheHumanIcon, PasswordIcon, FilmSlateIcon, CaretDoubleRightIcon, EyeIcon, EyeClosedIcon, ConfettiIcon} from '@phosphor-icons/react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useNavigate } from "react-router-dom";
 import Loader from './Loader';
 import '../index.css';
@@ -30,13 +31,15 @@ const RevealButton = styled.button`
   }
 `
 
-const ErrorField = styled.div`
+const MessageField = styled.div`
+  display: flex;
+  gap: 10px;
   background-color: var(--lightBlack);
   border: solid 2px var(--pink);
   border-radius: 10px;
-  width: 75%;
   margin: 25px auto;
-  padding: 10px;
+  padding: 10px 20px;
+  width: fit-content;
 
   p {
     margin: 0;
@@ -45,6 +48,7 @@ const ErrorField = styled.div`
 
 function SignUp() {
   const { signIn, signUp, isLoading, authError, setAuthError } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
@@ -52,10 +56,9 @@ function SignUp() {
   const [toggleConfirmPassword, setToggleConfirmPassword] = useState<boolean>(false);
   const navigate = useNavigate();
   const [mode, setMode] = useState<'login' | 'signup'>('login');
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string>('');
   const [showForm, setShowForm] = useState<boolean>(true);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,15 +79,19 @@ function SignUp() {
       const { success, error: loginError } = await signIn(email, password);
       if(!success) {
         setError(loginError ?? 'unknown error');
+        showToast(authError || loginError || "Category could not be saved.", false);
         return;
       }
+      showToast("You're signed in!", true);
       navigate('/');
     } else {
       const { success, error: loginError } = await signUp(email, password);
       if(!success) {
         setError(loginError ?? 'unknown error');
+        showToast(authError || loginError || "Category could not be saved.", false);
         return;
       }
+      showToast("Success! Check for email from Supabase to confirm account!", true);
       setMessage('Success! Check for email from Supabase to confirm account');
       setShowForm(false);
     }
@@ -145,6 +152,9 @@ function SignUp() {
                 </div>
               </>
             )}
+            {(authError || error) && (
+              <p className="error">{authError || error || message}</p>
+            )}
             <button style={{margin: 'auto'}} type='submit' className='slimmer'>
               {isLoading ?
                 mode === 'login' ? 'Logging In' : 'Signing Up'
@@ -155,12 +165,15 @@ function SignUp() {
             </button>
           </>
         )}
-        {(authError || error || message) && (
-          <ErrorField>
-              <p>{authError || error || message}</p>
-          </ErrorField>
-        )}
       </form>
+      {message &&
+        <MessageField>
+          <>
+            <ConfettiIcon size={24} />
+            {message}
+          </>
+        </MessageField>
+      }
       {showForm &&
         <ToggleButton className="no-hover" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
             {mode === "login" ? "Sign up for an account" : "Have an account? Sign in."}
