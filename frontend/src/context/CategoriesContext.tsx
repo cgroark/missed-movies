@@ -16,18 +16,22 @@ interface CategoryContextType {
 
 const CategoryContext = createContext<CategoryContextType | null>(null);
 
+const BASE_URL = import.meta.env.VITE_API_URL || '';
+
+
 export const CategoryProvider = ({ children }: { children: React.ReactNode }) => {
   const [categories, setCategories] = useState<category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const { token } = useAuth();
 
+
   const getCategories = async (force = false) => {
     if (!force && categories.length > 0) return;
     setLoading(true);
     setCategoryError(null);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/categories`, {
+      const res = await fetch(`${BASE_URL}/api/categories`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +56,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
     setCategoryError(null);
     let isEditing = !!category.id;
     try {
-      const url = new URL(`${import.meta.env.VITE_API_URL}/api/categories`);
+      const url = new URL(`${BASE_URL}/api/categories`);
       if (isEditing) url.pathname += `/${category.id}`;
 
       const res = await fetch(url, {
