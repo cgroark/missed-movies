@@ -26,6 +26,7 @@
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && ts-node-dev --respawn index.ts",
     "build:frontend": "cd frontend && npm install && npm run build",
+    "build": "npm run build:frontend",
     "start": "node backend/index.js"
   }
 }
