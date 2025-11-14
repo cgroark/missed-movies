@@ -10,11 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/movies', movieRouter);
-app.use('/api/categories', categoryRouter);
+app.use('/movies', movieRouter);
+app.use('/categories', categoryRouter);
 
 const PORT = process.env.PORT || 4000;
 if (process.env.NODE_ENV !== 'production') {
+  console.log('reached dev port')
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
