@@ -4,9 +4,10 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "outDir": "dist",
+    "rootDir": ".",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "strict": false,
+    "strict": true,
     "noEmitOnError": false
   },
   "include": ["./**/*.ts"]

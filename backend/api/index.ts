@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import movieRouter from './src/routes/movies';
-import categoryRouter from './src/routes/categories';
+import movieRouter from '../src/routes/movies';
+import categoryRouter from '../src/routes/categories';
 import serverless from 'serverless-http';
 
 dotenv.config();
