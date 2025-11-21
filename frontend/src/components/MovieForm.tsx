@@ -89,7 +89,7 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
       true
     );
     await onClose();
-    getMovies(0, 11, activeCategory ?? undefined, sortBy, status);
+    getMovies(activeCategory ?? undefined, sortBy, status);
   };
 
   const handleDelete = async () => {
@@ -103,7 +103,7 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
     }
     showToast(`${currentMovie?.title} has been deleted`, true);
     await onClose();
-    getMovies(0, 11, activeCategory ?? undefined, sortBy, status);
+    getMovies(activeCategory ?? undefined, sortBy, status);
   };
 
   return (
@@ -124,12 +124,12 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
                 Select Category
               </option>
               {categories
-              .filter((each) => each.id !== null)
-              .map((each: category) => (
-                <option key={each.id} value={each.id!}>
-                  {each.name}
-                </option>
-              ))}
+                .filter(each => each.id !== null)
+                .map((each: category) => (
+                  <option key={each.id} value={each.id!}>
+                    {each.name}
+                  </option>
+                ))}
             </select>
           </div>
           <div>

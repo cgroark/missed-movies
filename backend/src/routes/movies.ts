@@ -11,7 +11,7 @@ movieRouter.get('/', async (_req, res) => {
     const user = await getUserFromRequest(_req, res);
     if (!user) return;
 
-    const { category, sortBy, asc, status, from, to } = _req.query;
+    const { category, sortBy, asc, status } = _req.query;
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
 
     let query = supabase
@@ -19,8 +19,7 @@ movieRouter.get('/', async (_req, res) => {
       .select('*')
       .eq('user_id', user.id)
       .order('status', { ascending: true })
-      .order(String(sortBy), direction)
-      .range(Number(from), Number(to));
+      .order(String(sortBy), direction);
 
     if (category) {
       query = query.eq('category', category);

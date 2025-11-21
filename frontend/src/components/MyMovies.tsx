@@ -115,22 +115,12 @@ function MyMovies() {
     setStatus,
     sortBy,
     setSortBy,
-    rangeFrom,
-    setRangeFrom,
-    rangeTo,
-    setRangeTo,
   } = useMovies();
   const { categories, categoryError, getCategories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit' | 'category'>('add');
   const [open, setOpen] = useState<boolean>(false);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [isInitialLoading, setIsInitialLoading] = useState(true);
-
-  const loaderRef = useRef<HTMLDivElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const categoryParam = Number(searchParams.get('category')) || 1;
@@ -144,64 +134,12 @@ function MyMovies() {
     if (currentSort) setSortBy(currentSort);
     setActiveCategory(categoryParam);
     setStatus(statusParam);
-    setIsInitialLoading(true);
-    getMovies(rangeFrom, rangeTo, categoryParam, currentSort, statusParam).finally(() =>
-      setIsInitialLoading(false)
-    );
+    getMovies(categoryParam, currentSort, statusParam);
   }, [searchParams]);
 
   useEffect(() => {
     getCategories();
   }, []);
-
-  useEffect(() => {
-    if (!loaderRef.current) return;
-    if (observerRef.current) observerRef.current.disconnect();
-    observerRef.current = new IntersectionObserver(
-      entries => {
-        const first = entries[0];
-        if (first.isIntersecting && !isFetchingMore && hasMore) {
-          setRangeFrom((prev: number) => prev + 12);
-          setRangeTo((prev: number) => prev + 12);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    observerRef.current.observe(loaderRef.current);
-
-    return () => {
-      if (observerRef.current && loaderRef.current) {
-        observerRef.current.unobserve(loaderRef.current);
-      }
-    };
-  }, [hasMore, isFetchingMore, isLoading]);
-
-  useEffect(() => {
-    if (rangeFrom === 0 && rangeTo === 11) return;
-    if (isFetchingMore || !hasMore) return;
-    const fetchMore = async () => {
-      setIsFetchingMore(true);
-      const result = await getMovies(rangeFrom, rangeTo, activeCategory ?? undefined, sortBy, status);
-      const newMovies = result.data || [];
-      if (newMovies.length < 12) {
-        setHasMore(false);
-        if (loaderRef.current) observerRef.current?.unobserve(loaderRef.current);
-      }
-      setIsFetchingMore(false);
-    };
-
-    if (!(rangeFrom === 0 && rangeTo === 11)) {
-      fetchMore();
-    }
-  }, [rangeFrom, rangeTo]);
-
-  useEffect(() => {
-    setHasMore(true);
-    setIsFetchingMore(false);
-    setRangeFrom(0);
-    setRangeTo(11);
-  }, [activeCategory, sortBy, status]);
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -222,7 +160,7 @@ function MyMovies() {
   };
 
   const handleAfterSave = async () => {
-    await getMovies(rangeFrom, rangeTo, activeCategory ?? undefined, sortBy, status);
+    await getMovies(activeCategory ?? undefined, sortBy, status);
     setOpen(false);
   };
 
@@ -268,17 +206,17 @@ function MyMovies() {
         <div>
           <CategoryList>
             {categories
-            .filter((each) => each.id !== null)
-            .map((each: category) => (
-              <li key={each.id}>
-                <CategoryButton
-                  onClick={() => handleCategoryChange(each.id!)}
-                  className={activeCategory === each.id ? 'active' : ''}
-                >
-                  {each.name}
-                </CategoryButton>
-              </li>
-            ))}
+              .filter(each => each.id !== null)
+              .map((each: category) => (
+                <li key={each.id}>
+                  <CategoryButton
+                    onClick={() => handleCategoryChange(each.id!)}
+                    className={activeCategory === each.id ? 'active' : ''}
+                  >
+                    {each.name}
+                  </CategoryButton>
+                </li>
+              ))}
             <li>
               <button className="slimmer" onClick={handleEditCategory}>
                 {categories.length > 1 ? 'Edit Categories' : 'Add Category'}
@@ -332,11 +270,10 @@ function MyMovies() {
           </div>
         </div>
       )}
-      {isInitialLoading && <Loader size="large" />}
-      {movies.length > 0 && !isInitialLoading && (
+      {isLoading && <Loader size="large" />}
+      {movies.length > 0 && !isLoading && (
         <>
           <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />
-          <div ref={loaderRef} style={{ height: '40px' }} />
         </>
       )}
       {!isLoading && movies.length === 0 && (
@@ -348,7 +285,6 @@ function MyMovies() {
           </StyledLink>
         </>
       )}
-      {isFetchingMore && <Loader size="small" />}
       {open && (
         <Modal
           open={open}

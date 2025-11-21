@@ -18,13 +18,11 @@ const CategoryContext = createContext<CategoryContextType | null>(null);
 
 const BASE_URL = import.meta.env.VITE_API_URL || '';
 
-
 export const CategoryProvider = ({ children }: { children: React.ReactNode }) => {
   const [categories, setCategories] = useState<category[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [categoryError, setCategoryError] = useState<string | null>(null);
   const { token } = useAuth();
-
 
   const getCategories = async (force = false) => {
     if (!force && categories.length > 0) return;

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
+// import type { Dispatch, SetStateAction } from 'react';
 
 import { handleApiError } from '../utils/utils';
 import type { movie, SortOption } from '../types/types';
@@ -12,17 +12,11 @@ interface MoviesContextType {
   activeCategory: number | null;
   status: number;
   sortBy: SortOption;
-  rangeFrom: number;
-  rangeTo: number;
   setError: (error: string | null) => void;
   setActiveCategory: (id: number) => void;
   setStatus: (status: number) => void;
   setSortBy: (sort: SortOption) => void;
-  setRangeFrom: Dispatch<SetStateAction<number>>;
-  setRangeTo: Dispatch<SetStateAction<number>>;
   getMovies: (
-    from: number,
-    to: number,
     category?: number,
     sortBy?: SortOption,
     status?: number
@@ -42,8 +36,6 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [status, setStatus] = useState<number>(1);
-  const [rangeFrom, setRangeFrom] = useState<number>(0);
-  const [rangeTo, setRangeTo] = useState<number>(11);
   const [sortBy, setSortBy] = useState<SortOption>({
     key: 'title',
     value: 1,
@@ -52,8 +44,6 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const getMovies = async (
-    from = rangeFrom,
-    to = rangeTo,
     category = activeCategory,
     sortOption = sortBy,
     movieStatus = status
@@ -61,9 +51,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     setError(null);
     try {
-      const url = new URL(
-        `${import.meta.env.VITE_API_URL}/api/movies?from=${String(from)}&to=${String(to)}`
-      );
+      const url = new URL(`${import.meta.env.VITE_API_URL}/api/movies`);
       if (category) url.searchParams.append('category', String(category));
       if (sortOption) {
         url.searchParams.append('sortBy', sortOption.key);
@@ -83,7 +71,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
 
       const result = await res.json();
       const moviesData: movie[] = result.data || [];
-      setMovies(prev => (from === 0 ? moviesData : [...prev, ...moviesData]));
+      setMovies(moviesData);
       return { success: true, data: moviesData };
     } catch (err: any) {
       setError(err instanceof Error ? err.message : String(err));
@@ -193,14 +181,10 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
         activeCategory,
         status,
         sortBy,
-        rangeFrom,
-        rangeTo,
         setError,
         setActiveCategory,
         setStatus,
         setSortBy,
-        setRangeFrom,
-        setRangeTo,
         getMovies,
         saveMovie,
         deleteMovie,
