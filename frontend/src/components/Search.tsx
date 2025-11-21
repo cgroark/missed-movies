@@ -36,7 +36,6 @@ function Search() {
         Authorization: `Bearer ${import.meta.env.VITE_OMDB_ACCESS_TOKEN}`,
       },
     };
-    console.log('header', options);
     const searchMovies = async () => {
       try {
         const res = await fetch(

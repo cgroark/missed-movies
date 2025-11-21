@@ -93,7 +93,6 @@ function TopMovies() {
         );
         if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        console.log('data cat', category, data);
         if (!ignore) {
           setMovies(prev => [...prev, ...data.results]);
           setTotalPages(data.total_pages);
