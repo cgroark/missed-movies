@@ -14,8 +14,8 @@ app.use('/api/movies', movieRouter);
 app.use('/api/categories', categoryRouter);
 
 const PORT = process.env.PORT || 4000;
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
-
-export default app;
+// if (process.env.NODE_ENV !== 'production') {
+//   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// }
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// export default app;
