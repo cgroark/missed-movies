@@ -8,11 +8,18 @@ import serverless from 'serverless-http';
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  'https://missedmovies.vercel.app',
+  'http://localhost:5173'
+];
+
 app.use(cors({
-  origin: ['https://missedmovies.vercel.app', 'http://localhost:5173'],
-  methods: ['GET','POST','PATCH','DELETE'],
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.options('*', cors());
+
+app.options('/*', cors());
 app.use(express.json());
 
 app.use('/api/movies', movieRouter);
