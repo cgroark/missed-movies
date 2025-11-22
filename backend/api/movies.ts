@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { supabase } from '../services/supabaseClient';
-import type { movie } from '../../../frontend/src/types/types';
-import { getUserFromRequest } from '../utils/utils';
+import { supabase } from '../src/services/supabaseClient';
+import type { movie } from '../../frontend/src/types/types';
+import { getUserFromRequest } from '../src/utils/utils';
 
 const movieRouter = Router();
 
