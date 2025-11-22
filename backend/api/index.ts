@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: ['https://missedmovies.vercel.app/'],
+  origin: ['https://missedmovies.vercel.app', 'http://localhost:5173'],
   methods: ['GET','POST','PATCH','DELETE'],
 }));
 app.use(express.json());
