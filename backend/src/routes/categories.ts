@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { supabase } from '../services/supabaseClient';
-import type { category } from '../../../frontend/src/types/types';
+import type { category } from '../types/types';
 import { getUserFromRequest } from '../utils/utils';
 
 const categoryRouter = Router();
