@@ -8,7 +8,10 @@ import serverless from 'serverless-http';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ['https://missedmovies.vercel.app/'],
+  methods: ['GET','POST','PATCH','DELETE'],
+}));
 app.use(express.json());
 
 app.use('/api/movies', movieRouter);
