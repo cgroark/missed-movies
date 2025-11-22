@@ -12,6 +12,7 @@ app.use(cors({
   origin: ['https://missedmovies.vercel.app', 'http://localhost:5173'],
   methods: ['GET','POST','PATCH','DELETE'],
 }));
+app.options('*', cors());
 app.use(express.json());
 
 app.use('/api/movies', movieRouter);

@@ -8,8 +8,8 @@ const movieRouter = Router();
 movieRouter.get('/', async (_req, res) => {
   try {
     res.setHeader('Cache-Control', 'no-store');
-    const user = await getUserFromRequest(_req, res);
-    if (!user) return;
+    // const user = await getUserFromRequest(_req, res);
+    // if (!user) return;
 
     const { category, sortBy, asc, status } = _req.query;
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
@@ -17,7 +17,7 @@ movieRouter.get('/', async (_req, res) => {
     let query = supabase
       .from('movies')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', '326ab9be-9c24-4fb0-a035-b68786f958f1')
       .order('status', { ascending: true })
       .order(String(sortBy), direction);
 
