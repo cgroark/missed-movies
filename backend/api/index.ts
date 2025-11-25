@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 const allowedOrigins = [
   'https://missedmovies.vercel.app',
+  'https://missed-movies.vercel.app',
   'http://localhost:5173'
 ];
 
@@ -26,8 +27,8 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/api/movies', movieRouter);
-app.use('/api/categories', categoryRouter);
+app.use('/movies', movieRouter);
+app.use('/categories', categoryRouter);
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 4000;
