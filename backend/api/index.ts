@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import movieRouter from '../src/routes/movies';
 import categoryRouter from '../src/routes/categories';
-// import serverless from 'serverless-http';
+import serverless from 'serverless-http';
 
 dotenv.config();
 
@@ -36,5 +36,5 @@ if (!process.env.VERCEL) {
 }
 console.log("Serverless function loaded");
 
-// export default serverless(app);
-module.exports  = app;
+export default serverless(app);
+// module.exports  = app;
