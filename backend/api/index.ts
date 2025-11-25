@@ -7,6 +7,7 @@ import categoryRouter from '../src/routes/categories';
 dotenv.config();
 
 const app = express();
+
 const allowedOrigins = [
   'https://missedmovies.vercel.app',
   'https://missed-movies.vercel.app',
@@ -15,8 +16,9 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET','POST','PATCH','DELETE','OPTIONS'],
+  // allowedHeaders: ['Content-Type','Authorization'],
+  credentials: true
 }));
 
 app.use(express.json());
@@ -26,7 +28,7 @@ app.use('/api/categories', categoryRouter);
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 4000;
-  app.listen(PORT, () => console.log(`Local server running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
-module.exports  = app;
+module.exports = app;
