@@ -13,6 +13,11 @@ const allowedOrigins = [
   'http://localhost:5173'
 ];
 
+app.get('/', (req, res) => {
+  console.log("Root route hit");
+  res.send("Backend API is alive");
+});
+
 app.use(cors({
   origin: allowedOrigins,
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -24,11 +29,10 @@ app.use(express.json());
 app.use('/api/movies', movieRouter);
 app.use('/api/categories', categoryRouter);
 
-if (process.env.VERCEL !== '1') {
+if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => console.log(`Local server running on port ${PORT}`));
 }
+console.log("Serverless function loaded");
 
-// Vercel serverless export
-export const handler = serverless(app);
-export default handler;
+export default serverless(app);
