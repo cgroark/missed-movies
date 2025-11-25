@@ -54,10 +54,10 @@ movieRouter.get('/', async (_req, res) => {
 
 movieRouter.post('/', async (req, res) => {
   try {
-    const user = await getUserFromRequest(req, res);
-    if (!user) return;
+    // const user = await getUserFromRequest(req, res);
+    // if (!user) return;
 
-    const movieItem: movie = { ...req.body, user_id: user.id };
+    const movieItem: movie = { ...req.body, user_id: '326ab9be-9c24-4fb0-a035-b68786f958f1' };
 
     if (!movieItem.title) {
       return res.status(400).json({
