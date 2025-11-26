@@ -73,7 +73,7 @@ const StyledLink = styled(Link)`
   margin: 25px auto 10px;
   gap: 5px;
   align-items: center;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: 0.4em 1.4em;
   font-size: 1em;
@@ -85,6 +85,19 @@ const StyledLink = styled(Link)`
   &:hover {
     background-color: var(--darkTeal);
     color: var(--offWhite);
+  }
+
+  &.floater {
+    z-index: 200;
+    right: 10px;
+    bottom: 15px;
+    position: fixed;
+    background-color: var(--purple);
+    margin: 0;
+
+    &:hover {
+      background-color: var(--darkPurple);
+    }
   }
 `;
 
@@ -98,9 +111,11 @@ const FilterContent = styled(Popover.Content)`
 
 const FilterButton = styled.button`
   z-index: 200;
-  right: 10px;
+  right: 170px;
   bottom: 15px;
   position: fixed;
+  padding: 0.4em 1.4em;
+  min-height: 38.8px;
 `;
 
 const ErrorField = styled.div`
@@ -240,7 +255,7 @@ function MyMovies() {
             {movies.length > 1 && (
               <Popover.Root>
                 <Popover.Trigger asChild onPointerDown={e => e.preventDefault()}>
-                  <FilterButton className="slimmer teal" disabled={isLoading}>
+                  <FilterButton className="teal" disabled={isLoading}>
                     {isLoading ? <Loader size="small" /> : <FunnelIcon size={24} />}
                     Filters
                   </FilterButton>
@@ -274,6 +289,10 @@ function MyMovies() {
                 </Popover.Portal>
               </Popover.Root>
             )}
+            <StyledLink className='floater' to="/search">
+              Add Movie
+              <FilmStripIcon size={24} />
+            </StyledLink>
           </div>
         </div>
       )}
