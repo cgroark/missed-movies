@@ -36,10 +36,15 @@ const RevealButton = styled.button`
   @media (max-width: 768px) {
     margin-top: 5px;
   }
+
+  &:focus-visible {
+    outline: none;
+  }
 `;
 
 const MessageField = styled.div`
   display: flex;
+
   gap: 10px;
   background-color: var(--lightBlack);
   border: solid 2px var(--pink);

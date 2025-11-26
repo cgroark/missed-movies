@@ -101,7 +101,7 @@ const FilterButton = styled.button`
   right: 10px;
   bottom: 15px;
   position: fixed;
-`
+`;
 
 const ErrorField = styled.div`
   background-color: var(--lightBlack);
@@ -239,11 +239,8 @@ function MyMovies() {
           <div style={{ maxWidth: '1280px', margin: 'auto', padding: '0 20px' }}>
             {movies.length > 1 && (
               <Popover.Root>
-                <Popover.Trigger asChild onPointerDown={(e) => e.preventDefault()}>
-                  <FilterButton
-                    className="slimmer teal"
-                    disabled={isLoading}
-                  >
+                <Popover.Trigger asChild onPointerDown={e => e.preventDefault()}>
+                  <FilterButton className="slimmer teal" disabled={isLoading}>
                     {isLoading ? <Loader size="small" /> : <FunnelIcon size={24} />}
                     Filters
                   </FilterButton>

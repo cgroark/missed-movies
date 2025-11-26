@@ -4,6 +4,7 @@ import { FloppyDiskIcon, PlusIcon, XCircleIcon } from '@phosphor-icons/react';
 import { useCategories } from '../context/CategoriesContext';
 import { useToast } from '../context/ToastContext';
 import type { category } from '../types/types';
+import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 
 interface CategoryFormProps {
@@ -36,9 +37,9 @@ function CategoryForm({ onClose }: CategoryFormProps) {
   const [isAdding, setAdding] = useState<boolean>(false);
   const [isEditing, setEditing] = useState<boolean>(false);
   const [isSaving, setSaving] = useState<boolean>(false);
-
   const [currentlyEditing, setCurrentlyEditing] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     getCategories();
@@ -63,6 +64,9 @@ function CategoryForm({ onClose }: CategoryFormProps) {
       setError(saveError ?? 'unknown error');
       setSaving(false);
       showToast(saveError || 'Category could not be saved.', false);
+      if (saveError?.includes('session has expired')) {
+        navigate('/login');
+      }
       return;
     }
     showToast(isEditing ? 'Category updated successfully' : 'Category added successfully', true);

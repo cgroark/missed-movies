@@ -23,7 +23,7 @@ const SearchWrapper = styled.div`
   @media (max-width: 576px) {
     max-width: 340px;
   }
-`
+`;
 
 function Search() {
   const [search, setSearch] = useState<string>('');

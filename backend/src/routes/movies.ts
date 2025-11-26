@@ -14,9 +14,7 @@ movieRouter.get('/', async (_req, res) => {
     const { category, sortBy, asc, status } = _req.query;
     const validSortColumns = ['title', 'release_date'];
     const sortColumn =
-      typeof sortBy === 'string' && validSortColumns.includes(sortBy)
-        ? sortBy
-    : 'title';
+      typeof sortBy === 'string' && validSortColumns.includes(sortBy) ? sortBy : 'title';
 
     const direction = asc === 'true' ? { ascending: true } : { ascending: false };
 

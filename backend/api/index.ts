@@ -11,15 +11,17 @@ const app = express();
 const allowedOrigins = [
   'https://missedmovies.vercel.app',
   'https://missed-movies.vercel.app',
-  'http://localhost:5173'
+  'http://localhost:5173',
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET','POST','PATCH','DELETE','OPTIONS'],
-  // allowedHeaders: ['Content-Type','Authorization'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    // allowedHeaders: ['Content-Type','Authorization'],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 

@@ -32,7 +32,7 @@ const GradientHeading = styled.h1`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
-  font-size: clamp(2rem, 10vw + .5rem, 7.5rem);
+  font-size: clamp(2rem, 10vw + 0.5rem, 7.5rem);
   margin: 0;
   padding: 0 20px;
 `;

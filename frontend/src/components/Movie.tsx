@@ -22,8 +22,7 @@ const PosterWrapper = styled.div<{ $loaded: boolean }>`
   @media (max-width: 768px) {
     min-height: 170px;
   }
-x
-  img {
+  x img {
     width: 100%;
     opacity: ${({ $loaded }) => ($loaded ? 1 : 0)};
     filter: ${({ $loaded }) => ($loaded ? 'blur(0)' : 'blur(10px)')};

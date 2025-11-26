@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "type": "commonjs",
- "main": "api/index.js",
+  "main": "api/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon --watch src --ext ts --exec ts-node api/index.ts",

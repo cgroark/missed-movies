@@ -4,6 +4,7 @@ import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosph
 import { useMovies } from '../context/MoviesContext';
 import { useCategories } from '../context/CategoriesContext';
 import { useToast } from '../context/ToastContext';
+import { useNavigate } from 'react-router-dom';
 import '../index.css';
 import Loader from './Loader';
 
@@ -30,6 +31,7 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
   const [category, setCategory] = useState<number | ''>('');
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
   const [feError, setFeError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getCategories();
@@ -79,6 +81,9 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
           : `${currentMovie?.title} could not be saved.`,
         false
       );
+      if (saveError?.includes('session has expired')) {
+        navigate('/login');
+      }
       return;
     }
 
@@ -99,6 +104,9 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
 
     if (!success) {
       setFeError(deleteError ?? 'unknown error');
+      if (deleteError?.includes('session has expired')) {
+        navigate('/login');
+      }
       return;
     }
     showToast(`${currentMovie?.title} has been deleted`, true);
