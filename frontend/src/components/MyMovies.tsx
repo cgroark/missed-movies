@@ -31,8 +31,12 @@ const CategoryList = styled.ul`
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
   margin-bottom: 40px;
+
+  @media (max-width: 576px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const CategoryButton = styled.button`
@@ -85,12 +89,19 @@ const StyledLink = styled(Link)`
 `;
 
 const FilterContent = styled(Popover.Content)`
-  background: var(--lightBlack);
-  border: 2px solid var(--offWhite);
+  background: var(--offWhite);
   border-radius: 8px;
   padding: 15px;
   min-width: 200px;
+  color: var(--lightBlack);
 `;
+
+const FilterButton = styled.button`
+  z-index: 200;
+  right: 10px;
+  bottom: 15px;
+  position: fixed;
+`
 
 const ErrorField = styled.div`
   background-color: var(--lightBlack);
@@ -228,15 +239,14 @@ function MyMovies() {
           <div style={{ maxWidth: '1280px', margin: 'auto', padding: '0 20px' }}>
             {movies.length > 1 && (
               <Popover.Root>
-                <Popover.Trigger asChild>
-                  <button
+                <Popover.Trigger asChild onPointerDown={(e) => e.preventDefault()}>
+                  <FilterButton
                     className="slimmer teal"
-                    style={{ marginLeft: 'auto' }}
                     disabled={isLoading}
                   >
                     {isLoading ? <Loader size="small" /> : <FunnelIcon size={24} />}
                     Filters
-                  </button>
+                  </FilterButton>
                 </Popover.Trigger>
                 <Popover.Portal>
                   <FilterContent align="end" sideOffset={8}>

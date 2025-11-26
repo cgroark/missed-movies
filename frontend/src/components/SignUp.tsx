@@ -32,10 +32,9 @@ const RevealButton = styled.button`
   margin-left: -65px;
   background: transparent;
   position: absolute;
-  margin-top: -4px;
 
   @media (max-width: 768px) {
-    margin-top: 0;
+    margin-top: 5px;
   }
 `;
 

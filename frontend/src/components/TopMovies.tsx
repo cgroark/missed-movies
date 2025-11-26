@@ -14,6 +14,11 @@ const CategoryList = styled.ul`
   align-items: center;
   gap: 15px;
   margin-bottom: 40px;
+
+  @media (max-width: 576px) {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
 `;
 
 const CategoryButton = styled.button`

@@ -22,7 +22,7 @@ const PosterWrapper = styled.div<{ $loaded: boolean }>`
   @media (max-width: 768px) {
     min-height: 170px;
   }
-
+x
   img {
     width: 100%;
     opacity: ${({ $loaded }) => ($loaded ? 1 : 0)};
@@ -40,8 +40,8 @@ const MovieWrapper = styled.div`
   max-width: 180px;
 
   @media (max-width: 768px) {
-    min-width: 110px;
-    max-width: 110px;
+    min-width: 150px;
+    max-width: 150px;
   }
 `;
 const MovieItem = styled.div`
@@ -94,7 +94,7 @@ const OpenButton = styled.div`
   transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 
   @media (max-width: 768px) {
-    margin: -30px 0 0 80px;
+    margin: -30px 0 0 120px;
   }
 
   &:hover {

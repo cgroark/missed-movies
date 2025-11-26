@@ -9,9 +9,21 @@ import Modal from './Modal';
 
 const Label = styled.label`
   justify-content: center;
-  margin: 50px 0 20px 0;
+  margin: 50px 0 10px 0;
   font-size: 24px;
+
+  @media (max-width: 576px) {
+    margin: 10px 0;
+  }
 `;
+
+const SearchWrapper = styled.div`
+  max-width: 400px;
+  margin: auto;
+  @media (max-width: 576px) {
+    max-width: 340px;
+  }
+`
 
 function Search() {
   const [search, setSearch] = useState<string>('');
@@ -72,7 +84,7 @@ function Search() {
 
   return (
     <>
-      <div style={{ maxWidth: '400px', margin: 'auto' }}>
+      <SearchWrapper>
         <Label htmlFor="search">
           Find a movie
           <MagnifyingGlassIcon size={24} />
@@ -83,7 +95,7 @@ function Search() {
           id="search"
           onChange={e => setSearch(e.target.value)}
         />
-      </div>
+      </SearchWrapper>
       {isLoading && search && <Loader size="large" />}
 
       {search != '' &&

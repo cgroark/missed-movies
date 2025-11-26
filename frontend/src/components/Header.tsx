@@ -12,10 +12,15 @@ interface NavbarWrapperProps {
 const HeaderSection = styled.header`
   background: linear-gradient(255deg, var(--purple) 5%, var(--lightBlack));
   margin-bottom: 50px;
-  height: 50vh;
+  height: 40vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  @media (max-width: 576px) {
+    height: 30vh;
+    margin-bottom: 20px;
+  }
 `;
 const Heading = styled.div`
   display: flex;
@@ -27,7 +32,7 @@ const GradientHeading = styled.h1`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
-  font-size: clamp(5rem, 10vw + 1rem, 7.5rem);
+  font-size: clamp(2rem, 10vw + .5rem, 7.5rem);
   margin: 0;
   padding: 0 20px;
 `;
@@ -38,8 +43,8 @@ const SubHeading = styled.h2`
   align-items: center;
   gap: 15px;
   flex-wrap: wrap;
-  padding: 0 20px;
-  font-size: clamp(1.2rem, 3vw + 0.5rem, 1rem);
+  padding: 0 10px;
+  font-size: clamp(1rem, 3vw + 0.5rem, 1.5rem);
 `;
 
 const NavbarWrapper = styled.nav.withConfig({

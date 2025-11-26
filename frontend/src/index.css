@@ -72,6 +72,10 @@ button:not(.no-hover):hover {
 
 button.slimmer {
   padding: 0.5rem 1rem;
+
+  @media (max-width: 768px) {
+    padding: 0.25rem .8rem;
+  }
 }
 
 button.teal {
@@ -101,7 +105,8 @@ input {
   margin: 5px 0 20px 0;
   border-radius: 4px;
   border: 1px solid var(--offWhite);
-  min-height: 35px;
+  min-height: 45px;
+  font-size: 1rem;;
   padding: 5px;
 }
 
@@ -114,7 +119,8 @@ select {
   border: 1px solid var(--lightBlack);
   background-color: white;
   color: var(--lightBlack);
-  min-height: 30px;
+  min-height: 45px;
+  font-size: 1rem;;
   padding: 5px;
 }
 
