@@ -33,7 +33,7 @@ const GradientHeading = styled.h1`
   background-clip: text;
   color: transparent;
   font-size: clamp(2rem, 10vw + 0.5rem, 7.5rem);
-  margin: 0;
+  margin: 30px 0 0 0;
   padding: 0 20px;
 `;
 
@@ -95,7 +95,7 @@ function Header() {
       )}
       <HeaderSection ref={headerRef}>
         <Heading>
-          <GradientHeading style={{ margin: 0 }}>Missed Movies</GradientHeading>
+          <GradientHeading>Missed Movies</GradientHeading>
         </Heading>
         <SubHeading>
           Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
