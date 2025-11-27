@@ -28,6 +28,10 @@ const Trigger = styled(Accordion.Trigger)`
   font-weight: 500;
   transition: background 0.2s ease;
 
+  &:hover {
+    background-color: transparent !important;
+  }
+
   &[data-state='open'] {
     svg {
       transform: rotate(180deg);
