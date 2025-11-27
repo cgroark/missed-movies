@@ -32,5 +32,6 @@ Project provides full authentication: users can sign up and create a password. S
 - Vercel hosting
 
 ### Viewing and Testing
- - Locally you can clone this repo and run npm install and npm run dev to spin up the backend and frontend concurrently
- - You can check it out deployment on Vercel at https://missedmovies.vercel.app/
+
+- Locally you can clone this repo and run npm install and npm run dev to spin up the backend and frontend concurrently
+- You can check it out deployment on Vercel at https://missedmovies.vercel.app/

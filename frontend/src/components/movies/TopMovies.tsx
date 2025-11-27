@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { FilmStripIcon } from '@phosphor-icons/react';
 import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import Modal from '../ui/Modal';
@@ -45,6 +47,36 @@ const CategoryButton = styled.button`
   &:hover {
     background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
     color: black;
+  }
+`;
+
+const StyledLink = styled(Link)`
+  background-color: var(--pink);
+  text-decoration: none;
+  display: flex;
+  margin: 25px auto 10px;
+  gap: 5px;
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 0.4em 1.4em;
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--lightBlack);
+  width: fit-content;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--darkPink);
+    color: var(--offWhite);
+  }
+
+  &.floater {
+    z-index: 200;
+    right: 10px;
+    bottom: 15px;
+    position: fixed;
+    margin: 0;
   }
 `;
 
@@ -188,6 +220,10 @@ function TopMovies() {
               <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />
               <div ref={loaderRef} style={{ height: '40px' }} />
               {isLoading && <Loader size="small" />}
+              <StyledLink className="floater" to="/">
+                View Movies
+                <FilmStripIcon size={24} />
+              </StyledLink>
             </>
           ) : (
             <p>No results available</p>
