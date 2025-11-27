@@ -1,4 +1,4 @@
-import MyMovies from "../movies/MyMovies";
+import MyMovies from '../movies/MyMovies';
 
 function Home() {
   return (

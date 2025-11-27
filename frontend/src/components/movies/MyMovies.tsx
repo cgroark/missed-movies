@@ -288,7 +288,7 @@ function MyMovies() {
                 </Popover.Portal>
               </Popover.Root>
             )}
-            <StyledLink className='floater' to="/search">
+            <StyledLink className="floater" to="/search">
               Add Movie
               <FilmStripIcon size={24} />
             </StyledLink>
