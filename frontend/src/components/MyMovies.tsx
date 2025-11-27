@@ -152,7 +152,7 @@ function MyMovies() {
     const categoryParam = Number(searchParams.get('category')) || 1;
     const statusParam = Number(searchParams.get('status'));
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
-    const ascendingParam = searchParams.get('asc') === 'true';
+    const ascendingParam = searchParams.get('asc') === 'true' || 'true';
 
     const currentSort = sortOptions.find(
       each => each.key === sortByKeyParam && each.ascending === ascendingParam
