@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 
-import type { movie, JSONSearchResults } from '../types/types';
+import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import styled from 'styled-components';
-import Loader from './Loader';
-import Modal from './Modal';
+import Loader from '../ui/Loader';
+import Modal from '../ui/Modal';
 
 const Label = styled.label`
   justify-content: center;

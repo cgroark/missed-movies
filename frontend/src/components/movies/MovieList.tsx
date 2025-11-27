@@ -1,4 +1,4 @@
-import type { movie } from '../types/types';
+import type { movie } from '../../types/types';
 import styled from 'styled-components';
 import Movie from './Movie';
 

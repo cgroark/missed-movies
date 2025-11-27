@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import styled from 'styled-components';
 import { XCircleIcon } from '@phosphor-icons/react';
-import type { movie } from '../types/types';
-import MovieForm from './MovieForm';
-import CategoryForm from './CategoryForm';
+import type { movie } from '../../types/types';
+import MovieForm from '../movies/MovieForm';
+import CategoryForm from '../categories/CategoryForm';
 
 type ModalProps = {
   action: 'add' | 'edit' | 'category';

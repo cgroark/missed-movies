@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FloppyDiskIcon, PlusIcon, XCircleIcon } from '@phosphor-icons/react';
-import { useCategories } from '../context/CategoriesContext';
-import { useToast } from '../context/ToastContext';
-import type { category } from '../types/types';
+import { useCategories } from '../../context/CategoriesContext';
+import { useToast } from '../../context/ToastContext';
+import type { category } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
-import Loader from './Loader';
+import Loader from '../ui/Loader';
 
 interface CategoryFormProps {
   onClose: () => void;

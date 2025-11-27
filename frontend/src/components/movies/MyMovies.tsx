@@ -3,13 +3,12 @@ import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon, FunnelIcon, NotePencilIcon } from '@phosphor-icons/react';
 import * as Popover from '@radix-ui/react-popover';
-import { useMovies } from '../context/MoviesContext';
-import { useCategories } from '../context/CategoriesContext';
-import type { movie, category, SortOption, StatusOption } from '../types/types';
+import { useMovies } from '../../context/MoviesContext';
+import { useCategories } from '../../context/CategoriesContext';
+import type { movie, category, SortOption, StatusOption } from '../../types/types';
 import MovieList from './MovieList';
-import Modal from './Modal';
-import Loader from './Loader';
-import '../index.css';
+import Modal from '../ui/Modal';
+import Loader from '../ui/Loader';
 
 const statusOptions: StatusOption[] = [
   { value: 0, label: 'All' },

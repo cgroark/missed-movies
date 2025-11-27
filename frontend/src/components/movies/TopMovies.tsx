@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
-import type { movie, JSONSearchResults } from '../types/types';
+import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
-import Modal from './Modal';
+import Modal from '../ui/Modal';
 import styled from 'styled-components';
-import Loader from './Loader';
+import Loader from '../ui/Loader';
 
 const CategoryList = styled.ul`
   padding: 0;

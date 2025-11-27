@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FilmReelIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 

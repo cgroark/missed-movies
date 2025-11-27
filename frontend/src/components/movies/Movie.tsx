@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import type { movie } from '../types/types';
+import type { movie } from '../../types/types';
 import { CheckFatIcon, PencilIcon, PlusIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
-import '../index.css';
-import AccordionSection from './Accordion';
+import AccordionSection from '../ui/Accordion';
 
 interface MovieProps {
   movie: movie;

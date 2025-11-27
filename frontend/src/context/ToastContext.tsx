@@ -2,7 +2,6 @@ import * as Toast from '@radix-ui/react-toast';
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { ConfettiIcon, SkullIcon } from '@phosphor-icons/react';
 import styled, { keyframes } from 'styled-components';
-import '../index.css';
 
 interface ToastContextType {
   showToast: (message: string, success: boolean) => void;
@@ -27,7 +26,8 @@ const StyledToastRoot = styled(Toast.Root)`
   padding: 12px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: start;
+  text-align: left;
   gap: 10px;
   min-width: 280px;
   max-width: 350px;

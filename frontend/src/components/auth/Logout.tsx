@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 import { HandPeaceIcon } from '@phosphor-icons/react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import '../index.css';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 const LinkButton = styled.a`
   display: inline-block;

@@ -1,8 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { MagnifyingGlassPlusIcon, FilmStripIcon } from '@phosphor-icons/react';
-import '../index.css';
-import Logout from './Logout';
+import Logout from '../auth/Logout';
 
 const NavList = styled.ul`
   list-style: none;

@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import type { movie, category } from '../types/types';
+import type { movie, category } from '../../types/types';
 import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
-import { useMovies } from '../context/MoviesContext';
-import { useCategories } from '../context/CategoriesContext';
-import { useToast } from '../context/ToastContext';
+import { useMovies } from '../../context/MoviesContext';
+import { useCategories } from '../../context/CategoriesContext';
+import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
-import '../index.css';
-import Loader from './Loader';
+import Loader from '../ui/Loader';
 
 interface FormProps {
   currentMovie: movie | null;

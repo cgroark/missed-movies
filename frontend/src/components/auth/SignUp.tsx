@@ -9,11 +9,10 @@ import {
   EyeClosedIcon,
   ConfettiIcon,
 } from '@phosphor-icons/react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
-import Loader from './Loader';
-import '../index.css';
+import Loader from '../ui/Loader';
 
 const ToggleButton = styled.button`
   display: flex;
