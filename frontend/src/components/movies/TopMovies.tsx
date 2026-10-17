@@ -5,7 +5,7 @@ import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import Modal from '../ui/Modal';
 import styled from 'styled-components';
-import Loader from '../ui/Loader';
+import MovieListSkeleton from './MovieListSkeleton';
 
 const CategoryList = styled.ul`
   padding: 0;
@@ -212,19 +212,20 @@ function TopMovies() {
         </CategoryList>
       </div>
 
-      {isLoading && <Loader size="large" />}
       <div style={{ minHeight: '1000px' }}>
         {!error &&
           (movies.length ? (
             <>
               <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />
               <div ref={loaderRef} style={{ height: '40px' }} />
-              {isLoading && <Loader size="small" />}
+              {isLoading && <MovieListSkeleton count={6} />}
               <StyledLink className="floater" to="/">
                 View Movies
                 <FilmStripIcon size={24} />
               </StyledLink>
             </>
+          ) : isLoading ? (
+            <MovieListSkeleton />
           ) : (
             <p>No results available</p>
           ))}

@@ -7,6 +7,7 @@ import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
 import type { movie, category, SortOption, StatusOption } from '../../types/types';
 import MovieList from './MovieList';
+import MovieListSkeleton from './MovieListSkeleton';
 import Modal from '../ui/Modal';
 import Loader from '../ui/Loader';
 
@@ -295,7 +296,7 @@ function MyMovies() {
           </div>
         </div>
       )}
-      {isLoading && <Loader size="large" />}
+      {isLoading && <MovieListSkeleton />}
       {movies.length > 0 && !isLoading && (
         <>
           <MovieList movies={movies} onAdd={handleAdd} onEdit={handleEdit} />

@@ -54,27 +54,56 @@ const CloseButton = styled(Dialog.Close)`
 `;
 
 function Modal({ action, movie, onOpenChange, open }: ModalProps) {
+  const [isAddingCategory, setAddingCategory] = useState(false);
   const [currentMovie, setCurrentMovie] = useState<movie | null>(movie);
 
   useEffect(() => {
+    if (!open) setAddingCategory(false);
     if (open && movie) setCurrentMovie(movie);
   }, [open, movie]);
 
   const handleClose = () => onOpenChange(false);
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && isAddingCategory) {
+      setAddingCategory(false);
+      return;
+    }
+    onOpenChange(nextOpen);
+  };
 
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Overlay />
         <Content aria-describedby={undefined}>
           <CloseButton className="no-hover">
             <XCircleIcon size={32} />
           </CloseButton>
-          <Title>{action === 'category' ? 'Categories' : <em>{currentMovie?.title}</em>}</Title>
+          <Title>
+            {isAddingCategory ? (
+              'Add category'
+            ) : action === 'category' ? (
+              'Categories'
+            ) : (
+              <em>{currentMovie?.title}</em>
+            )}
+          </Title>
           {action === 'category' ? (
             <CategoryForm onClose={handleClose} />
           ) : (
-            <MovieForm currentMovie={currentMovie} action={action} onClose={handleClose} />
+            <>
+              <div hidden={isAddingCategory}>
+                <MovieForm
+                  currentMovie={currentMovie}
+                  action={action}
+                  onClose={handleClose}
+                  onAddCategory={() => setAddingCategory(true)}
+                />
+              </div>
+              {isAddingCategory && (
+                <CategoryForm addOnly onClose={() => setAddingCategory(false)} />
+              )}
+            </>
           )}
         </Content>
       </Dialog.Portal>

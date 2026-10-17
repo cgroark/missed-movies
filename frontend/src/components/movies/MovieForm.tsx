@@ -1,19 +1,40 @@
 import { useState, useEffect } from 'react';
 import type { movie, category } from '../../types/types';
-import { FloppyDiskIcon, FileVideoIcon, FilmSlateIcon, TrashIcon } from '@phosphor-icons/react';
+import {
+  FloppyDiskIcon,
+  FileVideoIcon,
+  FilmSlateIcon,
+  TrashIcon,
+  PlusIcon,
+} from '@phosphor-icons/react';
 import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
+import styled from 'styled-components';
+
+const AddCategoryButton = styled.button`
+  && {
+    background: transparent;
+    color: black;
+    text-decoration: none;
+    font-size: 0.8rem;
+    padding: 0;
+    margin: -12px 0 20px auto;
+    width: fit-content;
+    text-align: left;
+  }
+`;
 
 interface FormProps {
   currentMovie: movie | null;
   action: 'add' | 'edit';
   onClose: () => void;
+  onAddCategory: () => void;
 }
 
-function MovieForm({ currentMovie, action, onClose }: FormProps) {
+function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) {
   const {
     isLoading,
     error,
@@ -138,6 +159,10 @@ function MovieForm({ currentMovie, action, onClose }: FormProps) {
                   </option>
                 ))}
             </select>
+            <AddCategoryButton className="no-hover" type="button" onClick={onAddCategory}>
+              Add category
+              <PlusIcon size={16} />
+            </AddCategoryButton>
           </div>
           <div>
             <label htmlFor="status">

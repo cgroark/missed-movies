@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import styled from 'styled-components';
-import Loader from '../ui/Loader';
+import MovieListSkeleton from './MovieListSkeleton';
 import Modal from '../ui/Modal';
 
 const Label = styled.label`
@@ -41,6 +41,12 @@ function Search() {
   }, [search]);
 
   useEffect(() => {
+    if (!debounceSearch.trim()) {
+      setMovies([]);
+      setLoading(false);
+      return;
+    }
+    let ignore = false;
     setLoading(true);
     setError(null);
     const options = {
@@ -56,14 +62,17 @@ function Search() {
         );
         if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        setMovies(data.results.slice(0, 12));
+        if (!ignore) setMovies(data.results.slice(0, 12));
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        if (!ignore) setError(err instanceof Error ? err.message : String(err));
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     };
-    if (debounceSearch) searchMovies();
+    searchMovies();
+    return () => {
+      ignore = true;
+    };
   }, [debounceSearch]);
 
   const handleAdd = (movie: movie) => {
@@ -96,7 +105,7 @@ function Search() {
           onChange={e => setSearch(e.target.value)}
         />
       </SearchWrapper>
-      {isLoading && search && <Loader size="large" />}
+      {isLoading && search && <MovieListSkeleton />}
 
       {search != '' &&
         !isLoading &&

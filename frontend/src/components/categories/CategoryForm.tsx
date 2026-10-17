@@ -9,6 +9,7 @@ import Loader from '../ui/Loader';
 
 interface CategoryFormProps {
   onClose: () => void;
+  addOnly?: boolean;
 }
 
 const CategoryList = styled.ul`
@@ -28,13 +29,13 @@ const CategoryItem = styled.li`
   padding: 4px 0;
 `;
 
-function CategoryForm({ onClose }: CategoryFormProps) {
+function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
   const { isLoading, categories, getCategories, saveCategory, categoryError, setCategoryError } =
     useCategories();
   const { showToast } = useToast();
   const [name, setName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [isAdding, setAdding] = useState<boolean>(false);
+  const [isAdding, setAdding] = useState<boolean>(addOnly);
   const [isEditing, setEditing] = useState<boolean>(false);
   const [isSaving, setSaving] = useState<boolean>(false);
   const [currentlyEditing, setCurrentlyEditing] = useState<number | null>(null);
@@ -71,8 +72,8 @@ function CategoryForm({ onClose }: CategoryFormProps) {
     }
     showToast(isEditing ? 'Category updated successfully' : 'Category added successfully', true);
     setSaving(false);
-    await onClose();
-    getCategories(true);
+    await getCategories(true);
+    onClose();
   };
 
   const handleEdit = (id: number, name: string) => {
@@ -87,67 +88,69 @@ function CategoryForm({ onClose }: CategoryFormProps) {
         <Loader size="large" />
       ) : (
         <>
-          <CategoryList>
-            {categories.map(each => (
-              <CategoryItem key={each.id}>
-                {isEditing && currentlyEditing === each.id ? (
-                  <>
-                    <label htmlFor="editName">Edit Name</label>
-                    <input
-                      style={{ margin: '0' }}
-                      className="light"
-                      id="editName"
-                      type="text"
-                      value={editingValue}
-                      onChange={e => setEditingValue(e.target.value)}
-                    />
-                  </>
-                ) : (
-                  each.name
-                )}
+          {!addOnly && (
+            <CategoryList>
+              {categories.map(each => (
+                <CategoryItem key={each.id}>
+                  {isEditing && currentlyEditing === each.id ? (
+                    <>
+                      <label htmlFor="editName">Edit Name</label>
+                      <input
+                        style={{ margin: '0' }}
+                        className="light"
+                        id="editName"
+                        type="text"
+                        value={editingValue}
+                        onChange={e => setEditingValue(e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    each.name
+                  )}
 
-                {each.id !== 1 &&
-                  (isEditing && currentlyEditing === each.id ? (
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '10px',
-                        width: '100%',
-                      }}
-                    >
-                      <button
-                        className="slimmer teal"
-                        type="button"
-                        onClick={() => {
-                          setEditing(false);
-                          setError(null);
-                          setCategoryError(null);
+                  {each.id !== 1 &&
+                    (isEditing && currentlyEditing === each.id ? (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '10px',
+                          width: '100%',
                         }}
                       >
-                        Cancel <XCircleIcon size={24} />
+                        <button
+                          className="slimmer teal"
+                          type="button"
+                          onClick={() => {
+                            setEditing(false);
+                            setError(null);
+                            setCategoryError(null);
+                          }}
+                        >
+                          Cancel <XCircleIcon size={24} />
+                        </button>
+                        <button className="slimmer" type="submit" onClick={handleSave}>
+                          {isSaving ? 'Saving' : 'Save'}
+                          {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="slimmer"
+                        type="button"
+                        onClick={() => each.id != null && handleEdit(each.id, each.name)}
+                      >
+                        Edit
                       </button>
-                      <button className="slimmer" type="submit" onClick={handleSave}>
-                        {isSaving ? 'Saving' : 'Save'}
-                        {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      className="slimmer"
-                      type="button"
-                      onClick={() => each.id != null && handleEdit(each.id, each.name)}
-                    >
-                      Edit
-                    </button>
-                  ))}
-              </CategoryItem>
-            ))}
-            {(categoryError || error) && !isAdding && (
-              <p className="error">{categoryError ? categoryError : error}</p>
-            )}
-          </CategoryList>
+                    ))}
+                </CategoryItem>
+              ))}
+              {(categoryError || error) && !isAdding && (
+                <p className="error">{categoryError ? categoryError : error}</p>
+              )}
+            </CategoryList>
+          )}
           {!isAdding && !isEditing && (
             <button
               style={{ margin: 'auto' }}
@@ -186,6 +189,10 @@ function CategoryForm({ onClose }: CategoryFormProps) {
                   className="slimmer teal"
                   type="button"
                   onClick={() => {
+                    if (addOnly) {
+                      onClose();
+                      return;
+                    }
                     setAdding(false);
                     setError(null);
                     setCategoryError(null);
@@ -199,12 +206,11 @@ function CategoryForm({ onClose }: CategoryFormProps) {
                   {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
                 </button>
               </div>
-              {categoryError ||
-                (error && (
-                  <p style={{ color: 'red', textAlign: 'center' }}>
-                    {categoryError ? categoryError : error}
-                  </p>
-                ))}
+              {(categoryError || error) && (
+                <p style={{ color: 'red', textAlign: 'center' }}>
+                  {categoryError ? categoryError : error}
+                </p>
+              )}
             </form>
           )}
         </>

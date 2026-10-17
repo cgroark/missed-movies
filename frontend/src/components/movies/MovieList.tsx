@@ -8,7 +8,7 @@ interface MoveListProps {
   onEdit: (movie: movie) => void;
 }
 
-const MovieItems = styled.ul`
+export const MovieItems = styled.ul`
   list-style: none;
   padding: 10px 20px;
   display: flex;
