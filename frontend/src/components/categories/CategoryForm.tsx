@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FloppyDiskIcon, PlusIcon, XCircleIcon } from '@phosphor-icons/react';
+import { FloppyDiskIcon, PlusIcon, XCircleIcon, TrashIcon } from '@phosphor-icons/react';
 import { useCategories } from '../../context/CategoriesContext';
 import { useToast } from '../../context/ToastContext';
 import type { category } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
-import { FormActions, FormError, FormHint, SecondaryButton } from '../ui/FormStyles';
+import ConfirmDelete from '../ui/ConfirmDelete';
+import { useMovies } from '../../context/MoviesContext';
+import { useSearchParams } from 'react-router-dom';
+import ActionButton from '../ui/ActionButton';
+import { FormActions, FormError, FormHint, SecondaryButton, DangerButton } from '../ui/FormStyles';
 
 interface CategoryFormProps {
   onClose: () => void;
   addOnly?: boolean;
+  onConfirmationChange?: (open: boolean) => void;
 }
 
 const CategoryList = styled.ul`
@@ -35,9 +40,19 @@ const CategoryItem = styled.li`
   overflow-wrap: anywhere;
 `;
 
-function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
-  const { isLoading, categories, getCategories, saveCategory, categoryError, setCategoryError } =
-    useCategories();
+function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: CategoryFormProps) {
+  const {
+    isLoading,
+    categories,
+    getCategories,
+    saveCategory,
+    deleteCategory,
+    categoryError,
+    setCategoryError,
+  } = useCategories();
+  const [deletingCategory, setDeletingCategory] = useState<category | null>(null);
+  const { getMovies, activeCategory, setActiveCategory, sortBy, status } = useMovies();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const [name, setName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +104,25 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
     setEditingValue(name);
   };
 
+  const handleDelete = async () => {
+    if (!deletingCategory?.id) return { success: false, error: 'No category selected.' };
+    const result = await deleteCategory(deletingCategory.id);
+    if (!result.success) return result;
+    if (activeCategory === deletingCategory.id) {
+      setActiveCategory(1);
+      const params = new URLSearchParams(searchParams);
+      params.set('category', '1');
+      setSearchParams(params);
+    } else {
+      await getMovies(activeCategory ?? undefined, sortBy, status);
+    }
+    setEditing(false);
+    setError(null);
+    setCategoryError(null);
+    showToast('Category deleted. Its movies are in your default category.', true);
+    return { success: true };
+  };
+
   return (
     <>
       {isLoading && !isSaving ? (
@@ -130,7 +164,8 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                         >
                           Cancel <XCircleIcon size={20} />
                         </SecondaryButton>
-                        <button
+                        <ActionButton
+                          $surface="light"
                           disabled={isSaving}
                           className="slimmer"
                           type="submit"
@@ -138,16 +173,31 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                         >
                           {isSaving ? 'Saving' : 'Save'}
                           {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
-                        </button>
+                        </ActionButton>
                       </FormActions>
                     ) : (
-                      <button
-                        className="slimmer"
-                        type="button"
-                        onClick={() => each.id != null && handleEdit(each.id, each.name)}
-                      >
-                        Edit
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <ActionButton
+                          $surface="light"
+                          className="slimmer"
+                          type="button"
+                          disabled={isSaving}
+                          onClick={() => each.id != null && handleEdit(each.id, each.name)}
+                        >
+                          Edit
+                        </ActionButton>
+                        <DangerButton
+                          type="button"
+                          disabled={isSaving}
+                          aria-label={`Delete category ${each.name}`}
+                          onClick={() => {
+                            setDeletingCategory(each);
+                            onConfirmationChange?.(true);
+                          }}
+                        >
+                          <TrashIcon size={20} />
+                        </DangerButton>
+                      </div>
                     ))}
                 </CategoryItem>
               ))}
@@ -155,9 +205,10 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
           )}
           {(categoryError || error) && !isAdding && <FormError>{categoryError || error}</FormError>}
           {!isAdding && !isEditing && (
-            <button
+            <ActionButton
+              $surface="light"
               style={{ margin: 'auto' }}
-              className="slimmer teal"
+              className="slimmer"
               onClick={() => {
                 setAdding(true);
                 setError(null);
@@ -167,7 +218,7 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
             >
               Add Category
               <PlusIcon size={24} />
-            </button>
+            </ActionButton>
           )}
           {isAdding && !isEditing && (
             <form onSubmit={handleSave} aria-busy={isSaving}>
@@ -202,10 +253,15 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                 >
                   Cancel <XCircleIcon size={20} />
                 </SecondaryButton>
-                <button disabled={isSaving} className="slimmer" type="submit">
+                <ActionButton
+                  $surface="light"
+                  disabled={isSaving}
+                  className="slimmer"
+                  type="submit"
+                >
                   {isSaving ? 'Saving' : 'Save'}
                   {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
-                </button>
+                </ActionButton>
               </FormActions>
               {(categoryError || error) && (
                 <FormError>{categoryError ? categoryError : error}</FormError>
@@ -214,6 +270,16 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
           )}
         </>
       )}
+      <ConfirmDelete
+        open={deletingCategory !== null}
+        onOpenChange={open => {
+          if (!open) setDeletingCategory(null);
+          onConfirmationChange?.(open);
+        }}
+        title="Delete category?"
+        description={`Are you sure you want to delete “${deletingCategory?.name}”? Its movies will be kept in your default category.`}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

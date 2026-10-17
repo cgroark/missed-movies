@@ -13,18 +13,26 @@ import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
 import styled from 'styled-components';
+import ConfirmDelete from '../ui/ConfirmDelete';
+import ActionButton from '../ui/ActionButton';
 import { FormActions, FormError, FormHint, DangerButton } from '../ui/FormStyles';
 
 const AddCategoryButton = styled.button`
-  && {
-    background: transparent;
-    color: black;
-    text-decoration: none;
+  &&&& {
     font-size: 0.8rem;
     padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: black;
+    text-decoration: none;
     margin: -12px 0 20px auto;
+
+    &:hover {
+      background: transparent;
+    }
+
     width: fit-content;
-    text-align: left;
   }
 `;
 
@@ -32,10 +40,17 @@ interface FormProps {
   currentMovie: movie | null;
   action: 'add' | 'edit';
   onClose: () => void;
+  onConfirmationChange: (open: boolean) => void;
   onAddCategory: () => void;
 }
 
-function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) {
+function MovieForm({
+  currentMovie,
+  action,
+  onClose,
+  onAddCategory,
+  onConfirmationChange,
+}: FormProps) {
   const {
     isLoading,
     error,
@@ -49,6 +64,7 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
   } = useMovies();
   const { categories, getCategories } = useCategories();
   const { showToast } = useToast();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [category, setCategory] = useState<number | ''>('');
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
   const [pendingAction, setPendingAction] = useState<'save' | 'delete' | null>(null);
@@ -122,8 +138,14 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
     getMovies(activeCategory ?? undefined, sortBy, status);
   };
 
+  const changeDeleteConfirmation = (open: boolean) => {
+    setConfirmDelete(open);
+    onConfirmationChange(open);
+  };
+
   const handleDelete = async () => {
-    if (!currentMovie?.id || isLoading) return;
+    if (!currentMovie?.id || isLoading)
+      return { success: false, error: 'Unable to delete this movie right now.' };
 
     setPendingAction('delete');
     const { success, error: deleteError } = await deleteMovie(currentMovie.id);
@@ -134,11 +156,12 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
       if (deleteError?.includes('session has expired')) {
         navigate('/login');
       }
-      return;
+      return { success: false, error: deleteError };
     }
     showToast(`${currentMovie?.title} has been deleted`, true);
     await onClose();
     getMovies(activeCategory ?? undefined, sortBy, status);
+    return { success: true };
   };
 
   return (
@@ -200,23 +223,30 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
                 disabled={isLoading}
                 className="slimmer"
                 type="button"
-                onClick={handleDelete}
+                onClick={() => changeDeleteConfirmation(true)}
               >
                 {pendingAction === 'delete' ? 'Deleting' : 'Delete'}
                 <TrashIcon size={20} />
               </DangerButton>
             )}
-            <button disabled={isLoading} className="slimmer" type="submit">
+            <ActionButton $surface="light" disabled={isLoading} type="submit">
               {pendingAction === 'save'
                 ? 'Saving'
                 : action === 'add'
                   ? 'Add movie'
                   : 'Save changes'}
               {pendingAction === 'save' ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
-            </button>
+            </ActionButton>
           </FormActions>
         </form>
       </div>
+      <ConfirmDelete
+        open={confirmDelete}
+        onOpenChange={changeDeleteConfirmation}
+        title="Delete movie?"
+        description={`Are you sure you want to delete “${currentMovie?.title}” from your movies? This cannot be undone.`}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }

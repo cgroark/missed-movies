@@ -3,12 +3,8 @@ import Skeleton from '../ui/Skeleton';
 import { MovieItems } from './MovieList';
 
 const Card = styled.li`
-  width: 180px;
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 150px;
-  }
+  width: 100%;
+  min-width: 0;
 `;
 
 const Poster = styled(Skeleton)`

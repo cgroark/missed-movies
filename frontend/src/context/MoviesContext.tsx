@@ -144,6 +144,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
       const res = await fetch(url, {
         method: 'DELETE',
         headers: {
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
           Prefer: 'return=representation',
         },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import Skeleton from '../ui/Skeleton';
 import { getMovieDirector } from '../../utils/movieCredits';
 
 const Metadata = styled.p`
@@ -21,11 +22,13 @@ interface MovieDetailsProps {
 }
 
 export default function MovieDetails({ movieId, releaseDate, overview }: MovieDetailsProps) {
+  const [isLoadingDirector, setLoadingDirector] = useState(Boolean(movieId));
   const [director, setDirector] = useState('');
 
   useEffect(() => {
     let ignore = false;
     setDirector('');
+    setLoadingDirector(Boolean(movieId));
     if (movieId) {
       getMovieDirector(movieId)
         .then(name => {
@@ -33,6 +36,9 @@ export default function MovieDetails({ movieId, releaseDate, overview }: MovieDe
         })
         .catch(() => {
           /* The year and overview remain available without credits. */
+        })
+        .finally(() => {
+          if (!ignore) setLoadingDirector(false);
         });
     }
     return () => {
@@ -46,7 +52,22 @@ export default function MovieDetails({ movieId, releaseDate, overview }: MovieDe
 
   return (
     <>
-      {metadata && <Metadata>{metadata}</Metadata>}
+      {(metadata || isLoadingDirector) && (
+        <Metadata aria-busy={isLoadingDirector}>
+          {metadata}
+          {isLoadingDirector && (
+            <span role="status" aria-label="Loading director">
+              {metadata && ' · '}
+              <Skeleton
+                as="span"
+                $width="100px"
+                $height="12px"
+                style={{ display: 'inline-block', verticalAlign: 'middle', maxWidth: '100%' }}
+              />
+            </span>
+          )}
+        </Metadata>
+      )}
       <Description>{overview}</Description>
     </>
   );

@@ -86,4 +86,47 @@ categoryRouter.patch('/:id', async (req, res) => {
   }
 });
 
+categoryRouter.delete('/:id', async (req, res) => {
+  try {
+    const user = await getUserFromRequest(req, res);
+    if (!user) return;
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.status(400).json({ error: 'Invalid category ID.' });
+    }
+    if (id === 1) return res.status(400).json({ error: 'The default category cannot be deleted.' });
+
+    const { data: category, error: lookupError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (lookupError) throw lookupError;
+    if (!category) return res.status(404).json({ error: 'Category not found.' });
+
+    // Keep the user's movies before removing the category, regardless of FK delete policy.
+    const { error: moveError } = await supabase
+      .from('movies')
+      .update({ category: 1 })
+      .eq('category', id)
+      .eq('user_id', user.id);
+    if (moveError) throw moveError;
+
+    const { data, error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select('id');
+    if (error) throw error;
+    if (!data?.length) return res.status(404).json({ error: 'Category not found.' });
+    res.status(200).json({ success: true });
+  } catch (err: unknown) {
+    res
+      .status(500)
+      .json({ error: err instanceof Error ? err.message : 'Unable to delete category.' });
+  }
+});
+
 export default categoryRouter;

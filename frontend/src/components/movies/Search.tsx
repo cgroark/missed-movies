@@ -1,21 +1,10 @@
 import { useEffect, useState } from 'react';
-import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 
 import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import styled from 'styled-components';
 import MovieListSkeleton from './MovieListSkeleton';
 import Modal from '../ui/Modal';
-
-const Label = styled.label`
-  justify-content: center;
-  margin: 50px 0 10px 0;
-  font-size: 24px;
-
-  @media (max-width: 576px) {
-    margin: 10px 0;
-  }
-`;
 
 const SearchWrapper = styled.div`
   max-width: 400px;
@@ -94,11 +83,8 @@ function Search() {
   return (
     <>
       <SearchWrapper>
-        <Label htmlFor="search">
-          Find a movie
-          <MagnifyingGlassIcon size={24} />
-        </Label>
         <input
+          aria-label="Find a movie"
           placeholder="search for movies..."
           value={search}
           id="search"

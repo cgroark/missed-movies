@@ -9,6 +9,7 @@ interface CategoryContextType {
   categoryError: string | null;
   setCategoryError: (categoryError: string | null) => void;
   getCategories: (force?: boolean) => Promise<void>;
+  deleteCategory: (id: number) => Promise<{ success: boolean; error?: string }>;
   saveCategory: (
     category: Partial<category>
   ) => Promise<{ success: boolean; category?: category; error?: string }>;
@@ -79,6 +80,20 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
     }
   };
 
+  const deleteCategory = async (id: number) => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/categories/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) await handleApiError(res, 'delete category');
+      setCategories(previous => previous.filter(category => category.id !== id));
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  };
+
   return (
     <CategoryContext.Provider
       value={{
@@ -88,6 +103,7 @@ export const CategoryProvider = ({ children }: { children: React.ReactNode }) =>
         setCategoryError,
         getCategories,
         saveCategory,
+        deleteCategory,
       }}
     >
       {children}

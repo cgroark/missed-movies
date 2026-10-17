@@ -4,7 +4,7 @@
   "type": "commonjs",
   "main": "api/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test tests/*.test.cjs",
     "dev": "nodemon --watch src --ext ts --exec ts-node api/index.ts",
     "build": "tsc",
     "start": "node api/index.js"

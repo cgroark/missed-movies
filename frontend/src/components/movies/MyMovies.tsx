@@ -1,8 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { floatingActionStyles, tealFloatingActionStyles } from '../ui/FloatingActionStyles';
+import {
+  CategoryToolbar,
+  CategoryControls,
+  CategoryList,
+  CategoryButton,
+} from '../ui/CategoryTabs';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon, FunnelIcon, NotePencilIcon, XIcon } from '@phosphor-icons/react';
-import * as Popover from '@radix-ui/react-popover';
+import ResponsiveFilters from '../ui/ResponsiveFilters';
 import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
 import type { movie, category, SortOption, StatusOption } from '../../types/types';
@@ -10,6 +17,8 @@ import MovieList from './MovieList';
 import MovieListSkeleton from './MovieListSkeleton';
 import Modal from '../ui/Modal';
 import Loader from '../ui/Loader';
+import MobileNavigation from '../layout/MobileNavigation';
+import Logout from '../auth/Logout';
 
 const statusOptions: StatusOption[] = [
   { value: 0, label: 'All' },
@@ -24,45 +33,31 @@ const sortOptions: SortOption[] = [
   { value: 4, key: 'release_date', label: 'Release Date ↓', ascending: false },
 ];
 
-const CategoryList = styled.ul`
-  padding: 0 20px;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 40px;
+const ManageCategories = styled.button`
+  &&&& {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-left-color: rgba(249, 244, 218, 0.15);
+    box-shadow: none;
+    color: var(--offWhite);
+    font-size: 0.8rem;
+    gap: 6px;
 
-  @media (max-width: 576px) {
-    margin-bottom: 20px;
-  }
-`;
+    &:hover {
+      background: rgba(249, 244, 218, 0.06);
+    }
 
-const CategoryButton = styled.button`
-  position: relative;
-  border-radius: 8px;
-  background-color: transparent;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    padding: 2px;
-    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  &.active,
-  &:hover {
-    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
-    color: black;
+    @media (max-width: 576px) {
+      width: 44px;
+      padding: 8px;
+      span {
+        display: none;
+      }
+    }
   }
 `;
 
@@ -92,9 +87,11 @@ const StyledLink = styled(Link)`
 
   &.floater {
     z-index: 200;
-    right: 10px;
-    bottom: 15px;
-    position: fixed;
+    @media (min-width: 577px) {
+      right: 10px;
+      bottom: 15px;
+      position: fixed;
+    }
     background-color: var(--purple);
     margin: 0;
 
@@ -102,29 +99,50 @@ const StyledLink = styled(Link)`
       background-color: var(--darkPurple);
     }
   }
+  &.floater {
+    ${floatingActionStyles}
+  }
 `;
 
-const FilterContent = styled(Popover.Content)`
+const EmptyState = styled.section`
   box-sizing: border-box;
-  width: 320px;
-  max-width: calc(100vw - 24px);
-  max-height: var(--radix-popover-content-available-height);
-  overflow-y: auto;
-  background: var(--offWhite);
-  border: 1px solid rgba(123, 94, 166, 0.2);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  width: calc(100% - 40px);
+  max-width: 560px;
+  margin: 32px auto 48px;
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid rgba(249, 244, 218, 0.12);
   border-radius: 18px;
-  padding: 22px;
-  z-index: 300;
-  color: var(--lightBlack);
-  text-align: left;
+  background: rgba(249, 244, 218, 0.04);
+  text-align: center;
 
-  label {
-    font-size: 0.8rem;
-    color: var(--darkGray);
+  p {
+    margin: 0 0 22px;
+    color: rgba(249, 244, 218, 0.8);
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
-  select {
-    margin: 8px 0 20px;
+`;
+
+const EmptyStateLink = styled(StyledLink)`
+  && {
+    margin: 0 auto;
+    min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(70, 213, 187, 0.4);
+    background: #1c4842;
+    color: var(--offWhite);
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease;
+
+    &:hover {
+      background: #245c53;
+      border-color: rgba(70, 213, 187, 0.65);
+    }
   }
 `;
 
@@ -141,7 +159,7 @@ const FilterHeader = styled.div`
   }
 `;
 
-const FilterClose = styled(Popover.Close)`
+const FilterClose = styled.button`
   && {
     background: transparent;
     color: var(--darkGray);
@@ -178,11 +196,14 @@ const FilterFooter = styled.div`
 
 const FilterButton = styled.button`
   z-index: 200;
-  right: 170px;
-  bottom: 15px;
-  position: fixed;
+  @media (min-width: 577px) {
+    right: 170px;
+    bottom: 15px;
+    position: fixed;
+  }
   padding: 0.4em 1.4em;
   min-height: 38.8px;
+  ${tealFloatingActionStyles}
 `;
 
 const ErrorField = styled.div`
@@ -210,7 +231,6 @@ function MyMovies() {
     setSortBy,
   } = useMovies();
   const { categories, categoryError, getCategories } = useCategories();
-  const filterContentRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit' | 'category'>('add');
@@ -298,54 +318,55 @@ function MyMovies() {
     <>
       {categories.length > 0 && (
         <div>
-          <CategoryList>
-            {categories
-              .filter(each => each.id !== null)
-              .map((each: category) => (
-                <li key={each.id}>
-                  <CategoryButton
-                    onClick={() => handleCategoryChange(each.id!)}
-                    className={activeCategory === each.id ? 'active' : ''}
-                  >
-                    {each.name}
-                  </CategoryButton>
-                </li>
-              ))}
-            <li>
-              <button className="slimmer" onClick={handleEditCategory}>
-                {categories.length > 1 ? 'Edit Categories' : 'Add Category'}
-                <NotePencilIcon size={24} />
-              </button>
-            </li>
-          </CategoryList>
+          <CategoryToolbar aria-label="Movie categories">
+            <h2>Your categories</h2>
+            <CategoryControls>
+              <CategoryList>
+                {categories
+                  .filter(each => each.id !== null)
+                  .map((each: category) => (
+                    <li key={each.id}>
+                      <CategoryButton
+                        onClick={() => handleCategoryChange(each.id!)}
+                        aria-pressed={activeCategory === each.id}
+                        className={activeCategory === each.id ? 'active' : ''}
+                      >
+                        {each.name}
+                      </CategoryButton>
+                    </li>
+                  ))}
+              </CategoryList>
+              <ManageCategories
+                type="button"
+                onClick={handleEditCategory}
+                aria-label={categories.length > 1 ? 'Manage categories' : 'Add category'}
+                title={categories.length > 1 ? 'Manage categories' : 'Add category'}
+              >
+                <NotePencilIcon size={20} />
+                <span>{categories.length > 1 ? 'Manage' : 'Add category'}</span>
+              </ManageCategories>
+            </CategoryControls>
+          </CategoryToolbar>
           {categoryError && <ErrorField>{categoryError}</ErrorField>}
-          <div style={{ maxWidth: '1280px', margin: 'auto', padding: '0 20px' }}>
+          <MobileNavigation aria-label="Movie actions">
+            <StyledLink className="floater mobile-nav-item" to="/search">
+              <span>Add Movie</span>
+              <FilmStripIcon size={24} />
+            </StyledLink>
             {categories.length > 0 && (
-              <Popover.Root>
-                <Popover.Trigger asChild>
-                  <FilterButton className="teal" disabled={isLoading}>
+              <ResponsiveFilters
+                trigger={
+                  <FilterButton className="teal mobile-nav-item" disabled={isLoading}>
                     {isLoading ? <Loader size="small" /> : <FunnelIcon size={24} />}
-                    Filters
+                    <span>Filters</span>
                   </FilterButton>
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <FilterContent
-                    ref={filterContentRef}
-                    tabIndex={-1}
-                    aria-label="Movie filters"
-                    align="end"
-                    side="top"
-                    collisionPadding={12}
-                    sideOffset={12}
-                    onOpenAutoFocus={event => {
-                      // Let native mobile pickers receive focus from a tap, not panel mount.
-                      event.preventDefault();
-                      filterContentRef.current?.focus({ preventScroll: true });
-                    }}
-                  >
+                }
+              >
+                {close => (
+                  <>
                     <FilterHeader>
                       <h3>Refine your movies</h3>
-                      <FilterClose aria-label="Close filters">
+                      <FilterClose type="button" onClick={close} aria-label="Close filters">
                         <XIcon size={20} />
                       </FilterClose>
                     </FilterHeader>
@@ -374,15 +395,14 @@ function MyMovies() {
                     <FilterFooter>
                       <span>Changes apply instantly</span>
                     </FilterFooter>
-                  </FilterContent>
-                </Popover.Portal>
-              </Popover.Root>
+                  </>
+                )}
+              </ResponsiveFilters>
             )}
-            <StyledLink className="floater" to="/search">
-              Add Movie
-              <FilmStripIcon size={24} />
-            </StyledLink>
-          </div>
+            <div className="mobile-logout">
+              <Logout className="mobile-nav-item" />
+            </div>
+          </MobileNavigation>
         </div>
       )}
       {isLoading && <MovieListSkeleton />}
@@ -392,13 +412,13 @@ function MyMovies() {
         </>
       )}
       {!isLoading && movies.length === 0 && (
-        <>
-          <p>No movies in this category yet</p>
-          <StyledLink to="/search">
+        <EmptyState aria-label="Empty category">
+          <p>No movies in this category yet.</p>
+          <EmptyStateLink to="/search">
             Find movies
             <FilmStripIcon size={24} />
-          </StyledLink>
-        </>
+          </EmptyStateLink>
+        </EmptyState>
       )}
       {open && (
         <Modal

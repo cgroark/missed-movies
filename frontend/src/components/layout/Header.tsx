@@ -9,7 +9,7 @@ interface NavbarWrapperProps {
   scrolled: boolean;
 }
 
-const HeaderSection = styled.header`
+const HeaderSection = styled.header<{ $compact: boolean }>`
   background:
     radial-gradient(ellipse at 85% 0%, rgba(123, 94, 166, 0.5), transparent 65%),
     radial-gradient(ellipse at 10% 100%, rgba(21, 170, 147, 0.13), transparent 60%),
@@ -27,6 +27,17 @@ const HeaderSection = styled.header`
     height: 28vh;
     margin-bottom: 20px;
   }
+
+  ${({ $compact }) =>
+    $compact &&
+    `
+    && {
+      height: 20vh;
+      min-height: 120px;
+      margin-bottom: 24px;
+    }
+    h1 { margin-top: 0; }
+  `}
 `;
 const Heading = styled.div`
   display: flex;
@@ -75,12 +86,7 @@ const NavbarWrapper = styled.nav.withConfig({
   background: ${({ scrolled }) => (scrolled ? 'rgba(33, 33, 40, 0.94)' : 'rgba(40, 44, 52, 0.96)')};
 
   @media (max-width: 576px) {
-    justify-content: center;
-    padding: 0 20px;
-    color: rgba(249, 244, 218, 0.75);
-    font-family: inherit;
-    font-weight: 400;
-    line-height: 1.5;
+    display: none;
   }
 `;
 
@@ -109,13 +115,15 @@ function Header() {
           <Navbar />
         </NavbarWrapper>
       )}
-      <HeaderSection ref={headerRef}>
+      <HeaderSection ref={headerRef} $compact={isLoginPage}>
         <Heading>
           <GradientHeading>Missed Movies</GradientHeading>
         </Heading>
-        <SubHeading>
-          Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
-        </SubHeading>
+        {!isLoginPage && (
+          <SubHeading>
+            Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
+          </SubHeading>
+        )}
       </HeaderSection>
     </>
   );

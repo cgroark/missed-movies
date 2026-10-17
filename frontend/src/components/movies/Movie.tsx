@@ -5,6 +5,7 @@ import { CheckFatIcon, PencilIcon, PlusIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
 import AccordionSection from '../ui/Accordion';
 import MovieDetails from './MovieDetails';
+import { actionButtonStyles } from '../ui/ButtonStyles';
 
 interface MovieProps {
   movie: movie;
@@ -18,11 +19,7 @@ const PosterWrapper = styled.div<{ $loaded: boolean }>`
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-  min-height: 270px;
-
-  @media (max-width: 768px) {
-    min-height: 170px;
-  }
+  aspect-ratio: 2 / 3;
   img {
     display: block;
     width: 100%;
@@ -38,13 +35,8 @@ const PosterWrapper = styled.div<{ $loaded: boolean }>`
 
 const MovieWrapper = styled.div`
   position: relative;
-  min-width: 180px;
-  max-width: 180px;
-
-  @media (max-width: 768px) {
-    min-width: 150px;
-    max-width: 150px;
-  }
+  min-width: 0;
+  width: 100%;
 `;
 const MovieItem = styled.div`
   position: relative;
@@ -83,13 +75,12 @@ const CheckIcon = styled(CheckFatIcon)`
 
 const OpenButton = styled.button`
   && {
-    background-color: var(--purple);
+    ${actionButtonStyles}
     border-radius: 50%;
     padding: 0;
     width: 44px;
     height: 44px;
     min-height: 44px;
-    border: solid 2px #242424;
     position: absolute;
     right: -8px;
     bottom: -10px;
@@ -100,7 +91,7 @@ const OpenButton = styled.button`
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--darkPurple);
+        background: #483953;
         transform: translateY(-2px);
       }
     }

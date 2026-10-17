@@ -10,13 +10,21 @@ interface MoveListProps {
 
 export const MovieItems = styled.ul`
   list-style: none;
-  padding: 10px 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
+  padding: 10px 0;
+  width: calc(100% - 40px);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  align-items: start;
   gap: 25px;
-  max-width: 1280px;
+  max-width: 1205px;
   margin: 10px auto 50px;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 20px;
+  }
 `;
 function MovieList({ movies, onAdd, onEdit }: MoveListProps) {
   if (!Array.isArray(movies)) return null;

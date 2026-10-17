@@ -8,22 +8,42 @@ import {
   EyeIcon,
   EyeClosedIcon,
   ConfettiIcon,
+  KeyIcon,
 } from '@phosphor-icons/react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
 import { FormError, FormHint } from '../ui/FormStyles';
+import { actionButtonStyles } from '../ui/ButtonStyles';
 
-const ToggleButton = styled.button`
-  display: flex;
-  margin: auto;
-  gap: 15px;
-  align-items: center;
-  background-color: transparent;
+const SubmitButton = styled.button`
+  && {
+    ${actionButtonStyles} width: 100%;
+  }
+`;
 
-  &:hover {
-    color: var(--teal);
+const ToggleButton = styled.button.attrs({ type: 'button' })`
+  && {
+    ${actionButtonStyles}
+    width: fit-content;
+    max-width: calc(100% - 32px);
+    margin: 16px auto;
+    background: transparent;
+    border: none;
+    padding: 6px 0;
+    text-decoration: none;
+    box-shadow: none;
+    color: #dcc8f4;
+    text-align: center;
+    line-height: 1.5;
+    &:hover:not(:disabled) {
+      background: transparent;
+      color: var(--offWhite);
+    }
+    svg {
+      flex-shrink: 0;
+    }
   }
 `;
 
@@ -80,6 +100,16 @@ const RevealButton = styled.button`
   padding: 0;
   background: transparent;
   color: var(--offWhite);
+  && {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0;
+    &:hover,
+    &[aria-pressed='true'] {
+      background: rgba(123, 94, 166, 0.18);
+      border-color: rgba(189, 162, 227, 0.3);
+    }
+  }
 `;
 
 const MessageField = styled.div`
@@ -211,6 +241,33 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
     }
   };
 
+  const secondaryAction = (!showForm || mode !== 'reset') && (
+    <ToggleButton
+      className="no-hover"
+      disabled={isLoading}
+      onClick={() => {
+        if (mode === 'reset') {
+          navigate('/');
+          return;
+        }
+        setMode(mode === 'login' && showForm ? 'signup' : 'login');
+        setShowForm(true);
+        setMessage('');
+        setPassword('');
+        setConfirmPassword('');
+        setError(null);
+        setAuthError('');
+      }}
+    >
+      {mode === 'reset'
+        ? 'Go to my movies'
+        : mode === 'login' && showForm
+          ? 'Sign up for an account'
+          : 'Back to sign in'}
+      <CaretDoubleRightIcon size={24} />
+    </ToggleButton>
+  );
+
   return (
     <>
       <div>
@@ -330,8 +387,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                 </FormError>
               )}
               {(authError || error) && <FormError>{authError || error}</FormError>}
-              <button
-                style={{ width: '100%' }}
+              <SubmitButton
                 type="submit"
                 disabled={isLoading || (mode === 'reset' && (!user || invalidResetLink))}
               >
@@ -351,7 +407,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                         ? 'Login'
                         : 'Sign Up'}
                 {isLoading ? <Loader size={'small'} /> : <FilmSlateIcon size={24} />}
-              </button>
+              </SubmitButton>
               {mode === 'login' && (
                 <ToggleButton
                   className="no-hover"
@@ -364,10 +420,12 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                   }}
                 >
                   Forgot password?
+                  <KeyIcon size={20} />
                 </ToggleButton>
               )}
             </>
           )}
+          {showForm && secondaryAction}
         </AuthForm>
         {message && (
           <MessageField role="status">
@@ -387,32 +445,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
             Request a new reset link from sign in
           </ToggleButton>
         )}
-        {(!showForm || mode !== 'reset') && (
-          <ToggleButton
-            className="no-hover"
-            disabled={isLoading}
-            onClick={() => {
-              if (mode === 'reset') {
-                navigate('/');
-                return;
-              }
-              setMode(mode === 'login' && showForm ? 'signup' : 'login');
-              setShowForm(true);
-              setMessage('');
-              setPassword('');
-              setConfirmPassword('');
-              setError(null);
-              setAuthError('');
-            }}
-          >
-            {mode === 'reset'
-              ? 'Go to my movies'
-              : mode === 'login' && showForm
-                ? 'Sign up for an account'
-                : 'Back to sign in'}
-            <CaretDoubleRightIcon size={24} />
-          </ToggleButton>
-        )}
+        {!showForm && secondaryAction}
       </div>
     </>
   );

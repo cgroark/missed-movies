@@ -130,6 +130,8 @@ movieRouter.patch('/:id', async (req, res) => {
 
 movieRouter.delete('/:id', async (req, res) => {
   try {
+    const user = await getUserFromRequest(req, res);
+    if (!user) return;
     const { id } = req.params;
 
     if (!id) {
@@ -140,7 +142,12 @@ movieRouter.delete('/:id', async (req, res) => {
       });
     }
 
-    const { data, error } = await supabase.from('movies').delete().eq('id', id).select();
+    const { data, error } = await supabase
+      .from('movies')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
 

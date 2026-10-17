@@ -39,7 +39,7 @@ const LinkButton = styled.button`
   }
 `;
 
-function Logout() {
+function Logout({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const [isLoggingOut, setLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -71,8 +71,8 @@ function Logout() {
       }}
     >
       <Dialog.Trigger asChild>
-        <LinkButton type="button">
-          Logout <HandPeaceIcon size={24} />
+        <LinkButton type="button" className={className}>
+          <span>Logout</span> <HandPeaceIcon size={24} />
         </LinkButton>
       </Dialog.Trigger>
       <Dialog.Portal>

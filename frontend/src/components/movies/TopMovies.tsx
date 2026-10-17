@@ -5,50 +5,14 @@ import type { movie, JSONSearchResults } from '../../types/types';
 import MovieList from './MovieList';
 import Modal from '../ui/Modal';
 import styled from 'styled-components';
+import { tealFloatingActionStyles } from '../ui/FloatingActionStyles';
+import {
+  CategoryToolbar,
+  CategoryControls,
+  CategoryList,
+  CategoryButton,
+} from '../ui/CategoryTabs';
 import MovieListSkeleton from './MovieListSkeleton';
-
-const CategoryList = styled.ul`
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 40px;
-
-  @media (max-width: 576px) {
-    margin-bottom: 20px;
-    gap: 10px;
-  }
-`;
-
-const CategoryButton = styled.button`
-  position: relative;
-  border-radius: 8px;
-  background-color: transparent;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 8px;
-    padding: 2px;
-    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-
-  &.active,
-  &:hover {
-    background: linear-gradient(255deg, var(--purple) 5%, var(--teal));
-    color: black;
-  }
-`;
 
 const StyledLink = styled(Link)`
   background-color: var(--pink);
@@ -80,6 +44,13 @@ const StyledLink = styled(Link)`
     bottom: 15px;
     position: fixed;
     margin: 0;
+
+    @media (max-width: 576px) {
+      display: none;
+    }
+  }
+  &.floater {
+    ${tealFloatingActionStyles}
   }
 `;
 
@@ -200,20 +171,23 @@ function TopMovies() {
 
   return (
     <>
-      <div>
-        <CategoryList>
-          {categories.map(each => (
-            <li key={each.slug}>
-              <CategoryButton
-                onClick={() => setCategory(each.slug)}
-                className={category === each.slug ? 'active' : ''}
-              >
-                {each.text}
-              </CategoryButton>
-            </li>
-          ))}
-        </CategoryList>
-      </div>
+      <CategoryToolbar aria-label="Browse movies">
+        <CategoryControls>
+          <CategoryList>
+            {categories.map(each => (
+              <li key={each.slug}>
+                <CategoryButton
+                  aria-pressed={category === each.slug}
+                  onClick={() => setCategory(each.slug)}
+                  className={category === each.slug ? 'active' : ''}
+                >
+                  {each.text}
+                </CategoryButton>
+              </li>
+            ))}
+          </CategoryList>
+        </CategoryControls>
+      </CategoryToolbar>
 
       <div style={{ minHeight: '1000px' }}>
         {!error &&

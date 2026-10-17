@@ -3,3 +3,9 @@
   text-align: center;
   width: 100%;
 }
+
+@media (max-width: 576px) {
+  #root:has(nav[aria-label='Movie actions']) {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+}

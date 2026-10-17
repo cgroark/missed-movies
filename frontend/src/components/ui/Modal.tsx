@@ -15,16 +15,21 @@ type ModalProps = {
 };
 
 function Modal({ action, movie, onOpenChange, open }: ModalProps) {
+  const [isConfirmingDelete, setConfirmingDelete] = useState(false);
   const [isAddingCategory, setAddingCategory] = useState(false);
   const [currentMovie, setCurrentMovie] = useState<movie | null>(movie);
 
   useEffect(() => {
-    if (!open) setAddingCategory(false);
+    if (!open) {
+      setAddingCategory(false);
+      setConfirmingDelete(false);
+    }
     if (open && movie) setCurrentMovie(movie);
   }, [open, movie]);
 
   const handleClose = () => onOpenChange(false);
   const handleOpenChange = (nextOpen: boolean) => {
+    if (isConfirmingDelete) return;
     if (!nextOpen && isAddingCategory) {
       setAddingCategory(false);
       return;
@@ -35,8 +40,11 @@ function Modal({ action, movie, onOpenChange, open }: ModalProps) {
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
-        <Overlay />
-        <Content aria-describedby={undefined}>
+        <Overlay hidden={isConfirmingDelete} />
+        <Content
+          aria-describedby={undefined}
+          style={{ display: isConfirmingDelete ? 'none' : undefined }}
+        >
           <CloseButton className="no-hover" aria-label="Close dialog">
             <XCircleIcon size={32} />
           </CloseButton>
@@ -50,7 +58,7 @@ function Modal({ action, movie, onOpenChange, open }: ModalProps) {
             )}
           </Title>
           {action === 'category' ? (
-            <CategoryForm onClose={handleClose} />
+            <CategoryForm onClose={handleClose} onConfirmationChange={setConfirmingDelete} />
           ) : (
             <>
               <div hidden={isAddingCategory}>
@@ -58,6 +66,7 @@ function Modal({ action, movie, onOpenChange, open }: ModalProps) {
                   currentMovie={currentMovie}
                   action={action}
                   onClose={handleClose}
+                  onConfirmationChange={setConfirmingDelete}
                   onAddCategory={() => setAddingCategory(true)}
                 />
               </div>
