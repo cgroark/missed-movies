@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon, FunnelIcon, NotePencilIcon } from '@phosphor-icons/react';
@@ -143,6 +143,7 @@ function MyMovies() {
     setSortBy,
   } = useMovies();
   const { categories, categoryError, getCategories } = useCategories();
+  const filterContentRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
   const [modalAction, setModalAction] = useState<'add' | 'edit' | 'category'>('add');
@@ -254,14 +255,25 @@ function MyMovies() {
           <div style={{ maxWidth: '1280px', margin: 'auto', padding: '0 20px' }}>
             {movies.length > 1 && (
               <Popover.Root>
-                <Popover.Trigger asChild onPointerDown={e => e.preventDefault()}>
+                <Popover.Trigger asChild>
                   <FilterButton className="teal" disabled={isLoading}>
                     {isLoading ? <Loader size="small" /> : <FunnelIcon size={24} />}
                     Filters
                   </FilterButton>
                 </Popover.Trigger>
                 <Popover.Portal>
-                  <FilterContent align="end" sideOffset={8}>
+                  <FilterContent
+                    ref={filterContentRef}
+                    tabIndex={-1}
+                    aria-label="Movie filters"
+                    align="end"
+                    sideOffset={8}
+                    onOpenAutoFocus={event => {
+                      // Let native mobile pickers receive focus from a tap, not panel mount.
+                      event.preventDefault();
+                      filterContentRef.current?.focus({ preventScroll: true });
+                    }}
+                  >
                     <>
                       <div>
                         <label htmlFor="sort">Sort by:</label>
