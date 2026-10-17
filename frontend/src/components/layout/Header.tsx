@@ -10,15 +10,21 @@ interface NavbarWrapperProps {
 }
 
 const HeaderSection = styled.header`
-  background: linear-gradient(255deg, var(--purple) 5%, var(--lightBlack));
+  background:
+    radial-gradient(ellipse at 85% 0%, rgba(123, 94, 166, 0.5), transparent 65%),
+    radial-gradient(ellipse at 10% 100%, rgba(21, 170, 147, 0.13), transparent 60%),
+    var(--lightBlack);
+  border-bottom: 1px solid rgba(249, 244, 218, 0.06);
   margin-bottom: 50px;
-  height: 40vh;
+  min-height: 260px;
+  height: 36vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
 
   @media (max-width: 576px) {
-    height: 30vh;
+    min-height: 210px;
+    height: 28vh;
     margin-bottom: 20px;
   }
 `;
@@ -27,13 +33,14 @@ const Heading = styled.div`
   justify-content: center;
 `;
 const GradientHeading = styled.h1`
-  background: linear-gradient(315deg, var(--teal) 25%, var(--purple));
+  background: linear-gradient(120deg, #6dd4bf 10%, #bda2e3 70%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
   font-size: clamp(2rem, 10vw + 0.5rem, 7.5rem);
-  margin: 30px 0 0 0;
+  letter-spacing: -0.025em;
+  margin: 20px 0 0;
   padding: 0 20px;
 `;
 
@@ -43,7 +50,11 @@ const SubHeading = styled.h2`
   align-items: center;
   gap: 15px;
   flex-wrap: wrap;
-  padding: 0 10px;
+  padding: 0 20px;
+  color: rgba(249, 244, 218, 0.75);
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.5;
   font-size: clamp(1rem, 3vw + 0.5rem, 1.5rem);
 `;
 
@@ -56,22 +67,27 @@ const NavbarWrapper = styled.nav.withConfig({
   display: flex;
   justify-content: center;
   padding: 0 20px;
-  box-shadow: 0 4px 6px var(--lightBlack60);
+  border-bottom: 1px solid rgba(249, 244, 218, 0.1);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
   transition: background 0.5s ease;
 
-  background: ${({ scrolled }) =>
-    scrolled ? 'linear-gradient(255deg, var(--purple), var(--lightBlack))' : 'var(--lightBlack)'};
+  background: ${({ scrolled }) => (scrolled ? 'rgba(33, 33, 40, 0.94)' : 'rgba(40, 44, 52, 0.96)')};
 
   @media (max-width: 576px) {
     justify-content: center;
-    padding: 0 10px;
+    padding: 0 20px;
+    color: rgba(249, 244, 218, 0.75);
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 1.5;
   }
 `;
 
 function Header() {
   const { user } = useAuth();
   const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
+  const isLoginPage = ['/login', '/reset-password'].includes(location.pathname);
   const [scrolled, setScrolled] = useState<boolean>(false);
   const headerRef = useRef<HTMLDivElement | null>(null);
 
@@ -89,7 +105,7 @@ function Header() {
   return (
     <>
       {user && !isLoginPage && (
-        <NavbarWrapper scrolled={scrolled}>
+        <NavbarWrapper scrolled={scrolled} aria-label="Main navigation">
           <Navbar />
         </NavbarWrapper>
       )}

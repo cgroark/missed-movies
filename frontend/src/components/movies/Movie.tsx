@@ -4,6 +4,7 @@ import type { movie } from '../../types/types';
 import { CheckFatIcon, PencilIcon, PlusIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
 import AccordionSection from '../ui/Accordion';
+import MovieDetails from './MovieDetails';
 
 interface MovieProps {
   movie: movie;
@@ -13,15 +14,17 @@ interface MovieProps {
 
 const PosterWrapper = styled.div<{ $loaded: boolean }>`
   position: relative;
-  background: var(--gray-800);
+  background: #303038;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   min-height: 270px;
 
   @media (max-width: 768px) {
     min-height: 170px;
   }
-  x img {
+  img {
+    display: block;
     width: 100%;
     opacity: ${({ $loaded }) => ($loaded ? 1 : 0)};
     filter: ${({ $loaded }) => ($loaded ? 'blur(0)' : 'blur(10px)')};
@@ -34,6 +37,7 @@ const PosterWrapper = styled.div<{ $loaded: boolean }>`
 `;
 
 const MovieWrapper = styled.div`
+  position: relative;
   min-width: 180px;
   max-width: 180px;
 
@@ -43,6 +47,7 @@ const MovieWrapper = styled.div`
   }
 `;
 const MovieItem = styled.div`
+  position: relative;
   img {
     width: 100%;
   }
@@ -64,39 +69,41 @@ const MovieItem = styled.div`
 `;
 const CheckIcon = styled(CheckFatIcon)`
   background-color: var(--teal);
+  color: #173b34;
   border-radius: 50%;
-  padding-top: 0.25rem;
-  margin: -8px 0 0 -100px;
-  width: 43px;
-  height: 38px;
+  padding: 7px;
+  width: 22px;
+  height: 22px;
   z-index: 1;
-  border: solid 2px #050505;
+  border: solid 2px #242424;
   position: absolute;
-  transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
-
-  @media (max-width: 768px) {
-    margin: -8px 0 0 -70px;
-  }
+  top: -8px;
+  left: -8px;
 `;
 
-const OpenButton = styled.div`
-  background-color: var(--purple);
-  border-radius: 50%;
-  padding-top: 0.25rem;
-  margin: -30px 0 0 150px;
-  width: 35px;
-  height: 30px;
-  border: solid 2px #050505;
-  position: absolute;
-  cursor: pointer;
-  transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+const OpenButton = styled.button`
+  && {
+    background-color: var(--purple);
+    border-radius: 50%;
+    padding: 0;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    border: solid 2px #242424;
+    position: absolute;
+    right: -8px;
+    bottom: -10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition:
+      background-color 160ms ease,
+      transform 160ms ease;
 
-  @media (max-width: 768px) {
-    margin: -30px 0 0 120px;
-  }
-
-  &:hover {
-    transform: scale(1.1);
+    @media (hover: hover) {
+      &:hover {
+        background-color: var(--darkPurple);
+        transform: translateY(-2px);
+      }
+    }
   }
 `;
 
@@ -104,7 +111,6 @@ function Movie({ movie, onEdit, onAdd }: MovieProps) {
   const [loaded, setLoaded] = useState(false);
   const location = useLocation();
   const isSearchPage = location.pathname === '/search';
-  const overview = `${movie.release_date.split('-')[0]} - ${movie.overview}`;
   return (
     <>
       <MovieWrapper>
@@ -121,16 +127,25 @@ function Movie({ movie, onEdit, onAdd }: MovieProps) {
             </div>
           </PosterWrapper>
           {isSearchPage ? (
-            <OpenButton onClick={onAdd}>
+            <OpenButton type="button" aria-label={`Add ${movie.title}`} onClick={onAdd}>
               <PlusIcon size={24} />
             </OpenButton>
           ) : (
-            <OpenButton onClick={onEdit}>
+            <OpenButton type="button" aria-label={`Edit ${movie.title}`} onClick={onEdit}>
               <PencilIcon size={24} />
             </OpenButton>
           )}
         </MovieItem>
-        <AccordionSection title="Details" content={overview} />
+        <AccordionSection
+          title="Details"
+          content={
+            <MovieDetails
+              movieId={movie.movie_id ?? (isSearchPage ? movie.id : undefined)}
+              releaseDate={movie.release_date}
+              overview={movie.overview}
+            />
+          }
+        />
       </MovieWrapper>
     </>
   );

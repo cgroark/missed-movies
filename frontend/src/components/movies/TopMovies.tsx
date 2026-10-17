@@ -55,9 +55,12 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   display: flex;
   margin: 25px auto 10px;
-  gap: 5px;
+  gap: 8px;
   align-items: center;
-  border-radius: 4px;
+  border-radius: var(--control-radius);
+  box-sizing: border-box;
+  min-height: 38.8px;
+  justify-content: center;
   border: 1px solid transparent;
   padding: 0.4em 1.4em;
   font-size: 1em;

@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import type { category } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
+import { FormActions, FormError, FormHint, SecondaryButton } from '../ui/FormStyles';
 
 interface CategoryFormProps {
   onClose: () => void;
@@ -13,9 +14,11 @@ interface CategoryFormProps {
 }
 
 const CategoryList = styled.ul`
-  padding: 0 20px;
+  padding: 0;
   list-style: none;
-  margin-bottom: 40px;
+  margin: 0 0 24px;
+  max-height: 40dvh;
+  overflow-y: auto;
 `;
 
 const CategoryItem = styled.li`
@@ -24,9 +27,12 @@ const CategoryItem = styled.li`
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 15px;
-  border-bottom: 2px solid black;
-  padding: 4px 0;
+  margin-bottom: 8px;
+  border: 1px solid rgba(123, 94, 166, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 12px;
+  overflow-wrap: anywhere;
 `;
 
 function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
@@ -50,15 +56,16 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
     e.preventDefault();
     setError(null);
     setCategoryError(null);
+    if (isSaving) return;
     setSaving(true);
-    if ((!isEditing && !name) || (isEditing && !editingValue)) {
+    if ((!isEditing && !name.trim()) || (isEditing && !editingValue.trim())) {
       setError('Category name is required');
       setSaving(false);
       return;
     }
     const newCategory: Partial<category> = isEditing
-      ? { name: editingValue, id: currentlyEditing }
-      : { name };
+      ? { name: editingValue.trim(), id: currentlyEditing }
+      : { name: name.trim() };
     const { success, error: saveError } = await saveCategory(newCategory);
 
     if (!success) {
@@ -71,8 +78,8 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
       return;
     }
     showToast(isEditing ? 'Category updated successfully' : 'Category added successfully', true);
-    setSaving(false);
     await getCategories(true);
+    setSaving(false);
     onClose();
   };
 
@@ -110,17 +117,10 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
 
                   {each.id !== 1 &&
                     (isEditing && currentlyEditing === each.id ? (
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '10px',
-                          width: '100%',
-                        }}
-                      >
-                        <button
-                          className="slimmer teal"
+                      <FormActions>
+                        <SecondaryButton
+                          disabled={isSaving}
+                          className="slimmer"
                           type="button"
                           onClick={() => {
                             setEditing(false);
@@ -128,13 +128,18 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                             setCategoryError(null);
                           }}
                         >
-                          Cancel <XCircleIcon size={24} />
-                        </button>
-                        <button className="slimmer" type="submit" onClick={handleSave}>
+                          Cancel <XCircleIcon size={20} />
+                        </SecondaryButton>
+                        <button
+                          disabled={isSaving}
+                          className="slimmer"
+                          type="submit"
+                          onClick={handleSave}
+                        >
                           {isSaving ? 'Saving' : 'Save'}
                           {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
                         </button>
-                      </div>
+                      </FormActions>
                     ) : (
                       <button
                         className="slimmer"
@@ -146,11 +151,9 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                     ))}
                 </CategoryItem>
               ))}
-              {(categoryError || error) && !isAdding && (
-                <p className="error">{categoryError ? categoryError : error}</p>
-              )}
             </CategoryList>
           )}
+          {(categoryError || error) && !isAdding && <FormError>{categoryError || error}</FormError>}
           {!isAdding && !isEditing && (
             <button
               style={{ margin: 'auto' }}
@@ -167,26 +170,24 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
             </button>
           )}
           {isAdding && !isEditing && (
-            <form style={{ padding: '0 20px' }} onSubmit={handleSave}>
+            <form onSubmit={handleSave} aria-busy={isSaving}>
+              <FormHint>Give your category a name that’s easy to find later.</FormHint>
               <label htmlFor="name">Category Name</label>
               <input
                 className="light"
+                placeholder="e.g. Weekend watchlist"
+                autoComplete="off"
+                required
+                name="categoryName"
                 id="name"
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  width: '100%',
-                }}
-              >
-                <button
-                  className="slimmer teal"
+              <FormActions>
+                <SecondaryButton
+                  disabled={isSaving}
+                  className="slimmer"
                   type="button"
                   onClick={() => {
                     if (addOnly) {
@@ -199,17 +200,15 @@ function CategoryForm({ onClose, addOnly = false }: CategoryFormProps) {
                     setName('');
                   }}
                 >
-                  Cancel <XCircleIcon size={24} />
-                </button>
-                <button className="slimmer" type="submit">
+                  Cancel <XCircleIcon size={20} />
+                </SecondaryButton>
+                <button disabled={isSaving} className="slimmer" type="submit">
                   {isSaving ? 'Saving' : 'Save'}
                   {isSaving ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
                 </button>
-              </div>
+              </FormActions>
               {(categoryError || error) && (
-                <p style={{ color: 'red', textAlign: 'center' }}>
-                  {categoryError ? categoryError : error}
-                </p>
+                <FormError>{categoryError ? categoryError : error}</FormError>
               )}
             </form>
           )}

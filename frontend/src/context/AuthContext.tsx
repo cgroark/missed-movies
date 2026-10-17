@@ -3,6 +3,9 @@ import { supabase } from '../lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
+  isRecoveringPassword: boolean;
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string }>;
+  updatePassword: (password: string) => Promise<{ success: boolean; error?: string }>;
   user: User | null;
   token: string | null;
   isLoading: boolean;
@@ -16,6 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [isRecoveringPassword, setRecoveringPassword] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setLoading] = useState<boolean>(true);
@@ -31,7 +35,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
     getSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') setRecoveringPassword(true);
+      if (event === 'SIGNED_OUT') setRecoveringPassword(false);
       setUser(session?.user ?? null);
       setToken(session?.access_token ?? null);
     });
@@ -101,9 +107,56 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const requestPasswordReset = async (email: string) => {
+    setAuthError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setAuthError(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updatePassword = async (password: string) => {
+    setAuthError('');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
+      setRecoveringPassword(false);
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      setAuthError(message);
+      return { success: false, error: message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, authError, setAuthError, signIn, signUp, signOut }}
+      value={{
+        user,
+        token,
+        isLoading,
+        authError,
+        setAuthError,
+        signIn,
+        signUp,
+        signOut,
+        isRecoveringPassword,
+        requestPasswordReset,
+        updatePassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

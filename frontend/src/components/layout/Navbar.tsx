@@ -5,47 +5,74 @@ import Logout from '../auth/Logout';
 
 const NavList = styled.ul`
   list-style: none;
-  padding-left: 0;
+  padding: 8px 0;
+  margin: 0 auto;
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 8px;
   max-width: 1280px;
   justify-content: end;
   width: 100%;
-  max-width: 1280px;
 
   @media (max-width: 576px) {
-    gap: 10px;
+    gap: 4px;
     justify-content: center;
   }
 `;
 
 const NavItem = styled.li`
-  display: inline-block;
+  display: flex;
+
+  &:last-child {
+    margin-left: 8px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(249, 244, 218, 0.15);
+  }
+
+  @media (max-width: 576px) {
+    &:last-child {
+      margin-left: 0;
+      padding-left: 4px;
+    }
+  }
 `;
 
 const StyledNavLink = styled(NavLink)`
   text-decoration: none;
   display: flex;
-  gap: 4px;
+  gap: 8px;
+  justify-content: center;
   align-items: center;
-  border-bottom: 4px solid transparent;
-  transition: border-bottom 0.3s ease;
-  padding-bottom: 3px;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 8px 16px;
   color: var(--offWhite);
   font-weight: 500;
-  font-size: clamp(0.9rem, 2.5vw + 0.25rem, 1rem);
+  font-size: 0.95rem;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
 
   &:hover {
-    color: var(--offWhite);
-    border-bottom: 4px solid var(--teal);
+    background: rgba(249, 244, 218, 0.07);
   }
 
   &.active {
-    border-bottom: 4px solid var(--pink);
+    background: rgba(123, 94, 166, 0.24);
+    border-color: rgba(189, 162, 227, 0.4);
+    color: #e2cff9;
   }
 
   @media (max-width: 576px) {
-    gap: 3px;
+    gap: 5px;
+    padding: 8px;
+    font-size: 0.8rem;
+    svg {
+      width: 19px;
+      height: 19px;
+    }
   }
 `;
 

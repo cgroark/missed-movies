@@ -13,6 +13,7 @@ import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
 import styled from 'styled-components';
+import { FormActions, FormError, FormHint, DangerButton } from '../ui/FormStyles';
 
 const AddCategoryButton = styled.button`
   && {
@@ -50,6 +51,7 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
   const { showToast } = useToast();
   const [category, setCategory] = useState<number | ''>('');
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
+  const [pendingAction, setPendingAction] = useState<'save' | 'delete' | null>(null);
   const [feError, setFeError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -67,6 +69,7 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
     setFeError(null);
     setError(null);
     if (!currentMovie) return;
@@ -91,7 +94,9 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
             status: movieStatus,
             category,
           };
+    setPendingAction('save');
     const { success, error: saveError } = await saveMovie(movieItem);
+    setPendingAction(null);
 
     if (!success) {
       setFeError(saveError ? `${currentMovie?.title} ${saveError}` : 'unknown error');
@@ -118,9 +123,11 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
   };
 
   const handleDelete = async () => {
-    if (!currentMovie?.id) return;
+    if (!currentMovie?.id || isLoading) return;
 
+    setPendingAction('delete');
     const { success, error: deleteError } = await deleteMovie(currentMovie.id);
+    setPendingAction(null);
 
     if (!success) {
       setFeError(deleteError ?? 'unknown error');
@@ -137,13 +144,16 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
   return (
     <>
       <div>
-        <form onSubmit={handleSave}>
+        <form onSubmit={handleSave} aria-busy={pendingAction !== null}>
+          <FormHint>Choose a category and watch status for your collection.</FormHint>
           <div>
             <label htmlFor="category">
               <FileVideoIcon size={24} />
               Category
             </label>
             <select
+              required
+              name="category"
               id="category"
               value={category}
               onChange={e => setCategory(Number(e.target.value))}
@@ -170,6 +180,8 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
               Status
             </label>
             <select
+              required
+              name="status"
               id="status"
               value={movieStatus}
               onChange={e => setMovieStatus(Number(e.target.value))}
@@ -181,21 +193,28 @@ function MovieForm({ currentMovie, action, onClose, onAddCategory }: FormProps) 
               <option value="2">Already watched</option>
             </select>
           </div>
-          {(feError || error) && <p className="error">{feError || error}</p>}
-          <div
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
-          >
+          {(feError || error) && <FormError>{feError || error}</FormError>}
+          <FormActions>
             {action === 'edit' && (
-              <button className="teal slimmer" type="button" onClick={handleDelete}>
-                {isLoading ? 'Deleting' : 'Delete'}
-                <TrashIcon size={24} />
-              </button>
+              <DangerButton
+                disabled={isLoading}
+                className="slimmer"
+                type="button"
+                onClick={handleDelete}
+              >
+                {pendingAction === 'delete' ? 'Deleting' : 'Delete'}
+                <TrashIcon size={20} />
+              </DangerButton>
             )}
-            <button className="slimmer" type="submit">
-              {isLoading ? 'Saving' : 'Save'}
-              {isLoading ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
+            <button disabled={isLoading} className="slimmer" type="submit">
+              {pendingAction === 'save'
+                ? 'Saving'
+                : action === 'add'
+                  ? 'Add movie'
+                  : 'Save changes'}
+              {pendingAction === 'save' ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
             </button>
-          </div>
+          </FormActions>
         </form>
       </div>
     </>

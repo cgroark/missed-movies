@@ -1,17 +1,18 @@
+import type { ReactNode } from 'react';
 import * as Accordion from '@radix-ui/react-accordion';
 import styled, { keyframes } from 'styled-components';
 import { CaretDownIcon } from '@phosphor-icons/react';
 
 interface AccordionProps {
   title: string;
-  content: string;
+  content: ReactNode;
 }
 const StyledAccordion = styled(Accordion.Root)`
   width: 100%;
 `;
 
 const Item = styled(Accordion.Item)`
-  margin-top: 0;
+  margin-top: 10px;
 `;
 
 const Trigger = styled(Accordion.Trigger)`
@@ -23,13 +24,21 @@ const Trigger = styled(Accordion.Trigger)`
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding-bottom: 5px;
-  font-size: rem;
+  padding: 6px 0;
+  min-height: 32px;
+  color: rgba(249, 244, 218, 0.75);
+  font-size: 0.85rem;
   font-weight: 500;
   transition: background 0.2s ease;
 
   &:hover {
     background-color: transparent !important;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 
   &[data-state='open'] {
@@ -53,11 +62,11 @@ const slideDown = keyframes`
 const Content = styled(Accordion.Content)`
   background-color: transparent;
   text-align: left;
-  font-size: .8rem
+  font-size: 0.85rem;
   padding-top: 10px;
   line-height: 1.4;
   animation: ${slideDown} 300ms ease-out;
-  border-top: 1px solid var(--offWhite);
+  border-top: 1px solid rgba(249, 244, 218, 0.15);
 `;
 
 export default function AccordionSection({ title, content }: AccordionProps) {

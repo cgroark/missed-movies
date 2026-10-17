@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link, useSearchParams } from 'react-router-dom';
-import { FilmStripIcon, FunnelIcon, NotePencilIcon } from '@phosphor-icons/react';
+import { FilmStripIcon, FunnelIcon, NotePencilIcon, XIcon } from '@phosphor-icons/react';
 import * as Popover from '@radix-ui/react-popover';
 import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
@@ -71,9 +71,12 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   display: flex;
   margin: 25px auto 10px;
-  gap: 5px;
+  gap: 8px;
   align-items: center;
-  border-radius: 4px;
+  border-radius: var(--control-radius);
+  box-sizing: border-box;
+  min-height: 38.8px;
+  justify-content: center;
   border: 1px solid transparent;
   padding: 0.4em 1.4em;
   font-size: 1em;
@@ -102,11 +105,75 @@ const StyledLink = styled(Link)`
 `;
 
 const FilterContent = styled(Popover.Content)`
+  box-sizing: border-box;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: var(--radix-popover-content-available-height);
+  overflow-y: auto;
   background: var(--offWhite);
-  border-radius: 8px;
-  padding: 15px;
-  min-width: 200px;
+  border: 1px solid rgba(123, 94, 166, 0.2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  border-radius: 18px;
+  padding: 22px;
+  z-index: 300;
   color: var(--lightBlack);
+  text-align: left;
+
+  label {
+    font-size: 0.8rem;
+    color: var(--darkGray);
+  }
+  select {
+    margin: 8px 0 20px;
+  }
+`;
+
+const FilterHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+
+  h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+`;
+
+const FilterClose = styled(Popover.Close)`
+  && {
+    background: transparent;
+    color: var(--darkGray);
+    padding: 0;
+    min-height: 44px;
+    width: 44px;
+    margin-right: -10px;
+    &:hover {
+      background: rgba(123, 94, 166, 0.08);
+    }
+  }
+`;
+
+const FilterCaption = styled.p`
+  margin: 0 0 22px;
+  color: var(--darkGray);
+  font-size: 0.8rem;
+  line-height: 1.5;
+`;
+
+const FilterFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid rgba(123, 94, 166, 0.16);
+  padding-top: 16px;
+
+  span {
+    font-size: 0.75rem;
+    color: var(--darkGray);
+  }
 `;
 
 const FilterButton = styled.button`
@@ -153,7 +220,7 @@ function MyMovies() {
     const categoryParam = Number(searchParams.get('category')) || 1;
     const statusParam = Number(searchParams.get('status'));
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
-    const ascendingParam = searchParams.get('asc') === 'true' || 'true';
+    const ascendingParam = searchParams.get('asc') !== 'false';
 
     const currentSort = sortOptions.find(
       each => each.key === sortByKeyParam && each.ascending === ascendingParam
@@ -253,7 +320,7 @@ function MyMovies() {
           </CategoryList>
           {categoryError && <ErrorField>{categoryError}</ErrorField>}
           <div style={{ maxWidth: '1280px', margin: 'auto', padding: '0 20px' }}>
-            {movies.length > 1 && (
+            {categories.length > 0 && (
               <Popover.Root>
                 <Popover.Trigger asChild>
                   <FilterButton className="teal" disabled={isLoading}>
@@ -267,36 +334,46 @@ function MyMovies() {
                     tabIndex={-1}
                     aria-label="Movie filters"
                     align="end"
-                    sideOffset={8}
+                    side="top"
+                    collisionPadding={12}
+                    sideOffset={12}
                     onOpenAutoFocus={event => {
                       // Let native mobile pickers receive focus from a tap, not panel mount.
                       event.preventDefault();
                       filterContentRef.current?.focus({ preventScroll: true });
                     }}
                   >
-                    <>
-                      <div>
-                        <label htmlFor="sort">Sort by:</label>
-                        <select id="sort" value={sortBy.value} onChange={handleSort}>
-                          {sortOptions.map(each => (
-                            <option key={each.value} value={each.value}>
-                              {each.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                    <FilterHeader>
+                      <h3>Refine your movies</h3>
+                      <FilterClose aria-label="Close filters">
+                        <XIcon size={20} />
+                      </FilterClose>
+                    </FilterHeader>
+                    <FilterCaption>Find the right movie for your next watch.</FilterCaption>
+                    <div>
+                      <label htmlFor="sort">Sort by</label>
+                      <select id="sort" value={sortBy.value} onChange={handleSort}>
+                        {sortOptions.map(each => (
+                          <option key={each.value} value={each.value}>
+                            {each.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                      <div>
-                        <label htmlFor="status">Status:</label>
-                        <select id="status" value={status} onChange={handleStatusChange}>
-                          {statusOptions.map(each => (
-                            <option key={each.value} value={each.value}>
-                              {each.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </>
+                    <div>
+                      <label htmlFor="filter-status">Watch status</label>
+                      <select id="filter-status" value={status} onChange={handleStatusChange}>
+                        {statusOptions.map(each => (
+                          <option key={each.value} value={each.value}>
+                            {each.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <FilterFooter>
+                      <span>Changes apply instantly</span>
+                    </FilterFooter>
                   </FilterContent>
                 </Popover.Portal>
               </Popover.Root>

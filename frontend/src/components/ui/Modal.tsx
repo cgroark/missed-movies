@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import styled from 'styled-components';
+import { Overlay, Content, Title, CloseButton } from './DialogStyles';
 import { XCircleIcon } from '@phosphor-icons/react';
 import type { movie } from '../../types/types';
 import MovieForm from '../movies/MovieForm';
@@ -13,45 +13,6 @@ type ModalProps = {
   onOpenChange: (open: boolean) => void;
   onAfterSave: () => Promise<void>;
 };
-
-const Overlay = styled(Dialog.Overlay)`
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 999;
-`;
-
-const Content = styled(Dialog.Content)`
-  background: var(--offWhite);
-  color: var(--lightBlack);
-  border-radius: 12px;
-  padding: 1.5rem;
-  width: 90%;
-  max-width: 400px;
-  margin: auto;
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-`;
-
-const Title = styled(Dialog.Title)`
-  font-size: 1.5rem;
-  margin: 0 0 20px 0;
-  text-align: center;
-`;
-
-const CloseButton = styled(Dialog.Close)`
-  padding: 0;
-  display: block;
-  margin-left: auto;
-  background: transparent;
-  color: var(--purple);
-  border: none;
-  cursor: pointer;
-`;
 
 function Modal({ action, movie, onOpenChange, open }: ModalProps) {
   const [isAddingCategory, setAddingCategory] = useState(false);
@@ -76,7 +37,7 @@ function Modal({ action, movie, onOpenChange, open }: ModalProps) {
       <Dialog.Portal>
         <Overlay />
         <Content aria-describedby={undefined}>
-          <CloseButton className="no-hover">
+          <CloseButton className="no-hover" aria-label="Close dialog">
             <XCircleIcon size={32} />
           </CloseButton>
           <Title>
