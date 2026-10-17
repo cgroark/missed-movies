@@ -13,9 +13,10 @@ import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
 import styled from 'styled-components';
+import useFieldValidation from '../../hooks/useFieldValidation';
 import ConfirmDelete from '../ui/ConfirmDelete';
 import ActionButton from '../ui/ActionButton';
-import { FormActions, FormError, FormHint, DangerButton } from '../ui/FormStyles';
+import { FormActions, FormError, FormHint, DangerButton, FieldError } from '../ui/FormStyles';
 
 const AddCategoryButton = styled.button`
   &&&& {
@@ -63,6 +64,7 @@ function MovieForm({
     sortBy,
   } = useMovies();
   const { categories, getCategories } = useCategories();
+  const { fieldErrors, clearField, validate } = useFieldValidation();
   const { showToast } = useToast();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [category, setCategory] = useState<number | ''>('');
@@ -89,10 +91,13 @@ function MovieForm({
     setFeError(null);
     setError(null);
     if (!currentMovie) return;
-    if (!category || !movieStatus) {
-      setFeError('Status and Category are required');
+    if (
+      !validate([
+        { id: 'category', label: 'Category', value: category },
+        { id: 'status', label: 'Status', value: movieStatus },
+      ])
+    )
       return;
-    }
     const movieItem: Partial<movie> =
       action === 'edit'
         ? {
@@ -167,7 +172,7 @@ function MovieForm({
   return (
     <>
       <div>
-        <form onSubmit={handleSave} aria-busy={pendingAction !== null}>
+        <form noValidate onSubmit={handleSave} aria-busy={pendingAction !== null}>
           <FormHint>Choose a category and watch status for your collection.</FormHint>
           <div>
             <label htmlFor="category">
@@ -179,7 +184,15 @@ function MovieForm({
               name="category"
               id="category"
               value={category}
-              onChange={e => setCategory(Number(e.target.value))}
+              aria-invalid={Boolean(fieldErrors.category)}
+              aria-describedby={fieldErrors.category ? 'category-error' : undefined}
+              onFocus={() => clearField('category')}
+              onChange={e => {
+                setCategory(Number(e.target.value));
+                clearField('category');
+                setFeError(null);
+                setError(null);
+              }}
             >
               <option disabled value="">
                 Select Category
@@ -192,6 +205,9 @@ function MovieForm({
                   </option>
                 ))}
             </select>
+            {fieldErrors.category && (
+              <FieldError id="category-error">{fieldErrors.category}</FieldError>
+            )}
             <AddCategoryButton className="no-hover" type="button" onClick={onAddCategory}>
               Add category
               <PlusIcon size={16} />
@@ -207,7 +223,15 @@ function MovieForm({
               name="status"
               id="status"
               value={movieStatus}
-              onChange={e => setMovieStatus(Number(e.target.value))}
+              aria-invalid={Boolean(fieldErrors.status)}
+              aria-describedby={fieldErrors.status ? 'status-error' : undefined}
+              onFocus={() => clearField('status')}
+              onChange={e => {
+                setMovieStatus(Number(e.target.value));
+                clearField('status');
+                setFeError(null);
+                setError(null);
+              }}
             >
               <option disabled value="">
                 Select Status
@@ -216,6 +240,7 @@ function MovieForm({
               <option value="2">Already watched</option>
             </select>
           </div>
+          {fieldErrors.status && <FieldError id="status-error">{fieldErrors.status}</FieldError>}
           {(feError || error) && <FormError>{feError || error}</FormError>}
           <FormActions>
             {action === 'edit' && (

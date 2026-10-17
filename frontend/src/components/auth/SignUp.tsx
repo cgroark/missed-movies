@@ -14,7 +14,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
-import { FormError, FormHint } from '../ui/FormStyles';
+import useFieldValidation from '../../hooks/useFieldValidation';
+import { FormError, FormHint, FieldError } from '../ui/FormStyles';
 import { actionButtonStyles } from '../ui/ButtonStyles';
 
 const SubmitButton = styled.button`
@@ -147,6 +148,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
     requestPasswordReset,
     updatePassword,
   } = useAuth();
+  const { fieldErrors, clearField, clearFields, validate } = useFieldValidation();
   const { showToast } = useToast();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -172,6 +174,23 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
     setError('');
     setAuthError('');
     setMessage('');
+    if (
+      !validate([
+        ...(mode !== 'reset' ? [{ id: 'email', label: 'Email', value: email, email: true }] : []),
+        ...(mode !== 'forgot' ? [{ id: 'password', label: 'Password', value: password }] : []),
+        ...(['signup', 'reset'].includes(mode)
+          ? [
+              {
+                id: 'confirmPassword',
+                label: 'Confirm password',
+                value: confirmPassword,
+                matches: password,
+              },
+            ]
+          : []),
+      ])
+    )
+      return;
     if (mode === 'forgot') {
       const result = await requestPasswordReset(email);
       if (!result.success) {
@@ -204,16 +223,6 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
       setConfirmPassword('');
       setMessage('Your password has been updated. You can return to your movies.');
       setShowForm(false);
-      return;
-    }
-    if (!email || !password) {
-      setError('Error: Email and password required');
-      return;
-    } else if (!confirmPassword && mode == 'signup') {
-      setError('Error: All fields are required');
-      return;
-    } else if (mode == 'signup' && confirmPassword !== password) {
-      setError('Error: Passwords do not match');
       return;
     }
     if (mode === 'login') {
@@ -250,6 +259,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
           navigate('/');
           return;
         }
+        clearFields();
         setMode(mode === 'login' && showForm ? 'signup' : 'login');
         setShowForm(true);
         setMessage('');
@@ -271,7 +281,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
   return (
     <>
       <div>
-        <AuthForm onSubmit={handleSubmit} aria-busy={isLoading} hidden={!showForm}>
+        <AuthForm noValidate onSubmit={handleSubmit} aria-busy={isLoading} hidden={!showForm}>
           {showForm && (
             <>
               <h2>
@@ -304,12 +314,23 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                     autoCapitalize="none"
                     spellCheck={false}
                     autoComplete="email"
+                    aria-invalid={Boolean(fieldErrors.email)}
+                    aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                     id="email"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onFocus={() => clearField('email')}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                      clearField('email');
+                      setError(null);
+                      setAuthError('');
+                    }}
                   />
+                  {fieldErrors.email && (
+                    <FieldError id="email-error">{fieldErrors.email}</FieldError>
+                  )}
                 </div>
               )}
               {mode !== 'forgot' && (
@@ -322,11 +343,20 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                     required
                     name="password"
                     autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                    aria-invalid={Boolean(fieldErrors.password)}
+                    aria-describedby={fieldErrors.password ? 'password-error' : undefined}
                     id="password"
                     type={togglePassword ? 'text' : 'password'}
                     placeholder="Password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onFocus={() => clearField('password')}
+                    onChange={e => {
+                      setPassword(e.target.value);
+                      clearField('password');
+                      setError(null);
+                      setAuthError('');
+                      clearField('confirmPassword');
+                    }}
                   />
                   <RevealButton
                     className="no-hover"
@@ -339,6 +369,9 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                   </RevealButton>
                 </PasswordField>
               )}
+              {mode !== 'forgot' && fieldErrors.password && (
+                <FieldError id="password-error">{fieldErrors.password}</FieldError>
+              )}
               {(mode === 'signup' || mode === 'reset') && (
                 <>
                   <PasswordField>
@@ -349,18 +382,22 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                     <input
                       required
                       name="confirmPassword"
-                      aria-invalid={Boolean(confirmPassword && confirmPassword !== password)}
+                      aria-invalid={Boolean(fieldErrors.confirmPassword)}
                       aria-describedby={
-                        confirmPassword && confirmPassword !== password
-                          ? 'password-match'
-                          : undefined
+                        fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined
                       }
                       autoComplete="new-password"
                       id="confirmPassword"
                       type={toggleConfirmPassword ? 'text' : 'password'}
                       placeholder="Confirm Password"
                       value={confirmPassword}
-                      onChange={e => setConfirmPassword(e.target.value)}
+                      onFocus={() => clearField('confirmPassword')}
+                      onChange={e => {
+                        setConfirmPassword(e.target.value);
+                        clearField('confirmPassword');
+                        setError(null);
+                        setAuthError('');
+                      }}
                     />
                     <RevealButton
                       className="no-hover"
@@ -376,8 +413,10 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                       {toggleConfirmPassword ? <EyeClosedIcon size={24} /> : <EyeIcon size={24} />}
                     </RevealButton>
                   </PasswordField>
-                  {confirmPassword && confirmPassword !== password && (
-                    <FormError id="password-match">Passwords don’t match yet.</FormError>
+                  {fieldErrors.confirmPassword && (
+                    <FieldError id="confirmPassword-error">
+                      {fieldErrors.confirmPassword}
+                    </FieldError>
                   )}
                 </>
               )}
@@ -414,6 +453,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
                   type="button"
                   disabled={isLoading}
                   onClick={() => {
+                    clearFields();
                     setMode('forgot');
                     setError(null);
                     setAuthError('');

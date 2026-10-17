@@ -6,11 +6,19 @@ import { useToast } from '../../context/ToastContext';
 import type { category } from '../../types/types';
 import { useNavigate } from 'react-router-dom';
 import Loader from '../ui/Loader';
+import useFieldValidation from '../../hooks/useFieldValidation';
 import ConfirmDelete from '../ui/ConfirmDelete';
 import { useMovies } from '../../context/MoviesContext';
 import { useSearchParams } from 'react-router-dom';
 import ActionButton from '../ui/ActionButton';
-import { FormActions, FormError, FormHint, SecondaryButton, DangerButton } from '../ui/FormStyles';
+import {
+  FormActions,
+  FormError,
+  FormHint,
+  SecondaryButton,
+  DangerButton,
+  FieldError,
+} from '../ui/FormStyles';
 
 interface CategoryFormProps {
   onClose: () => void;
@@ -50,6 +58,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
     categoryError,
     setCategoryError,
   } = useCategories();
+  const { fieldErrors, clearField, clearFields, validate } = useFieldValidation();
   const [deletingCategory, setDeletingCategory] = useState<category | null>(null);
   const { getMovies, activeCategory, setActiveCategory, sortBy, status } = useMovies();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,8 +82,15 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
     setCategoryError(null);
     if (isSaving) return;
     setSaving(true);
-    if ((!isEditing && !name.trim()) || (isEditing && !editingValue.trim())) {
-      setError('Category name is required');
+    if (
+      !validate([
+        {
+          id: isEditing ? 'editName' : 'name',
+          label: 'Category name',
+          value: isEditing ? editingValue : name,
+        },
+      ])
+    ) {
       setSaving(false);
       return;
     }
@@ -99,6 +115,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
   };
 
   const handleEdit = (id: number, name: string) => {
+    clearFields();
     setEditing(true);
     setCurrentlyEditing(id);
     setEditingValue(name);
@@ -140,10 +157,24 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
                         style={{ margin: '0' }}
                         className="light"
                         id="editName"
+                        required
+                        aria-invalid={Boolean(fieldErrors['editName'])}
+                        aria-describedby={fieldErrors['editName'] ? 'editName-error' : undefined}
+                        onFocus={() => clearField('editName')}
                         type="text"
                         value={editingValue}
-                        onChange={e => setEditingValue(e.target.value)}
+                        onChange={e => {
+                          setEditingValue(e.target.value);
+                          clearField('editName');
+                          setError(null);
+                          setCategoryError(null);
+                        }}
                       />
+                      {fieldErrors.editName && (
+                        <FieldError id="editName-error" style={{ margin: '0' }}>
+                          {fieldErrors.editName}
+                        </FieldError>
+                      )}
                     </>
                   ) : (
                     each.name
@@ -210,6 +241,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
               style={{ margin: 'auto' }}
               className="slimmer"
               onClick={() => {
+                clearFields();
                 setAdding(true);
                 setError(null);
                 setCategoryError(null);
@@ -221,7 +253,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
             </ActionButton>
           )}
           {isAdding && !isEditing && (
-            <form onSubmit={handleSave} aria-busy={isSaving}>
+            <form noValidate onSubmit={handleSave} aria-busy={isSaving}>
               <FormHint>Give your category a name that’s easy to find later.</FormHint>
               <label htmlFor="name">Category Name</label>
               <input
@@ -231,10 +263,19 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
                 required
                 name="categoryName"
                 id="name"
+                aria-invalid={Boolean(fieldErrors['name'])}
+                aria-describedby={fieldErrors['name'] ? 'name-error' : undefined}
+                onFocus={() => clearField('name')}
                 type="text"
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={e => {
+                  setName(e.target.value);
+                  clearField('name');
+                  setError(null);
+                  setCategoryError(null);
+                }}
               />
+              {fieldErrors.name && <FieldError id="name-error">{fieldErrors.name}</FieldError>}
               <FormActions>
                 <SecondaryButton
                   disabled={isSaving}
@@ -245,6 +286,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
                       onClose();
                       return;
                     }
+                    clearFields();
                     setAdding(false);
                     setError(null);
                     setCategoryError(null);

@@ -1,6 +1,6 @@
 import * as Toast from '@radix-ui/react-toast';
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { ConfettiIcon, SkullIcon } from '@phosphor-icons/react';
+import { CheckCircleIcon, WarningCircleIcon, XIcon } from '@phosphor-icons/react';
 import styled, { keyframes } from 'styled-components';
 
 interface ToastContextType {
@@ -19,9 +19,11 @@ const slideIn = keyframes`
 `;
 
 const StyledToastRoot = styled(Toast.Root)`
-  background-color: var(--darkTeal);
+  box-sizing: border-box;
+  background: #1c4842;
+  border: 1px solid rgba(70, 213, 187, 0.4);
   color: var(--offWhite);
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   padding: 12px 16px;
   display: flex;
@@ -29,28 +31,59 @@ const StyledToastRoot = styled(Toast.Root)`
   justify-content: start;
   text-align: left;
   gap: 10px;
-  min-width: 280px;
-  max-width: 350px;
-  font-size: 1rem;
+  width: 100%;
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  > svg {
+    flex-shrink: 0;
+    color: #6dd4bf;
+  }
   animation: ${slideIn} 0.3s ease-out;
 
   &.error {
-    background-color: red;
+    background: #383040;
+    border-color: rgba(189, 162, 227, 0.4);
+    > svg {
+      color: #dcc8f4;
+    }
   }
 `;
 
 const StyledToastTitle = styled(Toast.Title)`
-  font-weight: 600;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+  min-width: 0;
   flex: 1;
 `;
 
 const StyledToastViewport = styled(Toast.Viewport)`
   position: fixed;
-  top: 10px;
-  right: 20px;
-  width: 320px;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  width: min(360px, calc(100vw - 24px));
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  list-style: none;
   z-index: 9999;
   outline: none;
+`;
+
+const CloseToast = styled(Toast.Close)`
+  && {
+    flex-shrink: 0;
+    width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--offWhite);
+    &:hover {
+      background: rgba(249, 244, 218, 0.08);
+    }
+  }
 `;
 
 const ToastContext = createContext<ToastContextType | null>(null);
@@ -72,8 +105,15 @@ export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       <ToastContext.Provider value={{ showToast }}>
         {children}
         <StyledToastRoot open={open} onOpenChange={setOpen} className={!success ? 'error' : ''}>
-          {success ? <ConfettiIcon size={24} /> : <SkullIcon size={24} />}
+          {success ? (
+            <CheckCircleIcon size={24} aria-label="Success" />
+          ) : (
+            <WarningCircleIcon size={24} aria-label="Error" />
+          )}
           <StyledToastTitle>{message}</StyledToastTitle>
+          <CloseToast aria-label="Dismiss notification">
+            <XIcon size={18} />
+          </CloseToast>
         </StyledToastRoot>
         <StyledToastViewport />
       </ToastContext.Provider>

@@ -58,3 +58,11 @@ export const FormError = styled.p.attrs({ role: 'alert' })`
   font-size: 0.875rem;
   overflow-wrap: anywhere;
 `;
+
+export const FieldError = styled.p.attrs({ role: 'alert' })`
+  margin: -14px 0 20px;
+  color: #b6334b;
+  text-align: left;
+  font-size: 0.8rem;
+  line-height: 1.5;
+`;

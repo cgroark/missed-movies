@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
+import { supabase, isPasswordRecoveryRedirect } from '../lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -19,30 +19,41 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isRecoveringPassword, setRecoveringPassword] = useState(false);
+  const [isRecoveringPassword, setRecoveringPassword] = useState(isPasswordRecoveryRedirect);
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string>('');
 
   useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
-      setToken(data.session?.access_token ?? null);
-      setLoading(false);
-    };
-    getSession();
-
+    let active = true;
+    // Subscribe before reading the session so startup recovery events are not missed.
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
       if (event === 'PASSWORD_RECOVERY') setRecoveringPassword(true);
       if (event === 'SIGNED_OUT') setRecoveringPassword(false);
       setUser(session?.user ?? null);
       setToken(session?.access_token ?? null);
     });
 
+    const getSession = async () => {
+      setLoading(true);
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (!active) return;
+        if (error) setAuthError(error.message);
+        setUser(data.session?.user ?? null);
+        setToken(data.session?.access_token ?? null);
+      } catch (err) {
+        if (active) setAuthError(err instanceof Error ? err.message : String(err));
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    getSession();
+
     return () => {
+      active = false;
       listener.subscription.unsubscribe();
     };
   }, []);
