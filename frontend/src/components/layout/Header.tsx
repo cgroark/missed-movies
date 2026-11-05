@@ -73,7 +73,7 @@ const NavbarWrapper = styled.nav.withConfig({
   shouldForwardProp: prop => prop !== 'scrolled',
 })<NavbarWrapperProps>`
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 100;
   display: flex;
   justify-content: center;
