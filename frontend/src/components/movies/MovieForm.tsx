@@ -259,7 +259,7 @@ function MovieForm({
                 ? 'Saving'
                 : action === 'add'
                   ? 'Add movie'
-                  : 'Save changes'}
+                  : 'Save'}
               {pendingAction === 'save' ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
             </ActionButton>
           </FormActions>
