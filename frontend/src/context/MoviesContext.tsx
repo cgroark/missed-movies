@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from 'react';
 // import type { Dispatch, SetStateAction } from 'react';
 
 import { handleApiError } from '../utils/utils';
-import type { movie, SortOption } from '../types/types';
+import type { movie, SortOption, MediaType } from '../types/types';
 import { useAuth } from './AuthContext';
 
 interface MoviesContextType {
@@ -11,15 +11,18 @@ interface MoviesContextType {
   error: string | null;
   activeCategory: number | null;
   status: number;
+  mediaType: MediaType;
   sortBy: SortOption;
   setError: (error: string | null) => void;
   setActiveCategory: (id: number | null) => void;
   setStatus: (status: number) => void;
+  setMediaType: (mediaType: MediaType) => void;
   setSortBy: (sort: SortOption) => void;
   getMovies: (
     category?: number | null,
     sortBy?: SortOption,
-    status?: number
+    status?: number,
+    mediaType?: MediaType
   ) => Promise<{ success: boolean; data: movie[] }>;
   saveMovie: (
     movie: movie | Partial<movie>
@@ -36,6 +39,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<number | null>(1);
   const [status, setStatus] = useState<number>(1);
+  const [mediaType, setMediaType] = useState<MediaType>('movie');
   const [sortBy, setSortBy] = useState<SortOption>({
     key: 'title',
     value: 1,
@@ -46,7 +50,8 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
   const getMovies = async (
     category = activeCategory,
     sortOption = sortBy,
-    movieStatus = status
+    movieStatus = status,
+    selectedMediaType = mediaType
   ) => {
     setLoading(true);
     setError(null);
@@ -58,6 +63,7 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
         url.searchParams.append('asc', String(sortOption.ascending));
       }
       if (movieStatus) url.searchParams.append('status', String(movieStatus));
+      url.searchParams.append('media_type', selectedMediaType);
 
       const res = await fetch(url, {
         method: 'GET',
@@ -181,10 +187,12 @@ export const MovieProvider = ({ children }: { children: React.ReactNode }) => {
         error,
         activeCategory,
         status,
+        mediaType,
         sortBy,
         setError,
         setActiveCategory,
         setStatus,
+        setMediaType,
         setSortBy,
         getMovies,
         saveMovie,

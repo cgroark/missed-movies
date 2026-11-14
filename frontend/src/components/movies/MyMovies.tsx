@@ -6,13 +6,15 @@ import {
   CategoryControls,
   CategoryList,
   CategoryButton,
+  MediaTypeSwitch,
+  MediaTypeButton,
 } from '../ui/CategoryTabs';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FilmStripIcon, FunnelIcon, NotePencilIcon, XIcon } from '@phosphor-icons/react';
 import ResponsiveFilters from '../ui/ResponsiveFilters';
 import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
-import type { movie, category, SortOption, StatusOption } from '../../types/types';
+import type { movie, category, SortOption, StatusOption, MediaType } from '../../types/types';
 import MovieList from './MovieList';
 import MovieListSkeleton from './MovieListSkeleton';
 import Modal from '../ui/Modal';
@@ -31,6 +33,13 @@ const sortOptions: SortOption[] = [
   { value: 2, key: 'title', label: 'Title Z–A', ascending: false },
   { value: 3, key: 'release_date', label: 'Release Date ↑', ascending: true },
   { value: 4, key: 'release_date', label: 'Release Date ↓', ascending: false },
+];
+
+const tvSortOptions: SortOption[] = [
+  { value: 1, key: 'name', label: 'Name A–Z', ascending: true },
+  { value: 2, key: 'name', label: 'Name Z–A', ascending: false },
+  { value: 3, key: 'first_air_date', label: 'First Air Date ↑', ascending: true },
+  { value: 4, key: 'first_air_date', label: 'First Air Date ↓', ascending: false },
 ];
 
 const ManageCategories = styled.button`
@@ -271,6 +280,8 @@ function MyMovies() {
     setActiveCategory,
     status,
     setStatus,
+    mediaType,
+    setMediaType,
     sortBy,
     setSortBy,
   } = useMovies();
@@ -285,16 +296,19 @@ function MyMovies() {
     const categoryParam = categoryValue === null ? 1 : Number(categoryValue);
     const selectedCategory = categoryParam > 0 ? categoryParam : null;
     const statusParam = Number(searchParams.get('status'));
+    const mediaTypeParam = searchParams.get('media_type') === 'tv' ? 'tv' : 'movie';
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
     const ascendingParam = searchParams.get('asc') !== 'false';
 
-    const currentSort = sortOptions.find(
+    const options = mediaTypeParam === 'tv' ? tvSortOptions : sortOptions;
+    const currentSort = options.find(
       each => each.key === sortByKeyParam && each.ascending === ascendingParam
     );
-    if (currentSort) setSortBy(currentSort);
+    setMediaType(mediaTypeParam);
+    setSortBy(currentSort ?? options[0]);
     setActiveCategory(selectedCategory);
     setStatus(statusParam);
-    getMovies(selectedCategory ?? undefined, currentSort, statusParam);
+    getMovies(selectedCategory ?? undefined, currentSort ?? options[0], statusParam, mediaTypeParam);
   }, [searchParams]);
 
   useEffect(() => {
@@ -326,15 +340,18 @@ function MyMovies() {
 
   const handleSort = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = Number(e.target.value);
-    const selectedSort = sortOptions.find(opt => opt.value === selectedValue);
+    const selectedSort = (mediaType === 'tv' ? tvSortOptions : sortOptions).find(
+      opt => opt.value === selectedValue
+    );
     if (selectedSort) {
       setSortBy(selectedSort);
 
       setSearchParams({
         sortBy: selectedSort.key,
         asc: String(selectedSort.ascending),
-        category: String(activeCategory),
+        category: String(activeCategory ?? 0),
         status: String(status),
+        media_type: mediaType,
       });
     }
   };
@@ -345,8 +362,9 @@ function MyMovies() {
     setSearchParams({
       sortBy: sortBy.key,
       asc: String(sortBy.ascending),
-      category: String(activeCategory),
+      category: String(activeCategory ?? 0),
       status: String(selectedStatus),
+      media_type: mediaType,
     });
   };
 
@@ -357,6 +375,7 @@ function MyMovies() {
       asc: String(sortBy.ascending),
       category: String(id),
       status: String(status),
+      media_type: mediaType,
     });
   };
 
@@ -367,6 +386,7 @@ function MyMovies() {
       asc: String(sortBy.ascending),
       category: '0',
       status: String(status),
+      media_type: mediaType,
     });
   };
 
@@ -377,6 +397,23 @@ function MyMovies() {
       asc: String(sortBy.ascending),
       category: String(activeCategory ?? 0),
       status: '0',
+      media_type: mediaType,
+    });
+  };
+
+  const handleMediaTypeChange = (nextType: MediaType) => {
+    const options = nextType === 'tv' ? tvSortOptions : sortOptions;
+    const nextSort = options[0];
+    setMediaType(nextType);
+    setSortBy(nextSort);
+    setActiveCategory(null);
+    setStatus(0);
+    setSearchParams({
+      sortBy: nextSort.key,
+      asc: String(nextSort.ascending),
+      category: '0',
+      status: '0',
+      media_type: nextType,
     });
   };
 
@@ -384,8 +421,19 @@ function MyMovies() {
     <>
       {categories.length > 0 && (
         <div>
-          <CategoryToolbar aria-label="Movie categories">
-            <h2>Your categories</h2>
+          <CategoryToolbar aria-label="Your saved media">
+            <MediaTypeSwitch role="group" aria-label="Show movies or TV shows">
+              {([{ value: 'movie', label: 'Movies' }, { value: 'tv', label: 'TV Shows' }] as const).map(tab => (
+                <MediaTypeButton
+                  key={tab.value}
+                  type="button"
+                  onClick={() => handleMediaTypeChange(tab.value)}
+                  aria-pressed={mediaType === tab.value}
+                >
+                  {tab.label}
+                </MediaTypeButton>
+              ))}
+            </MediaTypeSwitch>
             <CategoryControls>
               <CategoryList>
                 {categories
@@ -446,7 +494,7 @@ function MyMovies() {
           {categoryError && <ErrorField>{categoryError}</ErrorField>}
           <MobileNavigation aria-label="Movie actions">
             <StyledLink className="floater mobile-nav-item" to="/search">
-              <span>Add Movie</span>
+              <span>Find titles</span>
               <FilmStripIcon size={24} />
             </StyledLink>
             {categories.length > 0 && (
@@ -461,7 +509,7 @@ function MyMovies() {
                 {close => (
                   <>
                     <FilterHeader>
-                      <h3>Refine your movies</h3>
+                      <h3>Refine your collection</h3>
                       <FilterClose type="button" onClick={close} aria-label="Close filters">
                         <XIcon size={20} />
                       </FilterClose>
@@ -470,7 +518,7 @@ function MyMovies() {
                     <div>
                       <label htmlFor="sort">Sort by</label>
                       <select id="sort" value={sortBy.value} onChange={handleSort}>
-                        {sortOptions.map(each => (
+                        {(mediaType === 'tv' ? tvSortOptions : sortOptions).map(each => (
                           <option key={each.value} value={each.value}>
                             {each.label}
                           </option>
@@ -509,9 +557,9 @@ function MyMovies() {
       )}
       {!isLoading && movies.length === 0 && (
         <EmptyState aria-label="Empty category">
-          <p>No movies in this category yet.</p>
+          <p>No {mediaType === 'tv' ? 'TV shows' : 'movies'} in this category yet.</p>
           <EmptyStateLink to="/search">
-            Find movies
+            Find titles
             <FilmStripIcon size={24} />
           </EmptyStateLink>
         </EmptyState>

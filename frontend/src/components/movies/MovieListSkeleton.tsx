@@ -15,7 +15,7 @@ const Poster = styled(Skeleton)`
 
 function MovieListSkeleton({ count = 12 }: { count?: number }) {
   return (
-    <div role="status" aria-label="Loading movies">
+    <div role="status" aria-label="Loading titles">
       <MovieItems aria-hidden="true">
         {Array.from({ length: count }, (_, index) => (
           <Card key={index}>

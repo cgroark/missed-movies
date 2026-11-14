@@ -1,8 +1,13 @@
+export type MediaType = 'movie' | 'tv';
+
 export interface movie {
   id?: number;
   movie_id: number;
   title: string;
+  name?: string | null;
+  media_type?: MediaType;
   release_date: string;
+  first_air_date?: string | null;
   poster_path: string;
   category: number | '';
   status: number | '';

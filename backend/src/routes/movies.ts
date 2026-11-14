@@ -11,8 +11,9 @@ movieRouter.get('/', async (_req, res) => {
     const user = await getUserFromRequest(_req, res);
     if (!user) return;
 
-    const { category, sortBy, asc, status } = _req.query;
-    const validSortColumns = ['title', 'release_date'];
+    const { category, sortBy, asc, status, media_type } = _req.query;
+    const mediaType = media_type === 'tv' ? 'tv' : 'movie';
+    const validSortColumns = mediaType === 'tv' ? ['name', 'first_air_date'] : ['title', 'release_date'];
     const sortColumn =
       typeof sortBy === 'string' && validSortColumns.includes(sortBy) ? sortBy : 'title';
 
@@ -22,6 +23,7 @@ movieRouter.get('/', async (_req, res) => {
       .from('movies')
       .select('*')
       .eq('user_id', user.id)
+      .eq('media_type', mediaType)
       .order('status', { ascending: true })
       .order(sortColumn, direction);
 
@@ -56,6 +58,14 @@ movieRouter.post('/', async (req, res) => {
     if (!user) return;
 
     const movieItem: movie = { ...req.body, user_id: user.id };
+
+    movieItem.media_type = movieItem.media_type === 'tv' ? 'tv' : 'movie';
+    if (movieItem.media_type === 'tv') {
+      movieItem.name = movieItem.name || movieItem.title;
+      movieItem.title = movieItem.title || movieItem.name || '';
+      movieItem.first_air_date = movieItem.first_air_date || movieItem.release_date;
+      movieItem.release_date = movieItem.release_date || movieItem.first_air_date || '';
+    }
 
     if (!movieItem.title) {
       return res.status(400).json({

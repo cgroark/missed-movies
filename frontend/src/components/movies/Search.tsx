@@ -46,12 +46,22 @@ function Search() {
     const searchMovies = async () => {
       try {
         const res = await fetch(
-          `https://api.themoviedb.org/3/search/movie?&query=${debounceSearch}`,
+          `https://api.themoviedb.org/3/search/multi?query=${encodeURIComponent(debounceSearch)}`,
           options
         );
         if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
-        if (!ignore) setMovies(data.results.slice(0, 12));
+        if (!ignore) {
+          setMovies(
+            data.results
+              .filter(result => {
+                const resultType = result.media_type as string;
+                return resultType === 'movie' || resultType === 'tv';
+              })
+              .slice(0, 12)
+              .map(normalizeResult)
+          );
+        }
       } catch (err) {
         if (!ignore) setError(err instanceof Error ? err.message : String(err));
       } finally {
@@ -84,8 +94,8 @@ function Search() {
     <>
       <SearchWrapper>
         <input
-          aria-label="Find a movie"
-          placeholder="search for movies..."
+          aria-label="Search movies and TV shows"
+          placeholder="Search movies and TV shows..."
           value={search}
           id="search"
           onChange={e => setSearch(e.target.value)}
@@ -115,3 +125,19 @@ function Search() {
 }
 
 export default Search;
+
+function normalizeResult(result: movie): movie {
+  if (result.media_type === 'tv') {
+    const name = result.name || result.title;
+    const firstAirDate = result.first_air_date || result.release_date || '';
+    return {
+      ...result,
+      title: name,
+      name,
+      media_type: 'tv',
+      release_date: firstAirDate,
+      first_air_date: firstAirDate,
+    };
+  }
+  return { ...result, media_type: 'movie' };
+}

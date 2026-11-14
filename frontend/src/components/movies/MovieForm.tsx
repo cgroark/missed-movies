@@ -145,6 +145,12 @@ function MovieForm({
             poster_path: currentMovie.poster_path,
             overview: currentMovie.overview,
             genre_ids: currentMovie.genre_ids,
+            media_type: currentMovie.media_type ?? 'movie',
+            name: currentMovie.media_type === 'tv' ? currentMovie.name ?? currentMovie.title : null,
+            first_air_date:
+              currentMovie.media_type === 'tv'
+                ? currentMovie.first_air_date ?? currentMovie.release_date
+                : null,
             status: movieStatus,
             category,
           };
@@ -169,7 +175,7 @@ function MovieForm({
     showToast(
       action === 'edit'
         ? `${currentMovie?.title} updated successfully`
-        : `${currentMovie?.title} added to your movies`,
+        : `${currentMovie?.title} added to your collection`,
       true
     );
     await onClose();
@@ -318,7 +324,7 @@ function MovieForm({
               {pendingAction === 'save'
                 ? 'Saving'
                 : action === 'add'
-                  ? 'Add movie'
+                  ? 'Add to collection'
                   : 'Save'}
               {pendingAction === 'save' ? <Loader size="small" /> : <FloppyDiskIcon size={24} />}
             </ActionButton>
@@ -329,7 +335,7 @@ function MovieForm({
         open={confirmDelete}
         onOpenChange={changeDeleteConfirmation}
         title="Delete movie?"
-        description={`Are you sure you want to delete “${currentMovie?.title}” from your movies? This cannot be undone.`}
+        description={`Are you sure you want to delete “${currentMovie?.title}” from your collection? This cannot be undone.`}
         onConfirm={handleDelete}
       />
     </>

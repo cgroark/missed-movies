@@ -117,11 +117,11 @@ function Header() {
       )}
       <HeaderSection ref={headerRef} $compact={isLoginPage}>
         <Heading>
-          <GradientHeading>Missed Movies</GradientHeading>
+          <GradientHeading>Missed It</GradientHeading>
         </Heading>
         {!isLoginPage && (
           <SubHeading>
-            Keep track of all those movies you've been meaning to watch <FilmReelIcon size={40} />
+            Keep track of all those movies and shows you've been meaning to watch <FilmReelIcon size={40} />
           </SubHeading>
         )}
       </HeaderSection>

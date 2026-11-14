@@ -81,13 +81,13 @@ function Navbar() {
     <NavList>
       <NavItem>
         <StyledNavLink to="/" end>
-          My Movies
+          My Collection
           <FilmStripIcon size={24} />
         </StyledNavLink>
       </NavItem>
       <NavItem>
         <StyledNavLink to="/search">
-          Find Movies
+          Discover
           <MagnifyingGlassPlusIcon size={24} />
         </StyledNavLink>
       </NavItem>

@@ -148,6 +148,7 @@ function Movie({ movie, onEdit, onAdd }: MovieProps) {
             <MovieDetails
               movieId={movie.movie_id ?? (isSearchPage ? movie.id : undefined)}
               releaseDate={movie.release_date}
+              mediaType={movie.media_type ?? 'movie'}
               overview={movie.overview}
             />
           }

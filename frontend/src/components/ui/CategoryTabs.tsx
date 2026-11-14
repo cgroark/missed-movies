@@ -74,3 +74,43 @@ export const CategoryButton = styled.button`
     }
   }
 `;
+
+export const MediaTypeSwitch = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px;
+  margin: 0 auto 14px;
+  border: 1px solid rgba(249, 244, 218, 0.12);
+  border-radius: 12px;
+  background: rgba(14, 14, 18, 0.48);
+`;
+
+export const MediaTypeButton = styled.button`
+  && {
+    min-height: 36px;
+    padding: 7px 14px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: rgba(249, 244, 218, 0.68);
+    box-shadow: none;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &[aria-pressed='true'] {
+      border-color: rgba(70, 213, 187, 0.32);
+      background: linear-gradient(135deg, rgba(70, 213, 187, 0.2), rgba(70, 213, 187, 0.08));
+      color: var(--offWhite);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+    }
+
+    &:hover:not([aria-pressed='true']) {
+      background: rgba(249, 244, 218, 0.06);
+      color: var(--offWhite);
+    }
+  }
+`;

@@ -1,6 +1,6 @@
-# Missed Movies
+# Missed It
 
-A full stack React/Node.js application to keep track of all those movies you've been meaning to watch or want to save for later. This project was built with React/TypeScript, Node.js, PostgreSQL (Supabase), and RESTful API architecture.
+A full stack React/Node.js application to keep track of all those movies and TV shows you've been meaning to watch or want to save for later. This project was built with React/TypeScript, Node.js, PostgreSQL (Supabase), and RESTful API architecture.
 
 ## Overview
 

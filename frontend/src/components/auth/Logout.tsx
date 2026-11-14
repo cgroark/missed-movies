@@ -86,7 +86,7 @@ function Logout({ className }: { className?: string }) {
         >
           <Title>Log out?</Title>
           <Dialog.Description style={{ margin: 0, textAlign: 'center', lineHeight: 1.6 }}>
-            Are you sure you want to log out of Missed Movies?
+            Are you sure you want to log out of Missed It?
           </Dialog.Description>
           {errorMessage && <FormError>{errorMessage}</FormError>}
           <FormActions>

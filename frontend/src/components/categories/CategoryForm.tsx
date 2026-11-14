@@ -136,7 +136,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
     setEditing(false);
     setError(null);
     setCategoryError(null);
-    showToast('Category deleted. Its movies are in your default category.', true);
+    showToast('Category deleted. Its titles are in your default category.', true);
     return { success: true };
   };
 
@@ -319,7 +319,7 @@ function CategoryForm({ onClose, addOnly = false, onConfirmationChange }: Catego
           onConfirmationChange?.(open);
         }}
         title="Delete category?"
-        description={`Are you sure you want to delete “${deletingCategory?.name}”? Its movies will be kept in your default category.`}
+        description={`Are you sure you want to delete “${deletingCategory?.name}”? Its titles will be kept in your default category.`}
         onConfirm={handleDelete}
       />
     </>

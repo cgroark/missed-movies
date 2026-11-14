@@ -12,7 +12,7 @@ function FindMovies() {
       <TopMovies />
       <MobileNavigation $mobileOnly aria-label="Movie actions">
         <Link className="mobile-nav-item" to="/">
-          <span>My Movies</span> <FilmStripIcon size={24} />
+          <span>My Collection</span> <FilmStripIcon size={24} />
         </Link>
         <div className="mobile-logout">
           <Logout className="mobile-nav-item" />

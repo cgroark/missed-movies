@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Skeleton from '../ui/Skeleton';
 import { getMovieDirector } from '../../utils/movieCredits';
+import type { MediaType } from '../../types/types';
 
 const Metadata = styled.p`
   margin: 0 0 10px;
@@ -18,18 +19,20 @@ const Description = styled.p`
 interface MovieDetailsProps {
   movieId?: number;
   releaseDate: string;
+  mediaType: MediaType;
   overview: string;
 }
 
-export default function MovieDetails({ movieId, releaseDate, overview }: MovieDetailsProps) {
-  const [isLoadingDirector, setLoadingDirector] = useState(Boolean(movieId));
+export default function MovieDetails({ movieId, releaseDate, mediaType, overview }: MovieDetailsProps) {
+  const [isLoadingDirector, setLoadingDirector] = useState(Boolean(movieId) && mediaType === 'movie');
   const [director, setDirector] = useState('');
 
   useEffect(() => {
     let ignore = false;
     setDirector('');
-    setLoadingDirector(Boolean(movieId));
-    if (movieId) {
+    const shouldLoadDirector = Boolean(movieId) && mediaType === 'movie';
+    setLoadingDirector(shouldLoadDirector);
+    if (shouldLoadDirector && movieId) {
       getMovieDirector(movieId)
         .then(name => {
           if (!ignore) setDirector(name);
@@ -44,7 +47,7 @@ export default function MovieDetails({ movieId, releaseDate, overview }: MovieDe
     return () => {
       ignore = true;
     };
-  }, [movieId]);
+  }, [movieId, mediaType]);
 
   const metadata = [releaseDate?.split('-')[0], director && `Directed by ${director}`]
     .filter(Boolean)

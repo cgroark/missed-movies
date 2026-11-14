@@ -11,8 +11,11 @@ import {
   CategoryControls,
   CategoryList,
   CategoryButton,
+  MediaTypeSwitch,
+  MediaTypeButton,
 } from '../ui/CategoryTabs';
 import MovieListSkeleton from './MovieListSkeleton';
+import type { MediaType } from '../../types/types';
 
 const StyledLink = styled(Link)`
   background-color: var(--pink);
@@ -73,9 +76,18 @@ const categories = [
   },
 ];
 
+const tvCategories = [
+  { slug: 'trending', text: 'Trending' },
+  { slug: 'popular', text: 'Popular' },
+  { slug: 'top_rated', text: 'Top Rated' },
+  { slug: 'airing_today', text: 'Airing Today' },
+  { slug: 'on_the_air', text: 'On the Air' },
+];
+
 function TopMovies() {
   const [movies, setMovies] = useState<movie[]>([]);
   const [category, setCategory] = useState<string>('top_rated');
+  const [mediaType, setMediaType] = useState<MediaType>('movie');
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(Infinity);
   const [selectedMovie, setSelectedMovie] = useState<movie | null>(null);
@@ -99,13 +111,25 @@ function TopMovies() {
     const findMovies = async () => {
       try {
         const res = await fetch(
-          `https://api.themoviedb.org/3/movie/${category}?page=${String(page)}`,
+          `https://api.themoviedb.org/3/${category === 'trending' ? `trending/${mediaType}/day` : `${mediaType}/${category}`}?page=${String(page)}`,
           options
         );
         if (!res.ok) throw new Error('error fetching');
         const data: JSONSearchResults = await res.json();
         if (!ignore) {
-          setMovies(prev => [...prev, ...data.results]);
+          const normalized = data.results.map(result =>
+            mediaType === 'tv'
+              ? {
+                  ...result,
+                  title: result.name || result.title,
+                  name: result.name || result.title,
+                  media_type: 'tv' as const,
+                  release_date: result.first_air_date || result.release_date || '',
+                  first_air_date: result.first_air_date || result.release_date || '',
+                }
+              : { ...result, media_type: 'movie' as const }
+          );
+          setMovies(prev => [...prev, ...normalized]);
           setTotalPages(data.total_pages);
         }
       } catch (err) {
@@ -118,7 +142,7 @@ function TopMovies() {
     return () => {
       ignore = true;
     };
-  }, [category, page]);
+  }, [category, mediaType, page]);
 
   useEffect(() => {
     if (observerRef.current) observerRef.current.disconnect();
@@ -151,7 +175,12 @@ function TopMovies() {
     setMovies([]);
     setTotalPages(Infinity);
     setPage(1);
-  }, [category]);
+  }, [category, mediaType]);
+
+  const selectMediaType = (nextType: MediaType) => {
+    setMediaType(nextType);
+    setCategory(nextType === 'tv' ? 'trending' : 'top_rated');
+  };
 
   const handleAdd = (movie: movie) => {
     setModalAction('add');
@@ -171,10 +200,22 @@ function TopMovies() {
 
   return (
     <>
-      <CategoryToolbar aria-label="Browse movies">
+      <MediaTypeSwitch role="group" aria-label="Browse movies or TV shows">
+        {([{ value: 'movie', label: 'Movies' }, { value: 'tv', label: 'TV Shows' }] as const).map(tab => (
+          <MediaTypeButton
+            key={tab.value}
+            type="button"
+            aria-pressed={mediaType === tab.value}
+            onClick={() => selectMediaType(tab.value)}
+          >
+            {tab.label}
+          </MediaTypeButton>
+        ))}
+      </MediaTypeSwitch>
+      <CategoryToolbar aria-label={`Browse ${mediaType === 'movie' ? 'movies' : 'TV shows'}`}>
         <CategoryControls>
           <CategoryList>
-            {categories.map(each => (
+            {(mediaType === 'tv' ? tvCategories : categories).map(each => (
               <li key={each.slug}>
                 <CategoryButton
                   aria-pressed={category === each.slug}
@@ -197,7 +238,7 @@ function TopMovies() {
               <div ref={loaderRef} style={{ height: '40px' }} />
               {isLoading && <MovieListSkeleton count={6} />}
               <StyledLink className="floater" to="/">
-                View Movies
+                My Collection
                 <FilmStripIcon size={24} />
               </StyledLink>
             </>

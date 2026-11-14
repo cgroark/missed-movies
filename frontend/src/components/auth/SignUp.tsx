@@ -221,7 +221,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
       }
       setPassword('');
       setConfirmPassword('');
-      setMessage('Your password has been updated. You can return to your movies.');
+      setMessage('Your password has been updated. You can return to your collection.');
       setShowForm(false);
       return;
     }
@@ -270,7 +270,7 @@ function SignUp({ resetPassword = false }: { resetPassword?: boolean }) {
       }}
     >
       {mode === 'reset'
-        ? 'Go to my movies'
+        ? 'Go to my collection'
         : mode === 'login' && showForm
           ? 'Sign up for an account'
           : 'Back to sign in'}
