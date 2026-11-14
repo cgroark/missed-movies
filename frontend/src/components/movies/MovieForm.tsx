@@ -7,6 +7,7 @@ import {
   TrashIcon,
   PlusIcon,
 } from '@phosphor-icons/react';
+import { StarIcon } from '@phosphor-icons/react';
 import { useMovies } from '../../context/MoviesContext';
 import { useCategories } from '../../context/CategoriesContext';
 import { useToast } from '../../context/ToastContext';
@@ -34,6 +35,35 @@ const AddCategoryButton = styled.button`
     }
 
     width: fit-content;
+  }
+`;
+
+const RatingField = styled.fieldset`
+  border: 0;
+  padding: 0;
+  margin: 0 0 20px;
+
+  legend {
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+`;
+
+const RatingChoices = styled.div`
+  display: flex;
+  gap: 6px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 4px;
+    border: 0;
+    background: transparent;
+    color: #d4a943;
+    box-shadow: none;
   }
 `;
 
@@ -69,6 +99,7 @@ function MovieForm({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [category, setCategory] = useState<number | ''>('');
   const [movieStatus, setMovieStatus] = useState<number | ''>('');
+  const [rating, setRating] = useState<number | null>(null);
   const [pendingAction, setPendingAction] = useState<'save' | 'delete' | null>(null);
   const [feError, setFeError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -82,6 +113,7 @@ function MovieForm({
     if (currentMovie?.status) {
       setMovieStatus(currentMovie.status);
       setCategory(currentMovie.category);
+      setRating(currentMovie.rating ?? null);
     }
   }, [currentMovie]);
 
@@ -104,6 +136,7 @@ function MovieForm({
             id: currentMovie.id,
             category,
             status: movieStatus,
+            rating,
           }
         : {
             movie_id: currentMovie.id,
@@ -227,7 +260,9 @@ function MovieForm({
               aria-describedby={fieldErrors.status ? 'status-error' : undefined}
               onFocus={() => clearField('status')}
               onChange={e => {
-                setMovieStatus(Number(e.target.value));
+                const nextStatus = Number(e.target.value);
+                setMovieStatus(nextStatus);
+                if (nextStatus !== 2) setRating(null);
                 clearField('status');
                 setFeError(null);
                 setError(null);
@@ -241,6 +276,31 @@ function MovieForm({
             </select>
           </div>
           {fieldErrors.status && <FieldError id="status-error">{fieldErrors.status}</FieldError>}
+          {action === 'edit' && movieStatus === 2 && (
+            <RatingField>
+              <legend>Your rating</legend>
+              <RatingChoices role="radiogroup" aria-label="Your rating">
+                {[1, 2, 3, 4, 5].map(value => (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={rating === value}
+                    aria-label={`${value} ${value === 1 ? 'star' : 'stars'}`}
+                    title={`${value} ${value === 1 ? 'star' : 'stars'}`}
+                    onClick={() => setRating(value)}
+                  >
+                    <StarIcon size={26} weight={rating !== null && value <= rating ? 'fill' : 'regular'} />
+                  </button>
+                ))}
+                {rating !== null && (
+                  <button type="button" aria-label="Clear rating" onClick={() => setRating(null)}>
+                    Clear
+                  </button>
+                )}
+              </RatingChoices>
+            </RatingField>
+          )}
           {(feError || error) && <FormError>{feError || error}</FormError>}
           <FormActions>
             {action === 'edit' && (

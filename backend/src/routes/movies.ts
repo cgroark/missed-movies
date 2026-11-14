@@ -92,6 +92,8 @@ movieRouter.post('/', async (req, res) => {
 
 movieRouter.patch('/:id', async (req, res) => {
   try {
+    const user = await getUserFromRequest(req, res);
+    if (!user) return;
     const { id } = req.params;
     const movieItem: Partial<movie> = req.body;
 
@@ -103,7 +105,47 @@ movieRouter.patch('/:id', async (req, res) => {
       });
     }
 
-    const { data, error } = await supabase.from('movies').update([movieItem]).eq('id', id).select();
+    const { data: existingMovie, error: lookupError } = await supabase
+      .from('movies')
+      .select('status')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
+    if (!existingMovie) {
+      return res.status(404).json({
+        success: false,
+        code: 'NOT_FOUND',
+        error: 'Movie not found',
+      });
+    }
+
+    const nextStatus = movieItem.status ?? existingMovie.status;
+    if (movieItem.rating != null && nextStatus !== 2) {
+      return res.status(400).json({
+        success: false,
+        code: 'RATING_REQUIRES_WATCHED',
+        error: 'Only watched movies can have a rating.',
+      });
+    }
+    if (nextStatus !== 2) movieItem.rating = null;
+
+    if (movieItem.rating !== undefined && movieItem.rating !== null &&
+      (!Number.isInteger(movieItem.rating) || movieItem.rating < 1 || movieItem.rating > 5)) {
+      return res.status(400).json({
+        success: false,
+        code: 'INVALID_RATING',
+        error: 'Rating must be an integer from 1 to 5.',
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('movies')
+      .update([movieItem])
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select();
 
     if (error) throw error;
 

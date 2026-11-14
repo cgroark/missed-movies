@@ -218,6 +218,50 @@ const ErrorField = styled.div`
     margin: 0;
   }
 `;
+
+const AppliedFilters = styled.div`
+  box-sizing: border-box;
+  width: calc(100% - 40px);
+  max-width: 1205px;
+  margin: -12px auto 22px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+`;
+
+const FilterBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 30px;
+  padding: 3px 5px 3px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(70, 213, 187, 0.28);
+  background: rgba(28, 72, 66, 0.58);
+  color: var(--offWhite);
+  font-size: 0.76rem;
+  line-height: 1.2;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    min-height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(249, 244, 218, 0.12);
+    color: var(--offWhite);
+    box-shadow: none;
+
+    &:hover {
+      background: rgba(249, 244, 218, 0.24);
+    }
+  }
+`;
 function MyMovies() {
   const {
     movies,
@@ -237,7 +281,9 @@ function MyMovies() {
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const categoryParam = Number(searchParams.get('category')) || 1;
+    const categoryValue = searchParams.get('category');
+    const categoryParam = categoryValue === null ? 1 : Number(categoryValue);
+    const selectedCategory = categoryParam > 0 ? categoryParam : null;
     const statusParam = Number(searchParams.get('status'));
     const sortByKeyParam = searchParams.get('sortBy') || 'title';
     const ascendingParam = searchParams.get('asc') !== 'false';
@@ -246,9 +292,9 @@ function MyMovies() {
       each => each.key === sortByKeyParam && each.ascending === ascendingParam
     );
     if (currentSort) setSortBy(currentSort);
-    setActiveCategory(categoryParam);
+    setActiveCategory(selectedCategory);
     setStatus(statusParam);
-    getMovies(categoryParam, currentSort, statusParam);
+    getMovies(selectedCategory ?? undefined, currentSort, statusParam);
   }, [searchParams]);
 
   useEffect(() => {
@@ -314,6 +360,26 @@ function MyMovies() {
     });
   };
 
+  const clearCategoryFilter = () => {
+    setActiveCategory(null);
+    setSearchParams({
+      sortBy: sortBy.key,
+      asc: String(sortBy.ascending),
+      category: '0',
+      status: String(status),
+    });
+  };
+
+  const clearStatusFilter = () => {
+    setStatus(0);
+    setSearchParams({
+      sortBy: sortBy.key,
+      asc: String(sortBy.ascending),
+      category: String(activeCategory ?? 0),
+      status: '0',
+    });
+  };
+
   return (
     <>
       {categories.length > 0 && (
@@ -347,6 +413,36 @@ function MyMovies() {
               </ManageCategories>
             </CategoryControls>
           </CategoryToolbar>
+          {(activeCategory !== null || status !== 0) && (
+            <AppliedFilters aria-label="Applied filters">
+              {activeCategory !== null && (
+                <FilterBadge>
+                  Category: {categories.find(each => each.id === activeCategory)?.name ?? 'Selected'}
+                  <button
+                    type="button"
+                    aria-label="Remove category filter"
+                    title="Remove category filter"
+                    onClick={clearCategoryFilter}
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </FilterBadge>
+              )}
+              {status !== 0 && (
+                <FilterBadge>
+                  Status: {statusOptions.find(each => each.value === status)?.label ?? 'Filtered'}
+                  <button
+                    type="button"
+                    aria-label="Remove watch status filter"
+                    title="Remove watch status filter"
+                    onClick={clearStatusFilter}
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </FilterBadge>
+              )}
+            </AppliedFilters>
+          )}
           {categoryError && <ErrorField>{categoryError}</ErrorField>}
           <MobileNavigation aria-label="Movie actions">
             <StyledLink className="floater mobile-nav-item" to="/search">

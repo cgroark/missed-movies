@@ -9,6 +9,7 @@ export interface movie {
   overview: string;
   genre_ids: number[];
   user_id: string | undefined;
+  rating?: number | null;
 }
 
 export interface category {

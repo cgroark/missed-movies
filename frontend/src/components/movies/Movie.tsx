@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { movie } from '../../types/types';
 import { CheckFatIcon, PencilIcon, PlusIcon } from '@phosphor-icons/react';
+import { StarIcon } from '@phosphor-icons/react';
 import styled from 'styled-components';
 import AccordionSection from '../ui/Accordion';
 import MovieDetails from './MovieDetails';
@@ -98,6 +99,13 @@ const OpenButton = styled.button`
   }
 `;
 
+const RatingDisplay = styled.div`
+  display: flex;
+  gap: 2px;
+  margin: 10px 0 4px;
+  color: #d4a943;
+`;
+
 function Movie({ movie, onEdit, onAdd }: MovieProps) {
   const [loaded, setLoaded] = useState(false);
   const location = useLocation();
@@ -127,6 +135,13 @@ function Movie({ movie, onEdit, onAdd }: MovieProps) {
             </OpenButton>
           )}
         </MovieItem>
+        {movie.status === 2 && movie.rating != null && movie.rating >= 1 && movie.rating <= 5 && (
+          <RatingDisplay role="img" aria-label={`Your rating: ${movie.rating} out of 5 stars`}>
+            {[1, 2, 3, 4, 5].map(value => (
+              <StarIcon key={value} size={18} weight={value <= movie.rating! ? 'fill' : 'regular'} />
+            ))}
+          </RatingDisplay>
+        )}
         <AccordionSection
           title="Details"
           content={

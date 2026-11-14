@@ -13,11 +13,11 @@ interface MoviesContextType {
   status: number;
   sortBy: SortOption;
   setError: (error: string | null) => void;
-  setActiveCategory: (id: number) => void;
+  setActiveCategory: (id: number | null) => void;
   setStatus: (status: number) => void;
   setSortBy: (sort: SortOption) => void;
   getMovies: (
-    category?: number,
+    category?: number | null,
     sortBy?: SortOption,
     status?: number
   ) => Promise<{ success: boolean; data: movie[] }>;
